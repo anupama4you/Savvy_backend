@@ -1,8 +1,14 @@
-public with sharing class AssetOptionDTO {
-
+public class AssetOptionDTO {
+	@AuraEnabled
 	public String code {set;get;}
+
+	@AuraEnabled
 	public String name {set;get;}
+
+	@AuraEnabled
 	public String typeOption {set;get;}
+
+	@AuraEnabled
 	public Decimal value {set;get;}
 
 	public AssetOptionDTO(String typeOption) {

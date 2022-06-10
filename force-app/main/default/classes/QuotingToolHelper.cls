@@ -398,10 +398,12 @@ public class QuotingToolHelper {
         return r;
     }
     
+    @AuraEnabled
     public static Application_Quoting__c getApplicationQuoting(Id objId) {
         return getApplicationQuoting(null, objId);
     }
     
+    @AuraEnabled
     public static Application_Quoting__c getApplicationQuoting(Id oppId, Id appId) {
         List<Application_Quoting__c> r = null;
         String wh = null;

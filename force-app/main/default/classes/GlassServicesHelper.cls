@@ -86,6 +86,7 @@ public with sharing class GlassServicesHelper {
             SELECT Family__c FROM Glass_Variant__c
             where Make__c = :code AND Year__c = :y GROUP BY Family__c ORDER BY Family__c ASC
         ];
+
         // String yearFilter = '%' + year + '%';
         // if ('new'.equals(newused) || 'demo'.equals(newused)) {
         //     data = [Select o.Id, o.Code__c, o.Name, o.New_Years__c, o.Used_Years__c From Glass_Model__c o Where Make__r.Code__c = :code And o.New_Years__c like :yearFilter Order by o.Name];
@@ -124,6 +125,8 @@ public with sharing class GlassServicesHelper {
     }
     
     public static List <SelectOption> getMakeModelsSelectOptionsRedbook(String code, String year){
+
+        system.debug('yyyyy'+ code + year);
         if (String.isBlank(code)) {
             return null;
         }
@@ -530,10 +533,12 @@ public with sharing class GlassServicesHelper {
     }
     
     public static Map<String, List<AssetOptionDTO>> getVariantOptionsByCode(String code) {
+        system.debug('variantOptions:::code-->'+ code);
         Map<String, List<AssetOptionDTO>> r = new Map<String, List<AssetOptionDTO>>();
         if(!String.isBlank(code)){
             List<Glass_Variant_Option__c> data = [SELECT Type_Option__c, Options__c FROM Glass_Variant_Option__c 
                                                   WHERE Variant_Code__c = :code];
+                            system.debug('variantOptions:::r-->'+ data);
             loadTypeOptionsMap();
             for (Glass_Variant_Option__c v : data) {
                 List<AssetOptionDTO> dtos = AssetOptionDTO.build(v.Type_Option__c, v.Options__c);
@@ -542,6 +547,7 @@ public with sharing class GlassServicesHelper {
                 }
                 r.put(v.Type_Option__c, dtos);
             }
+            system.debug('variantOptions:::r-->'+ r);
         }
         return r;
     }
@@ -726,6 +732,8 @@ public with sharing class GlassServicesHelper {
     }
     
     public static Glass_Variant__c getGlassCarAux(Parameter param) {
+        system.debug('param ID Car'+ param.IdCar);
+
         List<Glass_Variant__c> r = [SELECT Id, Name, Average_Kms__c, Engine__c, KM_Category__c, CC__c, Code__c, Model__r.Type_Source__c,
                                     New_Price__c, NVIC__c, Release_Date__c, Retail_Price__c, Style__c, Trade_Low_Price__c,
                                     Trade_Price__c, Transmission__c, Year__c, Make__c, Family__c, Description__c, Series__c,
@@ -749,22 +757,6 @@ public with sharing class GlassServicesHelper {
     //     return 'OLDER LIGHT COMMERCIAL';
     // }
     
-    public class Parameter {
-        public String condition {get;set;}
-        public String year {set; get;}
-        public String make {set; get;}
-        public String family {set; get;}
-        public String variantCode {set; get;}
-        public String variant {set; get;}
-        public String serie {set; get;}
-        public String color {set; get;}
-        public String accesories {set; get;}
-        public String state {set; get;}
-        public String IdCar {set; get;}
-        public String idOpp {set; get;}
-        public Integer sizeCars {set; get;}
-        public Parameter(){}
-    }
     
     //By Yohan Villamizar 10-04-2019
     public static Glass_Variant__c getGlassCarByCode(Parameter param) {
