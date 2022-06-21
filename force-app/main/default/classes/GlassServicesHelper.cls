@@ -774,6 +774,7 @@ public with sharing class GlassServicesHelper {
     }
     
     public static String getCodeModel(Parameter param) {
+        system.debug('glass service print::'+ param);
         Decimal year = Decimal.valueOf(param.year);
         String make = param.make;
         String family = param.family;

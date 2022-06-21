@@ -1,60 +1,112 @@
-public class AssetDetailsDTO {
+public with sharing class AssetDetailsDTO {
+    @AuraEnabled
     public Glass_Variant__c variantObj {get;set;}
+    @AuraEnabled
     public String modelTypeSource {get;set;}
+    @AuraEnabled
     public String model {get;set;}
+    @AuraEnabled
     public String make {get;set;}
+    @AuraEnabled
     public String options {get;set;}
+    @AuraEnabled
     public String newUsed {get;set;}
+    @AuraEnabled
     public List <Glass_Factory_Option__c> assetStandardFeautersData {get;set;}
+    @AuraEnabled
     public List <AssetOptionDTO> assetStandardFeautersData2 {get;set;}
+    @AuraEnabled
     public Decimal totalPriceOptions {get;set;}
+    @AuraEnabled
     public Decimal totalTradeLowPriceOptions {get;set;}
+    @AuraEnabled
     public Decimal totalTradePriceOptions {get;set;}
+    @AuraEnabled
     public Decimal totalRetailPriceOptions {get;set;}
     //LTV
+    @AuraEnabled
     public String lender {get;set;}
+    @AuraEnabled
     public String typeLoan {get;set;}
+    @AuraEnabled
     public String carPrice {get;set;}
-	public String deposit {get;set;}   
+    @AuraEnabled
+	public String deposit {get;set;}
+    @AuraEnabled   
     public String warranty {get;set;}   
+    @AuraEnabled
     public String gap {get;set;}   
+    @AuraEnabled
     public String lpi {get;set;}   
+    @AuraEnabled
     public String lti {get;set;}
     //Calculated
+    @AuraEnabled
     public String carAge {get;set;}
+    @AuraEnabled
     public String fees {get;set;}
+    @AuraEnabled
     public String realFees {get;set;}
+    @AuraEnabled
     public String ltvLabel {get;set;}
+    @AuraEnabled
     public String ltvValue {get;set;}
+    @AuraEnabled
     public String naf {get;set;}
+    @AuraEnabled
     public String lvrLabel {get;set;}
+    @AuraEnabled
     public String lvrValue {get;set;}
+    @AuraEnabled
     public Integer actualKms {get;set;}
+    @AuraEnabled
     public Decimal totalTradeLowPriceKms {get;set;}
+    @AuraEnabled
     public Decimal totalTradePriceKms {get;set;}
+    @AuraEnabled
     public Decimal totalRetailPriceKms {get;set;}
+    @AuraEnabled
     public String purchaseType {get;set;}
+    @AuraEnabled
     public String contractNumber {get; set;}
     //Others vehicles
+     @AuraEnabled
     public String assetType {get;set;}
+     @AuraEnabled
     public String makeOVehicle {get;set;}
+     @AuraEnabled
     public String modelOVehicle {get;set;}
+     @AuraEnabled
     public String variantOVehicle {get;set;}
+     @AuraEnabled
     public String seriesOVehicle {get;set;}
+     @AuraEnabled
     public String year {get;set;}
     //Vendor Details
+     @AuraEnabled
     public String vendorName {get;set;}
+     @AuraEnabled
     public String vendorEmail {get;set;}
+     @AuraEnabled
     public String vendorAddress {get;set;}
+     @AuraEnabled
     public String vendorContact {get;set;}
+     @AuraEnabled
     public String vendorPhone {get;set;}
+     @AuraEnabled
     public String vendorMobile {get;set;}
     
+     @AuraEnabled
     public String rego {get;set;}
+     @AuraEnabled
     public String vin {get;set;}
+     @AuraEnabled
     public String engine {get;set;}
+     @AuraEnabled
     public String colour {get;set;}
+     @AuraEnabled
     public String regoState {get;set;}
+     @AuraEnabled
     public String redbookKey {get;set;}
 
     public AssetDetailsDTO() {

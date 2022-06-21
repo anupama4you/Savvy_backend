@@ -587,7 +587,7 @@ public class GlassServiceEstimatorExtension {
     private void loadSavedData() {
         System.debug('loadSavedData... ' + Opp.Application_AssetDetail__c);
         //dealerType = Opp.Dealer_Type__c;
-        System.debug('application asset detail', Opp.Application_AssetDetail__c);
+        // System.debug('application asset detail', Opp.Application_AssetDetail__c);
         if (Opp.Application_AssetDetail__c != null) {
             Application_Asset_Detail__c aad = Opp.Application_AssetDetail__r;
             assetType = aad.Type__c;    

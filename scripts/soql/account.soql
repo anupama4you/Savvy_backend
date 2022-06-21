@@ -28,3 +28,8 @@ select Id, Name, Application__c, Purchase_Type__c, Dealer_Name__c, Dealer_Contac
 
 
 Select o.Code__c, o.Name From Glass_Make__c o Where o.Code__c = 'AUD' limit 1
+
+SELECT Model__r.Code__c
+                                    FROM Glass_Variant__c t WHERE t.Year__c = 2018
+                                    AND t.Make__c = 'AUD' AND t.Family__c = 'Q5'
+                                    AND t.Description__c = '2.0 TDI QUATTRO DESIGN' AND t.Series__c = 'FY MY18' limit 1
