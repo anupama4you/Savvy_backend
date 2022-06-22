@@ -794,11 +794,13 @@ public with sharing class GlassServicesHelper {
     }
 
     public static Decimal calculateUsedOptions(List<String> options, String year) {
+        System.debug('calculateUsedOptions:::'+ options+ year);
       if(options == null || options.isEmpty() || String.isBlank(year)){
         return 0;
       }
 
       Integer yearOptions = Date.today().year() - Integer.valueOf(year);
+      System.debug('calculateUsedOptions--yearoptions:::'+yearOptions);
     
       if(yearOptions > 10){
         yearOptions = 10;
@@ -809,7 +811,8 @@ public with sharing class GlassServicesHelper {
           FROM Glass_Option_Adjustment__c 
           WHERE Years__c =: yearOptions AND Option__c IN:options
       ];
-      
+      System.debug('calculateUsedOptions:::'+ (Decimal)total.get(0).get('total'));
+
       return (Decimal)total.get(0).get('total') != null?(Decimal)total.get(0).get('total'):0;
     }
 }

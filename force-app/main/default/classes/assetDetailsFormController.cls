@@ -1026,7 +1026,68 @@ public with sharing class assetDetailsFormController {
     @AuraEnabled
     public static String insertAssetDetails(Application_Asset_Detail__c appAssetDetails, Custom_Opportunity__c oppt, AssetDetailsDTO dto,  String prefixFile){
         try {
+
+            // pdf saving part
+            PageReference pdf = Page.GlassServicePdf;
+            pdf.getParameters().put('id',oppt.Id);
+            pdf.getParameters().put('ASSET_TYPE', dto.assetType);
+            if ('Car'.equalsIgnoreCase(dto.assetType)) {
+                pdf.getParameters().put('VARIANT_CODE', dto.variantObj.Code__c);
+                pdf.getParameters().put('TYPE_SOURCE', dto.modelTypeSource);
+                pdf.getParameters().put('MAKE', dto.make);
+                pdf.getParameters().put('OPTIONS_CHECKED', dto.options);
+                pdf.getParameters().put('TOTAL_PRIECE_OPTIONS', String.valueOf(dto.totalPriceOptions));
+                pdf.getParameters().put('TOTAL_TRADE_LOW_OPTIONS', String.valueOf(dto.totalTradeLowPriceOptions));
+                pdf.getParameters().put('TOTAL_TRADE_OPTIONS', String.valueOf(dto.totalTradePriceOptions));
+                pdf.getParameters().put('TOTAL_RETAIL_OPTIONS', String.valueOf(dto.totalRetailPriceOptions));
+                pdf.getParameters().put('TOTAL_TRADE_LOW_KMS', String.valueOf(dto.totalTradeLowPriceKms));
+                pdf.getParameters().put('TOTAL_TRADE_KMS', String.valueOf(dto.totalTradePriceKms));
+                pdf.getParameters().put('TOTAL_RETAIL_KMS', String.valueOf(dto.totalRetailPriceKms));
+                pdf.getParameters().put('LVR_VALUE', dto.lvrValue);
+                pdf.getParameters().put('LTV_VALUE', dto.ltvValue);
+                
+            } else {
+                pdf.getParameters().put('MAKE_OVHEICLE', dto.makeOVehicle);
+                pdf.getParameters().put('MODEL_OVEHICLE', dto.modelOVehicle);
+                pdf.getParameters().put('VARIANT_OVEHICLE', dto.variantOVehicle);
+                pdf.getParameters().put('SERIES_OVEHICLE', dto.seriesOVehicle);
+                pdf.getParameters().put('YEAR', dto.year);
+                pdf.getParameters().put('LVR_VALUE', 'N/A');
+                pdf.getParameters().put('LTV_VALUE', 'N/A');
+            }
+            pdf.getParameters().put('NEWUSED', dto.newUsed);
+            pdf.getParameters().put('LENDER', dto.lender);
+            pdf.getParameters().put('TYPE_LOAN', dto.typeLoan);
+            pdf.getParameters().put('CAR_PRICE', dto.carPrice);
+            pdf.getParameters().put('DEPOSIT', dto.deposit);
+            pdf.getParameters().put('WARRANTY', dto.warranty);
+            pdf.getParameters().put('GAP', dto.gap);
+            pdf.getParameters().put('LPI', dto.lpi);
+            pdf.getParameters().put('LTI', dto.lti);
+            pdf.getParameters().put('CAR_AGE', dto.carAge);
+            pdf.getParameters().put('FEES', dto.fees);
+            pdf.getParameters().put('LTV_LABEL', dto.ltvLabel);
+            pdf.getParameters().put('NAF', dto.naf);
+            pdf.getParameters().put('LVR_LABEL', dto.lvrLabel);
+            pdf.getParameters().put('ACTUAL_KM', dto.actualKms.format());
+            pdf.getParameters().put('PURCHASE_TYPE', dto.purchaseType);
+            pdf.getParameters().put('CONTRACT_NUMBER', dto.contractNumber);
+            pdf.getParameters().put('VENDOR_NAME', dto.vendorName);
+            pdf.getParameters().put('VENDOR_CONTACT', dto.vendorContact);
+            pdf.getParameters().put('VENDOR_EMAIL', dto.vendorEmail);
+            pdf.getParameters().put('VENDOR_ADDRESS', dto.vendorAddress);
+            pdf.getParameters().put('VENDOR_PHONE', dto.vendorPhone);
+            pdf.getParameters().put('VENDOR_MOBILE', dto.vendorMobile);
+            pdf.getParameters().put('REGO', dto.rego);
+            pdf.getParameters().put('VIN', dto.vin);
+            pdf.getParameters().put('ENGINE', dto.engine);
+            pdf.getParameters().put('COLOUR', dto.colour);
+            pdf.getParameters().put('REGO_STATE', dto.regoState);
+            pdf.getParameters().put('REDBOOK_KEY', appAssetDetails.Redbook_Key__c);
+            
+            System.debug('saved >>> PDF :::'+ pdf);
             System.debug('insert >> asset details:::'+ appAssetDetails);
+            if(pdf != null){
                 if(appAssetDetails.Id == null){
                     insert appAssetDetails;
                     System.debug('inserted >>>'+appAssetDetails);
@@ -1057,11 +1118,11 @@ public with sharing class assetDetailsFormController {
                 } else if (prefixFile.equals('FORMAL_APPROVAL_')) {
                     typeData = 'Asset Detail - LTV (Formal Approval)';
                     isSaveCloud = true;
-                    // if(!Test.isRunningTest()) {
-                    //     if(this.Opp.Id != null){
-                    //         System.enqueueJob(new queueActiveDealerTagCallout(Opp)); 
-                    //     }
-                    // }
+                    if(!Test.isRunningTest()) {
+                        if(oppt.Id != null){
+                            System.enqueueJob(new queueActiveDealerTagCallout(oppt)); 
+                        }
+                    }
                 } else if (prefixFile.equals('AMENDMENT_')) {
                     typeData = 'Asset Detail - LTV (Amendment)';
                     isSaveCloud = true;
@@ -1073,7 +1134,10 @@ public with sharing class assetDetailsFormController {
                     System.debug('dto:::'+ dto);
                     ApplicationExtraDataHelper.upsertData(oppt.Application__c, 'Asset Detail ' + dto.lender, typeData, dto);
                 }
+                QuotingToolHelper.attachPdfFile(oppt.Id, prefixName, pdf, isSaveCloud);
                 return 'success';
+            }
+            return 'PDF doesn\'t have values';
 
         } catch (Exception e) {
             return e.getMessage();
