@@ -1,6 +1,6 @@
 @isTest(SeeAllData=true)
 public with sharing class assetDetailsFormControllerTest {
-    public static testMethod void testGetMakeSelectOptions(){
+    @isTest public static testMethod void testGetMakeSelectOptions(){
         // Get years
         Map<String,String> years = assetDetailsFormController.getYears('new');
         System.debug('Years for NEW >>', years.size());
@@ -57,7 +57,7 @@ public with sharing class assetDetailsFormControllerTest {
         
     }
 
-    public static testMethod void testGetMakeModelsSelectOptionsAux(){
+    @isTest public static testMethod void testGetMakeModelsSelectOptionsAux(){
         Map<String,String> makeModelAux = assetDetailsFormController.getMakeModelsSelectOptionsAux('AUD','used','2017');
         System.debug('Make Model Select Options : AUX >>', makeModelAux.size());
 
@@ -84,6 +84,141 @@ public with sharing class assetDetailsFormControllerTest {
 
         Map<String,String> badgeVariantSelectOptions = assetDetailsFormController.getBadgeVariantsSelectOptions('HOND','CIVIC','VTi');
         System.debug('Batch Variant Select Options >>', badgeVariantSelectOptions.size());
+
+        Map<String,String> variantOptionsSelect = assetDetailsFormController.getVariantFactoryOptionsSelectOptions('AUDQ3-1T1514T622016A');
+        System.debug('Variant Factory Select Options >>', variantOptionsSelect.size());
+    }
+
+    @isTest public static testMethod void testGetOptions(){
+        List <Glass_Factory_Option__c> v = assetDetailsFormController.getVariantFactoryOptionsData('AUDQ3-1T1514T622016A');
+        if (v != null)
+            System.debug('Variant Factory Options Data >>', variantOptionsSelect.size());
+
+        Map<String, Glass_Factory_Option__c> variantOptionsMapData = assetDetailsFormController.getVariantFactoryOptionsMapData('AUDQ3-1T1514T622016A');
+        System.debug('Variant Options Map Data >>', variantOptionsMapData.size());
+
+        v = assetDetailsFormController.getVariantStandardFactoryOptionsData('AUDQ3-1T1514T622016A');
+        System.debug('Variant Standard Factory Options >>',  v.size());
+
+        v = assetDetailsFormController.getVariantStandardFactoryOptionsData(null);
+        System.debug('Variant Standard Factory Options >>',  v.size());
+
+        Decimal variantNewPrice = assetDetailsFormController.getVariantNewPrice('AUDQ3-1T1514T622016A');
+        System.debug('Variant New Price >>',  variantNewPrice);
+
+        Glass_Variant__c variantByCode = assetDetailsFormController.getVariantByCode('AUDQ3-1T1514T622016A');
+        System.debug('Variant By Code >>',  variantByCode);
+
+        Glass_Make__c makeByCode = assetDetailsFormController.getMakeByCode('AUDQ3-1T1514T622016A');
+        System.debug('Make By Code >>',  makeByCode);
+
+        Glass_Model__c modelByCode = assetDetailsFormController.getModelByCode('AUDQ3-1T1514T622016A');
+        System.debug('Model By Code >>',  modelByCode);
+
+        Redbook_Family__c familyByCode = assetDetailsFormController.getFamilyByCode('AUDQ3-1T1514T622016A');
+        System.debug('Family By Code >>',  familyByCode);
+
+        Redbook_Vehicle__c vehicleByCode = assetDetailsFormController.getVehicleByCode('AUDQ3-1T1514T622016A');
+        System.debug('Vehicle By Code >>',  vehicleByCode);
+
+        RedbookVehicleDTO vehicleByRedbook = assetDetailsFormController.getVehicle('AUVHOND2017AEAE', null);
+        System.debug('Vehicle By Redbook >>',  vehicleByRedbook);
+
+        RedbookVehicleDTO vehicleByCode = assetDetailsFormController.getVehicle(null, 'AUVHOND2017AEAE');
+        System.debug('Vehicle By Code >>',  vehicleByCode);
+
+        RedbookVehicleDTO vehicleByCode = assetDetailsFormController.calculateAdjustment(null, 'AUVHOND2017AEAE');
+        System.debug('Vehicle By Code >>',  vehicleByCode);
+
+        Decimal num = assetDetailsFormController.calculateAdjustment('A', 70000, 50000);
+        System.debug('calculate Adjustment #1 >>',  num);
+        Decimal num = assetDetailsFormController.calculateAdjustment('B', 70000, 50000);
+        System.debug('calculate Adjustment #2 >>',  num);
+        Decimal num = assetDetailsFormController.calculateAdjustment('C', 70000, 50000);
+        System.debug('calculate Adjustment #3 >>',  num);
+        Decimal num = assetDetailsFormController.calculateAdjustment('E', 70000, 50000);
+        System.debug('calculate Adjustment #4 >>',  num);
+        Decimal num = assetDetailsFormController.calculateAdjustment('F', 70000, 50000);
+        System.debug('calculate Adjustment #5 >>',  num);
+        Decimal num = assetDetailsFormController.calculateAdjustment('G', 70000, 50000);
+        System.debug('calculate Adjustment #6 >>',  num);
+        Decimal num = assetDetailsFormController.calculateAdjustment('G', 150000, 50000);
+        System.debug('calculate Adjustment #7 >>',  num);
+        Decimal num = assetDetailsFormController.calculateAdjustment('G', 150001, 50000);
+        System.debug('calculate Adjustment #8 >>',  num);
+
+        assetDetailsFormController.loadTypeOptionsMap();
+
+        Map<String, List<AssetOptionDTO>> variantOptionsByCode = assetDetailsFormController.getVariantOptionsByCode('AUDQ3-1T1514T622016A');
+        System.debug('Variant Options by Code >>', variantOptionsByCode.size());
+
+        List<AssetOptionDTO> variantOptionsByCodeNType = assetDetailsFormController.getVariantOptionsByCodeAndType('AUDQ3-1T1514T622016A', 'Standard');
+        System.debug('Variant Options by Code & Type >>', variantOptionsByCodeNType.size());
+
+        boolean redbookLenders = assetDetailsFormController.validateRedBookLenders('Pepper');
+        System.debug('Validate Redbook Lenders >>', redbookLenders.size());
         
+    }
+
+    @isTest public static testMethod void testGetMakeModelsSelectOptionsAux(){
+        GlassServicesHelper.Parameter p = new GlassServicesHelper.Parameter();
+        p.year = '2017';
+        p.make = 'AUD';
+        p.family = 'A1';
+        p.variant = 'SPORTBACK 1.0 TFSI';
+        p.serie = '8X MY17';
+        p.IdCar = 'AUDA1-SI1710UV02017A';
+        Map<String,String> glassFamily = assetDetailsFormController.getGlassFamily(p);
+        System.debug('Glass Family >>', glassFamily.size());
+
+        Map<String,String> glassVariant = assetDetailsFormController.getGlassVariant(p);
+        System.debug('Glass Variant >>', glassVariant.size());
+
+        Map<String,String> glassSeries = assetDetailsFormController.getGlassSeries(p);
+        System.debug('Glass Series >>', glassSeries.size());
+
+        Integer glassCarsSize = assetDetailsFormController.getGlassCarsSize(p);
+        System.debug('Glass Cars Size >>', glassCarsSize);
+
+        List<Glass_Variant__c> glassCars = assetDetailsFormController.getGlassCars(p);
+        System.debug('Glass Cars >>', glassCars);
+
+        Double rRP = assetDetailsFormController.getRRP(p);
+        System.debug('RRP >>', rRP);
+
+        Glass_Variant__c glassCar = assetDetailsFormController.getGlassCar(p);
+        System.debug('Glass Car >>', glassCar);
+
+        Glass_Variant__c glassCarByCode = assetDetailsFormController.getGlassCarByCode(p);
+        System.debug('Glass car by Code >>', glassCarByCode);
+
+        Glass_Variant__c codeModel = assetDetailsFormController.getCodeModel(p);
+        System.debug('Code Model >>', codeModel);
+
+        CarListDTO carsList = assetDetailsFormController.getCarsList(p);
+        System.debug('Cars List >>', carsList);
+
+        VariantFactoryDTO variantFactoryOptions = assetDetailsFormController.getVariantFactoryOptions(p);
+        System.debug('Variant Factory Options >>', variantFactoryOptions);
+
+        Decimal calculatedUsedOptions = assetDetailsFormController.calculateUsedOptions(new List<String>{'AW19'}, '2018');
+        System.debug('Calculated Used Options #1 >>', calculatedUsedOptions);
+        Decimal calculatedUsedOptions = assetDetailsFormController.calculateUsedOptions(new List<String>{'AW19'}, '2010');
+        System.debug('Calculated Used Options #2 >>', calculatedUsedOptions);
+        Decimal calculatedUsedOptions = assetDetailsFormController.calculateUsedOptions(new List<String>(), '2010');
+        System.debug('Calculated Used Options #3 >>', calculatedUsedOptions);
+
+        Map<String, String>  streetTypeOptions = assetDetailsFormController.getStreetTypeOptions();
+        System.debug('Street Type Options >>', streetTypeOptions.size());
+
+        Map<String, String>  stateOptions = assetDetailsFormController.getStatesOptions();
+        System.debug('States Options >>', stateOptions.size());
+
+        Map<String, String>  stateOptions = assetDetailsFormController.getStatesOptions();
+        System.debug('States Options >>', stateOptions.size());
+
+        Application_Quoting__c applicationQuoting = assetDetailsFormController.getApplicationQuoting('a011y000002yBH1AAM','a0E1y000003WczGEAS');
+        System.debug('Application Quoting >>', applicationQuoting);
+
     }
 }
