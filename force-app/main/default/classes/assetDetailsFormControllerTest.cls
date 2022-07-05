@@ -1,5 +1,5 @@
 @isTest(SeeAllData=true)
-public with sharing class assetDetailsFormControllerTest {
+private class assetDetailsFormControllerTest {
     @isTest public static testMethod void testGetMakeSelectOptions(){
         // Get years
         Map<String,String> years = assetDetailsFormController.getYears('new');

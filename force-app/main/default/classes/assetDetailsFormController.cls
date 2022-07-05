@@ -1,6 +1,5 @@
 public with sharing class assetDetailsFormController {
     public static Integer sizeCarsVD {set; get;}
-    public static Map<String, Glass_Variant__c> recordGlassVariant {set; get;}
     private static Map<String, String> typeOptionsMap;
     private static List<String> redBookLenders = new List<String> {'Pepper', 'RateSetter'};
 
@@ -272,23 +271,6 @@ public with sharing class assetDetailsFormController {
         return li.get(0);
     }
 
-    @AuraEnabled        
-    public static Map<String,String> getPicklistValues(String objectAPIName, String fieldAPIName){
-        Map<String,String> pickListValuesMap = new Map<String,String>();
-        Schema.SObjectType convertToObj = Schema.getGlobalDescribe().get(objectAPIName);
-        Schema.DescribeSObjectResult descResult = convertToObj.getDescribe();
-        Schema.DescribeFieldResult fieldResult = descResult.fields.getMap().get(fieldAPIName).getDescribe();
-        Boolean isFieldNotRequired = fieldResult.isNillable();
-        List<Schema.PicklistEntry> ple = fieldResult.getPicklistValues();
-        for(Schema.PicklistEntry pickListVal : ple){
-            if(isFieldNotRequired)
-                pickListValuesMap.put('--None--', '');
-            if(pickListVal.isActive())
-                pickListValuesMap.put(pickListVal.getLabel(), pickListVal.getValue());
-        }
-        return pickListValuesMap;
-    }
-
     @AuraEnabled(cacheable=true)
     public static Map<String,String> getYears(String newUsed) {
         return getYears(newUsed.toLowerCase(), 'Car');
@@ -296,24 +278,19 @@ public with sharing class assetDetailsFormController {
 
     @AuraEnabled(cacheable=true)
     public static Map<String,String> getYears(String newUsed, String assetType) {
-                                                                                                   
-        try {
+                                                                                                  
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getYears(newUsed, assetType);
       
             for (SelectOption o : a) {
                 r.put(o.getValue(), o.getLabel());
             }
-    
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getMakeSelectOptions(String newUsed, String year){
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getMakeSelectOptions(newUsed, year);
     
@@ -321,15 +298,11 @@ public with sharing class assetDetailsFormController {
                 r.put(o.getValue(), o.getLabel());
             }
             return r;
-        } catch (Exception e) {
-            system.debug(e.getMessage());
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getMakeSelectOptionRedBook(String year){
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getMakeSelectOptionRedBook(year);
     
@@ -338,15 +311,12 @@ public with sharing class assetDetailsFormController {
             }
     
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     // NEW METHOD
     @AuraEnabled
     public static MakeModelDTO getMakeModelsSelectOptions(CarsWrapper wrapper){
-        try {
+        
             
             system.debug('getMakeModelsSelectOptions:::'+ wrapper);
 
@@ -380,8 +350,6 @@ public with sharing class assetDetailsFormController {
     
             }
 
-            system.debug('xxxx:::'+ rEd);
-
             // glass 
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getMakeModelsSelectOptionsAux(wrapper.make, wrapper.newUsed, wrapper.year);
@@ -395,15 +363,11 @@ public with sharing class assetDetailsFormController {
             md.redObj = rEd;
 
             return md;
-            
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getMakeModelsSelectOptionsAux(String code, String newUsed, String year){
-        try {
+        
             System.debug('parameters :::' + code + '|' + newused + '|' + year);
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getMakeModelsSelectOptionsAux(code, newUsed, year);
@@ -419,17 +383,12 @@ public with sharing class assetDetailsFormController {
                 r.put(o.getValue(), o.getLabel());
             }
 
-
-
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getMakeModelsSelectOptionsRedbook(String code, String year){
-        try {
+        
             system.debug(code+ ':::::'+ year);
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getMakeModelsSelectOptionsRedbook(code, year);
@@ -439,25 +398,18 @@ public with sharing class assetDetailsFormController {
             }
     
             return r;
-        } catch (Exception e) {
-            system.debug(e.getMessage());
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static string searchMakeRedbookCode(String code, String newUsed, String year){
-        try {
+        
             string s = GlassServicesHelper.searchMakeRedbookCode(code, newUsed, year);
             return s;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getModelVariantsSelectOptions(String code, String year){
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getModelVariantsSelectOptions(code, year);
     
@@ -466,14 +418,11 @@ public with sharing class assetDetailsFormController {
             }
     
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getModelVariantsSelectOptionsAux(String code, String year, String make){
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getModelVariantsSelectOptionsAux(code, year, make);
     
@@ -482,14 +431,11 @@ public with sharing class assetDetailsFormController {
             }
     
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getVariantSeriesSelectOptionsAux(String variantDesc, String model, String year, String make){
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getVariantSeriesSelectOptionsAux(variantDesc, model, year, make);
     
@@ -498,14 +444,11 @@ public with sharing class assetDetailsFormController {
             }
     
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getFamilyBadgeSelectOptionsRedbook(String code, String make, String year, String lender){
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             Boolean status = validateRedBookLenders(lender);
 
@@ -517,30 +460,24 @@ public with sharing class assetDetailsFormController {
                 }
             }
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getBadgeVariantsSelectOptions(String makeRedbook, String model, String badge){
-        try {
+        
             Map<String,String> r = new Map<String,String>();
-            List <SelectOption> a = GlassServicesHelper.getFamilyBadgeSelectOptionsRedbook(makeRedbook, model, badge);
+            List <SelectOption> a = GlassServicesHelper.getBadgeVariantsSelectOptions(makeRedbook, model, badge);
     
             for (SelectOption o : a) {
                 r.put(o.getValue(), o.getLabel());
             }
     
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getVariantFactoryOptionsSelectOptions(String code){
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getVariantFactoryOptionsSelectOptions(code);
     
@@ -549,115 +486,80 @@ public with sharing class assetDetailsFormController {
             }
     
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
-    public static List <Glass_Factory_Option__c> getVariantFactoryOptionsData(String code){
-        try {
+    public static List <Glass_Factory_Option__c> getVariantFactoryOptionsData(String code){  
             return getVariantFactoryOptionsData(code, 'Optional');
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static List <Glass_Factory_Option__c> getVariantFactoryOptionsData(String code, String typeFeature){
-        try {
+        
             List <Glass_Factory_Option__c> li = GlassServicesHelper.getVariantFactoryOptionsData(code, typeFeature);
             return li;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String, Glass_Factory_Option__c> getVariantFactoryOptionsMapData(String code){
-        try {
+        
             Map<String, Glass_Factory_Option__c> mp = GlassServicesHelper.getVariantFactoryOptionsMapData(code);
             return mp;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static List<Glass_Factory_Option__c> getVariantStandardFactoryOptionsData(String code) {
-        try {
+        
             if (String.isBlank(code)) {
                 return null;
             }
             return getVariantFactoryOptionsData(code, 'Standard');
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Decimal getVariantNewPrice(String code){
-        try {
+        
             Decimal d = GlassServicesHelper.getVariantNewPrice(code);
             return d;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Glass_Variant__c getVariantByCode(String code) {
-        try {
+        
             Glass_Variant__c r = GlassServicesHelper.getVariantByCode(code); 
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Glass_Make__c getMakeByCode(String code) {
-        try {
+        
             Glass_Make__c r = GlassServicesHelper.getMakeByCode(code); 
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Glass_Model__c getModelByCode(String code) {
-        try {
+        
             Glass_Model__c r = GlassServicesHelper.getModelByCode(code);  
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
-    public static Redbook_Family__c getFamilyByCode(String code){
-        try {
+    public static Redbook_Family__c getFamilyByCode(String code){   
             Redbook_Family__c r = GlassServicesHelper.getFamilyByCode(code); 
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Redbook_Vehicle__c getVehicleByCode(String code) {
-        try {
+        
             Redbook_Vehicle__c r = GlassServicesHelper.getVehicleByCode(code); 
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static RedbookVehicleDTO getVehicle(String redbookKey, String code){
-        try {
+        
             RedbookVehicleDTO rv = new RedbookVehicleDTO();
 
             if(!String.isBlank(redbookKey)){
@@ -667,66 +569,46 @@ public with sharing class assetDetailsFormController {
             }
 
             return rv;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Decimal calculateAdjustment(String category, Double kms, Double average) {
-        try {
+        
             Decimal d = GlassServicesHelper.calculateAdjustment(category, kms, average); 
             return d;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static void loadTypeOptionsMap(){
-        try {
-            GlassServicesHelper.loadTypeOptionsMap();
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
+        GlassServicesHelper.loadTypeOptionsMap();
     }
 
     @AuraEnabled
     public static Map<String, List<AssetOptionDTO>> getVariantOptionsByCode(String code) {
-        try {
+        
             Map<String, List<AssetOptionDTO>> r = GlassServicesHelper.getVariantOptionsByCode(code);
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static List<AssetOptionDTO> getVariantOptionsByCodeAndType(String code, String typeOption) {
-        try {
+        
             List<AssetOptionDTO> r = GlassServicesHelper.getVariantOptionsByCodeAndType(code, typeOption);
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled(cacheable=true)
     public static boolean validateRedBookLenders(String lender){
         system.debug('lender:::'+ lender);
-        try {
+        
             boolean b = GlassServicesHelper.validateRedBookLenders(lender);
             system.debug('return:::'+ b);
             return b;
-        } catch (Exception e) {
-            system.debug('error:::'+ e.getMessage());
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getGlassFamily(Parameter param) {
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getGlassFamily(param);
     
@@ -735,14 +617,11 @@ public with sharing class assetDetailsFormController {
             }
     
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getGlassVariant(Parameter param) {
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getGlassVariant(param);
     
@@ -751,14 +630,11 @@ public with sharing class assetDetailsFormController {
             }
     
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String,String> getGlassSeries(Parameter param) {
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> a = GlassServicesHelper.getGlassSeries(param);
     
@@ -767,100 +643,55 @@ public with sharing class assetDetailsFormController {
             }
     
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
-    }
-
-    @AuraEnabled
-    public static void getGlassCarsList(Parameter param) {
-        try {
-            System.debug('>>>>>>>>>>>>>>>>>>>>   getGlassCarsList'+ param);
-          
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled(cacheable=true)
     public static Integer getGlassCarsSize(Parameter param) {
-        try {
-            System.debug('>>>>>>>>>>>>>>>>>>>>   getGlassCarsSize'+ param);
             getGlassCars(param);
             return sizeCarsVD;
-        } catch (Exception e) {
-            System.debug('>>>>>>>>>>>>>>>>>>>>   getGlassCarsSize'+ e.getMessage());
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static List<Glass_Variant__c> getGlassCars(Parameter param) {
-        try {
+        
             List<Glass_Variant__c> r = GlassServicesHelper.getGlassCars(param);
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
-    public static Double getRRP(Parameter param){
-        try {
+    public static Double getRRP(Parameter param){ 
             Double d = GlassServicesHelper.getRRP(param);
             return d;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Glass_Variant__c getGlassCar(Parameter param) {
-        try {
+        
             Glass_Variant__c r = GlassServicesHelper.getGlassCar(param);
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
-
-    // @AuraEnabled
-    // public static Glass_Variant__c getGlassCarAux(Parameter param) {
-    //     try {
-    //         Glass_Variant__c r = GlassServicesHelper.getGlassCarAux(param);
-    //         return r;
-    //     } catch (Exception e) {
-    //         throw new AuraHandledException(e.getMessage());
-    //     }
-    // }
 
     @AuraEnabled
     public static Glass_Variant__c getGlassCarByCode(Parameter param) {
-        try {
+        
             Glass_Variant__c g = GlassServicesHelper.getGlassCarByCode(param);
             return g;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static String getCodeModel(Parameter param) {
         System.debug('getCodeModel::');
         System.debug('parameter::'+param);
-        try {
+        
             String r = GlassServicesHelper.getCodeModel(param);
             System.debug('output::'+r);
             return r; 
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     // NEW METHOD 
     @AuraEnabled
     public static CarListDTO getCarsList(Parameter wrapper){
-        try {
+        
 
             system.debug('Get car list:::::'+ wrapper);
 
@@ -875,17 +706,13 @@ public with sharing class assetDetailsFormController {
             CL.glassVariant = glassVariant;
 
             return cl;
-            
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     // NEW METHOD
     @AuraEnabled
     public static VariantFactoryDTO getVariantFactoryOptions(Parameter wrapper){
         system.debug('variantOptionsMap -- [parameters]::::'+ wrapper);
-        try {
+        
             Glass_Variant__c glassVariant = GlassServicesHelper.getGlassCarAux(wrapper);
             Map<String, List<AssetOptionDTO>> variantOptionsMap = new Map<String, List<AssetOptionDTO>>();
             Glass_Variant__c variantObj; 
@@ -920,17 +747,12 @@ public with sharing class assetDetailsFormController {
 
             system.debug('VF::::'+ vf);
             return vf;
-            
-        } catch (Exception e) {
-            system.debug('getVariantFactoryOptions - ERROR::::'+ e.getMessage());
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static VariantOptionsSettingDTO loadVariantOptionsSettings(Map<String, List<AssetOptionDTO>> variantOptionsMap){
         system.debug('loadVariantOptionsSettings:::');
-        try {
+        
             MAP<String, List<AssetOptionDTO>> assetOptionsData = new Map<String, List<AssetOptionDTO>>();
             // List <SelectOption> assetOptionsSelect = new List<SelectOption>();
             Map<String, String> assetOptionsSelect = new Map<String, String>();
@@ -959,27 +781,19 @@ public with sharing class assetDetailsFormController {
             vo.assetStandardFeautersData = assetStandardFeautersData;
 
             return vo;
-
-        } catch (Exception e) {
-            system.debug('loadVariantOptionsSettings - ERROR::::'+ e.getMessage());
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Decimal calculateUsedOptions(List<String> options, String year) {
-        try {
+        
             System.debug('calculateUsedOptions:::'+ options+ year);
             Decimal d = GlassServicesHelper.calculateUsedOptions(options, year);
             return d;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String, String>  getStreetTypeOptions(){
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             List<SelectOption> stOptions = UtilitiesList.getStreetTypeOptions();
 
@@ -991,14 +805,11 @@ public with sharing class assetDetailsFormController {
             }
     
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Map<String, String> getStatesOptions(){
-        try {
+        
             Map<String,String> r = new Map<String,String>();
             List <SelectOption> statesOfIssue2Sel = UtilitiesList.getStatesOptions();
             
@@ -1007,25 +818,20 @@ public with sharing class assetDetailsFormController {
             }
 
             return r;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
     }
 
     @AuraEnabled
     public static Application_Quoting__c getApplicationQuoting(Id oppId, Id appId){
-        try {
+        
             Application_Quoting__c d = QuotingToolHelper.getApplicationQuoting(oppId, appId);
             return d;
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
+
     }
 
 
     @AuraEnabled
     public static String insertAssetDetails(Application_Asset_Detail__c appAssetDetails, Custom_Opportunity__c oppt, AssetDetailsDTO dto,  String prefixFile){
-        try {
+        
 
             // pdf saving part
             PageReference pdf = Page.GlassServicePdf;
@@ -1138,22 +944,15 @@ public with sharing class assetDetailsFormController {
                 return 'success';
             }
             return 'PDF doesn\'t have values';
-
-        } catch (Exception e) {
-            return e.getMessage();
-            // throw new AuraHandledException(e.getMessage());
-        }
     }
  
     @AuraEnabled
     public static Boolean isUserIdSettlementTeam(Id userId){
-        try {
+        
             System.debug('isUserIdSettlementTeam:::'+ userId );
             return ApprovalTools.isUserIdSettlementTeam(userId);
-        } catch (Exception e) {
-            return false;
-            // throw new AuraHandledException(e.getMessage());
-        }
     }
-   
+
 }
+   
+
