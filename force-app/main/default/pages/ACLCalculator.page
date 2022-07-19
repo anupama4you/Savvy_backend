@@ -429,7 +429,7 @@
                             </apex:selectList>
                         </td>
                     </tr>
-                    <tr>
+                    <!--<tr>
                       <td class="financeColumn">
                         <apex:outputLabel styleClass="calcLabel" value="Client Tier" for="clientTier" />
                       </td>
@@ -438,7 +438,7 @@
                           <apex:selectOptions value="{!clientTierOptions}" />
                         </apex:selectList>
                       </td>
-                    </tr>
+                    </tr>-->
                     <tr>
                         <td class="financeColumn">
                             <apex:outputLabel style="display:inline-block;" value="Credit Score" for="creditScore" />
@@ -447,10 +447,17 @@
                             <!-- <apex:selectList label="Loan Type" value="{!creditScore}" multiselect="false" size="1" styleClass="selectList" id="LoanCreditScore">
                                 <apex:selectOptions value="{!loanCreditScoreOptions}" />
                             </apex:selectList> -->
-                            <apex:input value="{!creditScore}" id="LoanCreditScore" styleClass="calcInput2">
+                            <!--<apex:input value="{!creditScore}" id="LoanCreditScore" styleClass="calcInput2">
                               <apex:actionSupport event="onchange" action="{!calcRiskFee}" reRender="applicationFee, dof, riskFee, riskFeeInput, realtimeNaf"
                                 status="stsAppFeeCalc" />
-                            </apex:input>
+                            </apex:input>-->
+                          <apex:selectList value="{!creditScore}" multiselect="false" size="1" styleClass="selectList" id="LoanCreditScore">
+                            <apex:selectOption itemLabel="--None--" itemValue="" />
+                            <apex:selectOption itemLabel="500+" itemValue="500+" />
+                            <apex:selectOption itemLabel="400-499" itemValue="400-499" />
+                            <apex:selectOption itemLabel="300-399" itemValue="300-399" />
+                            <apex:actionSupport event="onchange" action="{!calcRiskFee}" reRender="applicationFee, dof, riskFee, riskFeeInput, realtimeNaf, minRate, maxRate" status="stsAppFeeCalc"/>
+                          </apex:selectList>
                         </td>
                     </tr>
                     <tr>
@@ -703,7 +710,36 @@
               </div>
             </div>
         </apex:form>
-        <apex:image url="{!$Resource.Affordable}" height="869" width="859"/>  
+        <apex:form id="interestForm" >
+            <table width="100%" class="tableDetails">
+                <tr>
+                  <td align="center" class="otherOtherResultValue">Interest Rate Table</td>
+                </tr>
+                <tr>
+                  <td>
+                    <table width="100%">
+                      <tr>
+                        <td align="center" class="resultHeading">Credit Score</td>
+                        <td align="center" class="resultHeading">Base Rate</td>
+                        <td align="center" class="resultHeading">Max Rate</td>
+                      </tr>
+                      <apex:repeat value="{!listInterestRate}" var="r">
+                        <tr>
+                          <td align="center" class="otherOtherResult">
+                            <apex:outputText value="{!r.Profile__c}" />
+                          </td>
+                          <td align="center" class="otherOtherResultValue">
+                            <apex:outputText value="{!r.Rate_1__c}" />%</td>
+                          <td align="center" class="otherOtherResultValue">
+                            <apex:outputText value="{!r.Rate_2__c}" />%</td>
+                        </tr>
+                      </apex:repeat>
+                    </table>
+                </td>
+                </tr>
+            </table>
+        </apex:form>
+        <apex:image url="{!$Resource.Affordable}" height="377" width="668"/>  
         <!--apex:form id="interestForm" >
             <div class="referenceTable">
               <table>

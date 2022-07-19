@@ -200,7 +200,7 @@ public class PreApprovalValidatorHelper {
       FROM Cloud_Documents__c
       WHERE
         Custom_Opportunity__c = :opp.id
-        AND Document_Type__c = 'Savvy Consent'
+        AND Document_Type__c = 'Consent'
     ];
 
     if (!savvyConsentDocs.isEmpty()) {
@@ -208,7 +208,7 @@ public class PreApprovalValidatorHelper {
         ApexPages.addMessage(
           new ApexPages.Message(
             ApexPages.Severity.WARNING,
-            'There are two applicants in this deal, but there is only one Savvy Consent in Cloud Documents section. Please be sure that all applicants have signed a consent before proceeding with a credit file assessment.'
+            'There are two applicants in this deal, but there is only one Consent in Cloud Documents section. Please be sure that all applicants have signed a consent before proceeding with a credit file assessment.'
           )
         );
       }

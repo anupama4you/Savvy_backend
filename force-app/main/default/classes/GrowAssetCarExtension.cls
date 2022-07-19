@@ -23,8 +23,6 @@ public class GrowAssetCarExtension {
     
     private String fileGlobalPrefix = 'GrowAsset';
     
-    public static Decimal MAX_BROKERAGE = 8.0;
-    
     // finance calculator input
     public Decimal carPrice {get;set;}
     public Decimal deposit {get;set;}
@@ -210,7 +208,11 @@ public class GrowAssetCarExtension {
             };
                 
                 private Lenders__c lenderSettings {set;get;}
-    
+    public String companyScore {set; get;}
+    public String directorSoleTraderScore {set; get;}
+    public String paidDefault {set; get;}
+    public String condition {set; get;}
+
     public GrowAssetCarExtension (ApexPages.StandardController controller) {
         getRateTable();  
         
@@ -304,7 +306,7 @@ privateSalesOptions = QuotingToolAssistant.getprivateSalesOptions(LENDER_QUOTING
         productGoodsTypes = QuotingToolHelper.getProductGoodsTypeOptions(productLoanType);
         productGoodsType = productGoodsTypes.get(0).getValue();
         loadLoanFrequency();
-        selectedTypeValue = MacquarieConstants.TYPE_VALUE;
+        selectedTypeValue = 'Value';
         resetResidualValues();
         mcService = new MacLeasePartnerService();
         mcManager = new MacquarieManager();
@@ -390,9 +392,13 @@ privateSalesOptions = QuotingToolAssistant.getprivateSalesOptions(LENDER_QUOTING
         param.abnLength = abnLength; 
         param.gstLength = gstLength;
         param.assetAge = assetAge;
+        param.companyScore = companyScore;
+	    param.directorSoleTraderScore = directorSoleTraderScore;
+	    param.paidDefault = paidDefault;
+	    param.condition = condition;
         this.baseRate = QuotingCalculation.getBaseRate(param);
         
-        
+        System.debug(baseRate);
         /*if (brokeragePercentage > MAX_BROKERAGE) {
 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Brokerage cannot be greater than ' + MAX_BROKERAGE.format() + '%'));
 }*/
@@ -524,7 +530,7 @@ System.debug('base rate >> ' + baseRate);
             } else {
                 r += carPrice;
             }
-            if (selectedTypeValue == MacquarieConstants.TYPE_PERCENTAGE) {
+            if (selectedTypeValue == 'Percentage') {
                 residualValue = ((carPrice - netDeposit) * residualValuePercentage) / 100;
             }
         }
@@ -739,17 +745,17 @@ System.debug('base rate >> ' + baseRate);
     public Boolean isValidCalculate () {
         Boolean r = true;
         this.ericLPICalculate();
-        if(realtimeNaf > 150000 && propertyOwner == 'N'){
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Max of $100,000 NAF is allowed for Non-Property owner'));
-            r = false;
-        }else if(realtimeNaf > 100000 && propertyOwner == 'Y'){
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Max of $150,000 NAF is allowed for Property owner'));
-            r = false;
+        if ('Full Doc'.equals(loanType)) {
+          if(realtimeNaf > 150000 && propertyOwner == 'N'){
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Max of $150,000 NAF is allowed for Property owner'));
+          }else if(realtimeNaf > 100000 && propertyOwner == 'Y'){
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Max of $100,000 NAF is allowed for Non-Property owner'));
+          }
         }
         Decimal NAF20per = realtimeNaf*0.20;
         if( NAF20per > deposit && propertyOwner == 'N'){
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Non property owners require 20% deposit.'));
-            r = false;
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Non property owners require 20% deposit.'));
+            // r = false;
         }
         /*if (clientRate > 14.75) {
 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Client Rate cannot be larger than 14.75%.'));
@@ -775,6 +781,10 @@ r = false;
         if (term == null || term == 0) {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Please choose an appropriate term.'));
             r = false;
+        } else if ('Tier 3 - Specialised'.equals(assetType) && (term == 72 || 
+          term == 84)) {
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,
+            'Max age of vehicle 15 years at term end'));
         }
         /*if (String.isBlank(manufactureYear)) {
 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Please choose an Asset Year option.'));
@@ -787,29 +797,40 @@ r = false;
         if (!isInsuranceValidationOK()) {
             r = false;   
         }
-        if (brokeragePercentage > MAX_BROKERAGE) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Brokerage cannot be greater than ' + MAX_BROKERAGE.format() + '%'));
+        if (brokeragePercentage > lenderSettings.Max_Brokerage__c) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Brokerage cannot be greater than ' + lenderSettings.Max_Brokerage__c.format() + '%'));
             r = false;
         }
-        if(equifaxScore == null || equifaxScore < 600){
+        /*if(equifaxScore == null || equifaxScore < 600){
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Minimum 600 guarantor credit score - check with lender'));
             r = false;
-        }
+        }*/
         if(abnLength == '< 2 years'){
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'ABN length cannot be < 2 years'));
             r = false;
         }       
         if(gstLength != '< 2 years' && gstLength != '> 2 years'){
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Please choose a GST Length'));
-            r = false;
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Please choose a GST Length'));
+          r = false;
+        } else if ('Low Doc'.equals(loanType) && '< 2 years'.equals(gstLength)) {
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
+            'GST length < 2 years. Change to easy doc'));
+          r = false;
+        } else if ('Easy Doc'.equals(loanType) && '> 2 years'.equals(gstLength)) {
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
+            'GST length > 2 years. Change to low doc'));
+          r = false;
+        }
+        if('Low Doc'.equals(loanType) && '> 12 months'.equals(abnLength)) {
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,
+            'ABN length < 2 years. Change to easy doc'));
+          r = false;
+        } else if('Easy Doc'.equals(loanType) && '> 24 months'.equals(abnLength)) {
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
+            'ABN length > 2 years. Change to low doc'));
+          r = false;
         }
         if((assetType.contains('Trucks') || assetType.contains('Trailers')) && Integer.valueOf(assetAge) > 25){
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Age of asset limit exceeded'));
-            r = false;
-        }else if((assetType.contains('Yellow') || assetType.contains('Material')) && Integer.valueOf(assetAge) > 20){
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Age of asset limit exceeded'));
-            r = false;
-        }else if(assetType.contains('Solar') && Integer.valueOf(assetAge) > 7){
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Age of asset limit exceeded'));
             r = false;
         }else if(Integer.valueOf(assetAge) > 15){
@@ -839,6 +860,51 @@ r = false;
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'You cannot have a balloon or residual payment when the loan term is > 5 years.'));
             r = false;
         }
+
+        if ((('Easy Doc'.equals(loanType) && 'N'.equals(propertyOwner)) || 'Low Doc'.equals(loanType)) && realtimeNaf > 150000) {
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Max Loan $150,000'));
+        } else if ('Easy Doc'.equals(loanType)) {
+          if ('Tier 1 - Cars'.equals(assetType) && realtimeNaf > 180000) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Max Loan $180,000'));
+          } else if (realtimeNaf > 250000) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Max Loan $250,000'));
+          }
+        }
+
+        if (residualValue > 0) {
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Balloon is calculated on car price less any deposit or trade in'));
+        }
+
+        if (String.isBlank(companyScore)) {
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,
+            'Please choose a Company Score option.'));
+          r = false;
+        }
+		
+		if (String.isBlank(directorSoleTraderScore)) {
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,
+            'Please choose a Director/Sole Trader Score option.'));
+          r = false;
+        }
+		
+		// if (String.isBlank(paidDefault)) {
+    //       ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,
+    //         'Please choose a Default option.'));
+    //       r = false;
+    //     }
+		
+		if ('Tier 3 - Specialised'.equals(assetType) && String.isBlank(
+          condition)) {
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,
+            'Please choose a Condition option.'));
+          r = false;
+        }
+
+        if (clientRate <= 0.0) {
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Client Rate should be greater than zero'));
+          r = false;
+        }
+
         return r;
     }
     
@@ -860,7 +926,7 @@ r = false;
         this.adverseCredit = yesNoOptions.get(0).getValue();
         this.applicationFee = lenderSettings.Application_Fee__c;
         this.privateSales = '';
-        this.brokeragePercentage = 8;
+        this.brokeragePercentage = lenderSettings.Brokerage_Base__c;
         this.assetType = assetTypeOptions.get(0).getValue();
         this.equifaxScore = 0;
         this.abnLength = abnLengthOptions.get(0).getValue();
@@ -878,10 +944,10 @@ r = false;
         this.ppsr = lenderSettings.PPSR__c;
         this.residualValue = 0.00;
         this.residualValuePercentage = 0.00;
-        this.selectedTypeValue = MacquarieConstants.TYPE_VALUE;
+        this.selectedTypeValue = 'Value';
         this.baseRate = 0.00;
         this.clientRate = 0.00;
-        this.term = 0;
+        this.term = 60;
         this.propertyOwner = 'N';
         this.ltv = null;
         //this.brokeragePercentage = MAX_BROKERAGE;
@@ -958,6 +1024,10 @@ r = false;
         this.productGoodsType = '';
         this.productGoodsSubType = '';
         this.loanFrequency = '';
+        this.companyScore = '';
+	    this.directorSoleTraderScore = '';
+	    this.paidDefault = '';
+	    this.condition = '';
         
         this.assetYearOption();
         this.applicationFeefCalc();
@@ -980,7 +1050,7 @@ r = false;
         PageReference calcPdf = Page.UniversalCalculatorPdf;
         // pass universal variables
         calcPdf.getParameters().put('id',Opp.Id);
-        calcPdf.getParameters().put('lender', 'MACQUARIE COMMERCIAL CALCULATION');
+        calcPdf.getParameters().put('lender', 'GROW ASSET CAR CALCULATION');
         calcPdf.getParameters().put('state', state);
         calcPdf.getParameters().put('vehicleGroup', vehicleGroup);
         calcPdf.getParameters().put('awd', awd);
@@ -1139,8 +1209,15 @@ r = false;
             calcPdf.getParameters().put('payoutOn', String.valueOf(payoutOn));
         }
         calcPdf.getParameters().put('netDeposit', String.valueOf(netDeposit));
-        
-        
+        calcPdf.getParameters().put('assetType', String.valueOf(assetType));
+        calcPdf.getParameters().put('companyScore', String.valueOf(companyScore));
+        calcPdf.getParameters().put('directorSoleTraderScore', String.valueOf(directorSoleTraderScore));
+        calcPdf.getParameters().put('paidDefault', String.valueOf(paidDefault));
+        calcPdf.getParameters().put('condition', String.valueOf(condition));
+        calcPdf.getParameters().put('abnLength', String.valueOf(abnLength));
+        calcPdf.getParameters().put('gstLength', String.valueOf(gstLength));
+        calcPdf.getParameters().put('assetAge', String.valueOf(assetAge));
+
         Boolean isSaveInCloud = false;
         if (prefixName.contains('APPROVAL')) {
             isSaveInCloud = true;
@@ -1616,6 +1693,13 @@ cciAcceptance = 'U';
                     this.quote.WRR_Acceptance__c = warrantyAcceptance;
                 }
                 //-
+                residualValuePercentage = d.Residual_Value_Percentage__c;
+            
+                if (d.Residual_Value_Percentage__c != null && d.Residual_Value_Percentage__c != 0){
+                  selectedTypeValue = 'Percentage';
+                }else{
+                  selectedTypeValue = 'Value';
+                }
             }
             
             cci = d.Insurance_AIC_Retail_Price__c;
@@ -1631,14 +1715,7 @@ cciAcceptance = 'U';
             payoutOn = d.Payout_On__c;
             netDepositCalc();
             residualValue = d.Residual_Value__c;
-            residualValuePercentage = d.Residual_Value_Percentage__c;
-            
-            if (d.Residual_Value_Percentage__c != null && d.Residual_Value_Percentage__c != 0){
-                selectedTypeValue = MacquarieConstants.TYPE_PERCENTAGE;
-            }else{
-                selectedTypeValue = MacquarieConstants.TYPE_VALUE;
-            }
-            
+
             if (d.Term__c != null) {
                 term = Integer.valueOf(d.Term__c);
             }
@@ -1673,7 +1750,8 @@ paymentType = d.Payment__c;
                 propertyOwner = d.Customer_Profile__c;
                 privateSales = d.Private_Sales__c;
                 assetType = d.Goods_type__c;
-                equifaxScore = String.isNotBlank(d.Credit_Score__c) ? Decimal.valueOf(d.Credit_Score__c) : null;
+                //equifaxScore = String.isNotBlank(d.Credit_Score__c) ? Decimal.valueOf(d.Credit_Score__c) : null;
+                companyScore = d.Credit_Score__c;
                 abnLength = d.Extra_Label_1__c;
                 gstLength = d.Extra_Label_2__c;
 
@@ -1709,6 +1787,9 @@ paymentType = d.Payment__c;
                     System.debug('cleaning 1...');
                 }
                 //-
+                directorSoleTraderScore = d.Extra_Label_3__c;
+                paidDefault = d.Extra_Label_4__c;
+                condition = d.Condition__c;
             }
             realtimeNafCalc();
             mcqGrossPayment = d.Mcq_Gross_Payment__c;
@@ -1823,7 +1904,7 @@ paymentType = d.Payment__c;
         d.PPSR__c = ppsr;
         d.Residual_Value__c = residualValue;
         d.Residual_Value_Percentage__c = null;
-        if (selectedTypeValue == MacquarieConstants.TYPE_PERCENTAGE){
+        if (selectedTypeValue == 'Percentage'){
             d.Residual_Value_Percentage__c = residualValuePercentage;
         }
         
@@ -1844,7 +1925,8 @@ paymentType = d.Payment__c;
         d.Customer_Profile__c = propertyOwner;
         
         d.Goods_type__c = assetType;
-        d.Credit_Score__c = equifaxScore != null? String.valueOf(equifaxScore.intValue()) : null;
+        //d.Credit_Score__c = equifaxScore != null? String.valueOf(equifaxScore.intValue()) : null;
+        d.Credit_Score__c = companyScore;
         d.Extra_Label_1__c = abnLength;
         d.Extra_Label_2__c = gstLength;
         d.Adverse_Credit_File__c = adverseCredit;
@@ -1861,6 +1943,9 @@ paymentType = d.Payment__c;
         d.Repayment_Fortnightly__c = fortnightlyPayment;
         d.Repayment_Weekly__c = weeklyPayment;
         d.NAF__c = naf;
+        d.Extra_Label_3__c = directorSoleTraderScore;
+        d.Extra_Label_4__c = paidDefault;
+        d.Condition__c = condition;
         
         //Save the record
         QuotingToolHelper.saveApplicationQuoting(d);
@@ -1904,15 +1989,17 @@ paymentType = d.Payment__c;
         residualValue = 0.0;
         residualValuePercentage = 0.0;
         isResidualValuePercentage = false;
-        if (selectedTypeValue == MacquarieConstants.TYPE_PERCENTAGE){
+        if (selectedTypeValue == 'Percentage'){
             isResidualValuePercentage = true;
         }
     }
     
     public List <SelectOption> getOptions(){
         List <SelectOption> r = new List <SelectOption> ();
-        r.add(new SelectOption (MacquarieConstants.TYPE_PERCENTAGE, MacquarieConstants.TYPE_PERCENTAGE));
-        r.add(new SelectOption (MacquarieConstants.TYPE_VALUE, MacquarieConstants.TYPE_VALUE));
+        //r.add(new SelectOption (MacquarieConstants.TYPE_PERCENTAGE, MacquarieConstants.TYPE_PERCENTAGE));
+        //r.add(new SelectOption (MacquarieConstants.TYPE_VALUE, MacquarieConstants.TYPE_VALUE));
+        r.add(new SelectOption ('Percentage', 'Percentage'));
+        r.add(new SelectOption ('Value', 'Value'));
         return r;
     }
     

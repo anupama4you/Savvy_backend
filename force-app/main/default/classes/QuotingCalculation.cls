@@ -1,4 +1,4 @@
-public class QuotingCalculation {
+public without sharing class QuotingCalculation {
   public static final String CALC_QUOTING = 'Q';
   public static final String CALC_SIMPLE = 'S';
   public static final String CALC_PROTECTED = 'PPY';
@@ -36,7 +36,6 @@ public class QuotingCalculation {
         || 'Shift ODR'.equals(param.lender) 
         || 'Grow Asset'.equals(param.lender)
         || 'Grow Business Loan'.equals(param.lender)
-        || 'Angle Finance'.equals(param.lender)
         || 'Morris'.equals(param.lender)
         || 'Selfco'.equals(param.lender)
         || 'Silver Chef'.equals(param.lender)
@@ -122,6 +121,7 @@ public class QuotingCalculation {
         'BOQ'.equals(param.lender) ||
         'Affordable'.equals(param.lender)
       ) {
+        System.debug('Testing values:::'+ param);
         r = calculateCommRate(param);
       } else if (
         'Yamaha Marine'.equals(param.lender) ||
@@ -147,6 +147,8 @@ public class QuotingCalculation {
         r = calculatePlentiCommercial(param);
       } else if ('Westpac'.equals(param.lender)) {
         r = calculateWestpac(param);
+      } else if ('Angle Finance'.equals(param.lender)) {
+        r = calculateAngleFinance(param);
       }
     }
     return r;
@@ -557,168 +559,96 @@ public class QuotingCalculation {
 
     // calculate the estimated commission
     Decimal termRate = 0.0;
-    Decimal finalCommRate = 0.0;
+    // Decimal finalCommRate = 0.0;
     param.commRate = getLibertyCommission(param);
-    if ('Consumer Loan'.equals(param.productLoanType)) {
+    Decimal commbase = r.NAF__c;
+    Decimal commMult = getLibertyMultiplier(param); // Fair Value Multiplier (FMV) 
+    Decimal rateDisc = param.clientRate > param.baseRate? param.clientRate - param.baseRate : 0.00;
+    Decimal finalCommRate = rateDisc * commMult;
+
+    if ('Liberty Commercial'.equals(param.lender)) {
+      r.Estimated_Commission__c = ((finalCommRate/100)*commbase);
+      r.Estimated_Commission__c = r.Estimated_Commission__c/1.1;
+    } else {
+      System.debug('@@Calculator: ' + param.lender);
       termRate = 1.0;
       if (param.term < 60) {
         termRate = 0.60;
       }
-      //     if ('B'.equals(param.clientTier) || 'C'.equals(param.clientTier)) {
-      //         termRate = 0.5;
-      //     } else {
-      //         termRate = 0.75;
-      //     }
-      // } else if (param.term < 60) {
-      //     if ('B'.equals(param.clientTier) || 'C'.equals(param.clientTier)) {
-      //         termRate = 0.75;
-      //     } else {
-      //         termRate = 1.0;
-      //     }
-      // } else if (param.term >= 60) {
-      //     if ('B'.equals(param.clientTier) || 'C'.equals(param.clientTier)) {
-      //         termRate = 1.0;
-      //     } else if ('A'.equals(param.clientTier) || 'B+'.equals(param.clientTier)) {
-      //         termRate = 1.25;
-      //     } else if ('AA'.equals(param.clientTier) || 'A+'.equals(param.clientTier)) {
-      //         termRate = 1.5;
-      //     } else {
-      //         termRate = 1.75;
-      //     }
-      // }
-      // Lelo                   2021-06-03
       Decimal commDisc = 0;
-      Decimal rateDisc = (param.baseRate + 2 - param.clientRate);
-      System.debug('param.clientTier: ' + param.clientTier);
-      System.debug('param.baseRate: ' + param.baseRate);
-      System.debug('param.clientRate: ' + param.clientRate);
-      System.debug('param.commRate: ' + param.commRate);
-      if ('Liberty Leisure'.equals(param.lender)) {
-        if ('Caravan'.equals(param.goodsType)) {
-          Decimal commMult = 0;
-          if ('AAA'.equals(param.clientTier)) {
-            commMult = 1.75;
-          } else if (
-            'AA'.equals(param.clientTier) || 'A+'.equals(param.clientTier)
-          ) {
-            commMult = 1.5;
-          }
-          System.debug('commMult: ' + commMult);
-          // finalCommRate = (param.commRate - rateDisc);
-          finalCommRate = (param.commRate - rateDisc) * commMult;
-        }
-      } else {
-        if ('AAA'.equals(param.clientTier)) {
-          commDisc = 3.5;
-        } else if (
-          'AA'.equals(param.clientTier) || 'A+'.equals(param.clientTier)
-        ) {
-          commDisc = 3.0;
-        } else if (
-          'A'.equals(param.clientTier) || 'B+'.equals(param.clientTier)
-        ) {
-          commDisc = 2.5;
-        } else {
-          commDisc = 2.0;
-        }
+      
+      // rateDisc = (param.baseRate + 2 - param.clientRate);
+      rateDisc = param.clientRate > param.baseRate? param.clientRate - param.baseRate : 0.00;
+      finalCommRate = rateDisc + param.commRate - 2;
 
-        System.debug('commDisc: ' + commDisc);
-        finalCommRate = param.commRate - (commDisc * (rateDisc / 2.0));
+      System.debug('@@ param.clientTier: ' + param.clientTier);
+      System.debug('@@ param.baseRate: ' + param.baseRate);
+      System.debug('@@ param.clientRate: ' + param.clientRate);
+      System.debug('@@ param.commRate: ' + param.commRate);
+      System.debug('@@ commMult: ' + commMult);
+      System.debug('@@ commbase: ' + commbase);
+      System.debug('@@ finalCommRate: ' + finalCommRate);
+
+      if ('Liberty Leisure'.equals(param.lender)) {
+        // if ('Caravan'.equals(param.goodsType)) {
+        //   commMult = 0;
+        //   if ('AAA'.equals(param.clientTier)) {
+        //     commMult = rateDisc == 2.0? 0.0 : 1.75;
+        //   } else if (
+        //     'AA'.equals(param.clientTier) || 'A+'.equals(param.clientTier)
+        //   ) {
+        //     commMult = 1.5;
+        //   }
+        //   System.debug('commMult: ' + commMult);
+        //   // finalCommRate = (param.commRate - rateDisc);
+        //   finalCommRate = (param.commRate - rateDisc) * commMult;
+        // }
+
+        // rateDisc = param.clientRate > param.baseRate? param.clientRate - param.baseRate : 0.00;
+        // finalCommRate = rateDisc + param.commRate - 2;
+        // System.debug('@@ finalCommRate: ' + finalCommRate);
+        // r.Estimated_Commission__c = commbase * finalCommRate * termRate / 100;
+        commMult = termRate;
+        // r.Estimated_Commission__c = commbase * (param.clientRate - param.baseRate) / 100 * termRate;
+
+      // } else {
+        // rateDisc = param.clientRate > param.baseRate? ((param.clientRate - param.baseRate)/2.00) : 0.00;
+        // rateDisc = param.clientRate > param.baseRate? param.clientRate - param.baseRate : 0.00;
+        // finalCommRate = rateDisc + param.commRate - 2;
+        // System.debug('@@ rateDisc: ' + rateDisc);
+        // System.debug('@@ finalCommRate: ' + finalCommRate);
+
+        // r.Estimated_Commission__c = commbase * finalCommRate * commMult / 100;
+
+
+        // if ('AAA'.equals(param.clientTier)) {
+        //   commDisc = 3.5;
+        // } else if (
+        //   'AA'.equals(param.clientTier) || 'A+'.equals(param.clientTier)
+        // ) {
+        //   commDisc = 3.0;
+        // } else if (
+        //   'A'.equals(param.clientTier) || 'B+'.equals(param.clientTier)
+        // ) {
+        //   commDisc = 2.5;
+        // } else {
+        //   commDisc = 2.0;
+        // }
+        
+        // System.debug('@@ commDisc: ' + commDisc);
+        // finalCommRate = param.commRate - (commDisc * (rateDisc / 2.0));
       }
-      System.debug('rateDisc: ' + rateDisc);
-      System.debug('finalCommRate: ' + finalCommRate);
+      r.Estimated_Commission__c = commbase * finalCommRate * commMult / 100;
+      // System.debug('@@ rateDisc: ' + rateDisc);
+      // System.debug('@@ finalCommRate: ' + finalCommRate);
       //-- end
       //finalCommRate =  (param.commRate - (param.baseRate + 2 - param.clientRate));
-    } else {
-      // Commercial
-      /*
-      if (param.term <= 24) {
-        if (
-          'A'.equals(param.clientTier) ||
-          'B'.equals(param.clientTier) ||
-          'C'.equals(param.clientTier)
-        ) {
-          termRate = 0.25;
-        } else {
-          termRate = 0.5;
-        }
-      } else if (param.term <= 36) {
-        if (
-          'A'.equals(param.clientTier) ||
-          'B'.equals(param.clientTier) ||
-          'C'.equals(param.clientTier)
-        ) {
-          termRate = 0.5;
-        } else {
-          termRate = 0.75;
-        }
-      } else if (param.term < 60) {
-        if (
-          'A'.equals(param.clientTier) ||
-          'B'.equals(param.clientTier) ||
-          'C'.equals(param.clientTier)
-        ) {
-          termRate = 0.75;
-        } else {
-          termRate = 1.0;
-        }
-      } else if (param.term >= 60) {
-        if (
-          'A'.equals(param.clientTier) ||
-          'B'.equals(param.clientTier) ||
-          'C'.equals(param.clientTier)
-        ) {
-          termRate = 1.0;
-        } else if ('AA'.equals(param.clientTier)) {
-          termRate = 1.35;
-        } else if ('AAA'.equals(param.clientTier)) {
-          termRate = 1.65;
-        }
-      }
-      finalCommRate = (param.clientRate - param.baseRate);
-      */
-      if (param.term == 60 || param.term == 72 || param.term == 84) {
-        termRate = 1;
-        if ('AAA'.equals(param.clientTier) || 'AA'.equals(param.clientTier)) {
-          termRate = 1.65;
-        } else if ('A'.equals(param.clientTier)
-        || 'B'.equals(param.clientTier)) {
-          termRate = 1.35;
-        }
-      } else {
-        if ('AAA'.equals(param.clientTier) || 'AA'.equals(param.clientTier)
-        || 'A'.equals(param.clientTier) || 'B'.equals(param.clientTier)) {
-          termRate = 1;
-          if (param.term == 24) {
-            termRate = 0.5;
-          } else if (param.term == 36) {
-            termRate = 0.75;
-          }
-        } else {
-          termRate = 0.75;
-          if (param.term == 24) {
-            termRate = 0.25;
-          } else if (param.term == 36) {
-            termRate = 0.5;
-          }
-        }
-      }
+
+      // r.Estimated_Commission__c = commbase * (param.clientRate - param.baseRate) / 100 * termRate;
     }
     
-    Decimal commbase = r.NAF__c;
-    r.Estimated_Commission__c = commbase * (param.clientRate - param.baseRate) 
-    / 100 * termRate;
-    if (!'AAA'.equals(param.clientTier) && !'AA'.equals(param.clientTier)
-    && !'Liberty Commercial'.equals(param.lender)) {
-      commbase = param.totalAmount;
-    }
-    if (!'Liberty Commercial'.equals(param.lender)) {
-      r.Estimated_Commission__c = finalCommRate / 100 * commbase * termRate;
-    }
-    System.debug('commbase: ' + commbase);
-    System.debug('termRate: ' + termRate);
     r.Estimated_Commission__c = r.Estimated_Commission__c.setScale(2);
-    //System.debug('Commission: ' + r.Estimated_Commission__c);
+    System.debug('@@Commission: ' + r.Estimated_Commission__c);
 
     //calculate the insurance income
     r.Insurance_Income__c = param.totalInsuranceIncome;
@@ -796,7 +726,7 @@ public class QuotingCalculation {
     r.NAF__c = param.getNaf();
 
     // calculate the payment rate based on client rate, which is determined by consultants
-    decimal realRate = param.clientRate / 100;
+    decimal realRate = param.baseRate / 100;
     decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
     decimal rate = FinancialUtilities.rate(
       1000,
@@ -1017,7 +947,11 @@ public class QuotingCalculation {
     }
     if ('RateSetter'.equals(param.lender) && param.commRate != null) {
       // calculate the payment rate based on base rate, which is determined by Customer Profile and LTV
-      Decimal realBaseRate = param.baseRate / 100;
+      Decimal br = param.baseRate;
+      if (br > param.clientRate) {
+        br = param.clientRate;
+      }
+      Decimal realBaseRate = br / 100;
       Decimal baseFutureValue = FinancialUtilities.fv(
         realBaseRate / 12,
         12,
@@ -1266,6 +1200,7 @@ public class QuotingCalculation {
   private static Application_Quoting_Result__c calculateCommRate(
     CalcParam param
   ) {
+    System.debug('Testing values:::'+ param);
     Application_Quoting_Result__c r = new Application_Quoting_Result__c();
     r.Payment_Calc_Type__c = 'DF';
     if ('Latitude'.equals(param.lender)) {
@@ -1275,7 +1210,9 @@ public class QuotingCalculation {
 
     // calculate the payment rate based on client rate, which is determined by consultants
     Decimal realRate = param.clientRate / 100;
+    System.debug('Rental-Testing::realRate:'+ realRate);
     Decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
+    System.debug('Rental-Testing::futureValue:'+ futureValue);
     Decimal rate = FinancialUtilities.rate(
       1000,
       12,
@@ -1285,6 +1222,8 @@ public class QuotingCalculation {
       false
     );
 
+    System.debug('Rental-Testing::rate:'+ rate);
+
     // calculate the monthly payment based on client rate
     r.Rental__c = FinancialUtilities.pmt(
       param.getNaf(),
@@ -1293,6 +1232,7 @@ public class QuotingCalculation {
       param.residualValue,
       param.getPaymentTypeBoolean()
     );
+    System.debug('Rental-Testing::Rental__c:'+ r.Rental__c);
     r.Rental__c = r.Rental__c.setScale(2);
 
     Decimal comm = param.commRate;
@@ -1854,195 +1794,204 @@ public class QuotingCalculation {
   }
 
   private static Decimal getANZOthersBaseRate(CalcParam param) {
-    Decimal r = 0.0;
-    // System.debug('ANZ Others base rate calculation....');
-    Map<String, EsandaOthersChattel__c> esandaChattelMap = EsandaOthersChattel__c.getAll();
-    Map<String, EsandaOthersEquipment__c> esandaEquipmentMap = EsandaOthersEquipment__c.getAll();
-    Map<String, EsandaOthersLeisure__c> esandaLeisureMap = EsandaOthersLeisure__c.getAll();
-
-    Decimal totalAmount = param.getNaf();
-    String label = 'z';
-    String originalRate = '0.00';
-
-    if (param.goodsType == 'chattel') {
-      if (param.vehiclesProfile == 'New_3_years_old__c') {
-        if (totalAmount >= 150000) {
-          label = 'a';
-        } else if (totalAmount >= 100000 && totalAmount < 150000) {
-          label = 'b';
-        } else if (totalAmount >= 60000 && totalAmount < 100000) {
-          label = 'c';
-        } else if (totalAmount >= 20000 && totalAmount < 60000) {
-          label = 'd';
-        } else if (totalAmount >= 10000 && totalAmount < 20000) {
-          label = 'e';
-        } else {
-          label = 'z';
-        }
-        if (esandaChattelMap.get(label) != null) {
-          originalRate = esandaChattelMap.get(label).New_3_years_old__c;
-        } else {
-          originalRate = 'error';
-        }
-      } else if (param.vehiclesProfile == 'X4_8_years_old__c') {
-        if (totalAmount >= 150000) {
-          label = 'a';
-        } else if (totalAmount >= 100000 && totalAmount < 150000) {
-          label = 'b';
-        } else if (totalAmount >= 60000 && totalAmount < 100000) {
-          label = 'c';
-        } else if (totalAmount >= 20000 && totalAmount < 60000) {
-          label = 'd';
-        } else if (totalAmount >= 10000 && totalAmount < 20000) {
-          label = 'e';
-        } else {
-          label = 'z';
-        }
-        if (esandaChattelMap.get(label) != null) {
-          originalRate = esandaChattelMap.get(label).X4_8_years_old__c;
-        } else {
-          originalRate = 'error';
-        }
-      } else if (param.vehiclesProfile == 'Over_8_years_old__c') {
-        if (totalAmount >= 150000) {
-          label = 'a';
-        } else if (totalAmount >= 100000 && totalAmount < 150000) {
-          label = 'b';
-        } else if (totalAmount >= 60000 && totalAmount < 100000) {
-          label = 'c';
-        } else if (totalAmount >= 20000 && totalAmount < 60000) {
-          label = 'd';
-        } else if (totalAmount >= 10000 && totalAmount < 20000) {
-          label = 'e';
-        } else {
-          label = 'z';
-        }
-        if (esandaChattelMap.get(label) != null) {
-          originalRate = esandaChattelMap.get(label).Over_8_years_old__c;
-        } else {
-          originalRate = 'error';
-        }
-      } else {
-        originalRate = '0.00';
+    Decimal r = 0.00;
+    ANZOthers_Rate__mdt rate = getANZOthersRate(param);
+    if (rate != null) {
+      r = rate.Rate__c;
+      if (param.brokeragePer >= 3.51 && param.brokeragePer <= 4.4) {
+          r += 0.5;
       }
-    } else if (param.goodsType == 'equipment') {
-      if (param.vehiclesProfile == 'New_Goods__c') {
-        if (totalAmount >= 60000) {
-          label = 'a';
-        } else if (totalAmount >= 20000 && totalAmount < 60000) {
-          label = 'b';
-        } else if (totalAmount >= 10000 && totalAmount < 20000) {
-          label = 'c';
-        } else {
-          label = 'z';
-        }
-        if (esandaEquipmentMap.get(label) != null) {
-          originalRate = esandaEquipmentMap.get(label).New_Goods__c;
-        } else {
-          originalRate = 'error';
-        }
-      } else if (param.vehiclesProfile == 'Used_up_to_5_years_old__c') {
-        if (totalAmount >= 60000) {
-          label = 'a';
-        } else if (totalAmount >= 20000 && totalAmount < 60000) {
-          label = 'b';
-        } else if (totalAmount >= 10000 && totalAmount < 20000) {
-          label = 'c';
-        } else {
-          label = 'z';
-        }
-        if (esandaEquipmentMap.get(label) != null) {
-          originalRate = esandaEquipmentMap.get(label)
-            .Used_up_to_5_years_old__c;
-        } else {
-          originalRate = 'error';
-        }
-      } else if (param.vehiclesProfile == 'Over_5_years_old__c') {
-        if (totalAmount >= 60000) {
-          label = 'a';
-        } else if (totalAmount >= 20000 && totalAmount < 60000) {
-          label = 'b';
-        } else if (totalAmount >= 10000 && totalAmount < 20000) {
-          label = 'c';
-        } else {
-          label = 'z';
-        }
-        if (esandaEquipmentMap.get(label) != null) {
-          originalRate = esandaEquipmentMap.get(label).Over_5_years_old__c;
-        } else {
-          originalRate = 'error';
-        }
-      } else {
-        originalRate = '0.00';
-      }
-    } else if (param.goodsType == 'leisure') {
-      if (param.vehiclesProfile == 'New_1_year_old__c') {
-        if (totalAmount >= 60000) {
-          label = 'a';
-        } else if (totalAmount >= 20000 && totalAmount < 60000) {
-          label = 'b';
-        } else if (totalAmount >= 10000 && totalAmount < 20000) {
-          label = 'c';
-        } else {
-          label = 'z';
-        }
-        if (esandaLeisureMap.get(label) != null) {
-          originalRate = esandaLeisureMap.get(label).New_1_year_old__c;
-        } else {
-          originalRate = 'error';
-        }
-      } else if (param.vehiclesProfile == 'X2_5_years_old__c') {
-        if (totalAmount >= 60000) {
-          label = 'a';
-        } else if (totalAmount >= 20000 && totalAmount < 60000) {
-          label = 'b';
-        } else if (totalAmount >= 10000 && totalAmount < 20000) {
-          label = 'c';
-        } else {
-          label = 'z';
-        }
-        if (esandaLeisureMap.get(label) != null) {
-          originalRate = esandaLeisureMap.get(label).X2_5_years_old__c;
-        } else {
-          originalRate = 'error';
-        }
-      } else if (param.vehiclesProfile == 'Over_5_years_old__c') {
-        if (totalAmount >= 60000) {
-          label = 'a';
-        } else if (totalAmount >= 20000 && totalAmount < 60000) {
-          label = 'b';
-        } else if (totalAmount >= 10000 && totalAmount < 20000) {
-          label = 'c';
-        } else {
-          label = 'z';
-        }
-        if (esandaLeisureMap.get(label) != null) {
-          originalRate = esandaLeisureMap.get(label).Over_5_years_old__c;
-        } else {
-          originalRate = 'error';
-        }
-      } else {
-        originalRate = '0.00';
-      } // end if for vehiclesProfile
-    } else {
-      originalRate = '0.00';
-    } // end if for goodsType
-    // System.debug(totalAmount + '|' + param.goodsType + '|' + param.vehiclesProfile + '|' + param.brokeragePer + '|' + label);
-    try {
-      r = Decimal.valueOf(originalRate);
-    } catch (Exception e) {
-      r = 0.0;
     }
-    // System.debug('Base Rate 1 >> ' + r);
-    if (
-      param.brokeragePer != null &&
-      (param.brokeragePer >= 3.30 &&
-      param.brokeragePer <= 4.40)
-    ) {
-      r += 0.5;
-    }
-    // System.debug('Base Rate def >> ' + r);
     return r;
+
+    // // System.debug('ANZ Others base rate calculation....');
+    // Map<String, EsandaOthersChattel__c> esandaChattelMap = EsandaOthersChattel__c.getAll();
+    // Map<String, EsandaOthersEquipment__c> esandaEquipmentMap = EsandaOthersEquipment__c.getAll();
+    // Map<String, EsandaOthersLeisure__c> esandaLeisureMap = EsandaOthersLeisure__c.getAll();
+
+    // Decimal totalAmount = param.getNaf();
+    // String label = 'z';
+    // String originalRate = '0.00';
+
+    // if (param.goodsType == 'chattel') {
+    //   if (param.vehiclesProfile == 'New_3_years_old__c') {
+    //     if (totalAmount >= 150000) {
+    //       label = 'a';
+    //     } else if (totalAmount >= 100000 && totalAmount < 150000) {
+    //       label = 'b';
+    //     } else if (totalAmount >= 60000 && totalAmount < 100000) {
+    //       label = 'c';
+    //     } else if (totalAmount >= 20000 && totalAmount < 60000) {
+    //       label = 'd';
+    //     } else if (totalAmount >= 10000 && totalAmount < 20000) {
+    //       label = 'e';
+    //     } else {
+    //       label = 'z';
+    //     }
+    //     if (esandaChattelMap.get(label) != null) {
+    //       originalRate = esandaChattelMap.get(label).New_3_years_old__c;
+    //     } else {
+    //       originalRate = 'error';
+    //     }
+    //   } else if (param.vehiclesProfile == 'X4_8_years_old__c') {
+    //     if (totalAmount >= 150000) {
+    //       label = 'a';
+    //     } else if (totalAmount >= 100000 && totalAmount < 150000) {
+    //       label = 'b';
+    //     } else if (totalAmount >= 60000 && totalAmount < 100000) {
+    //       label = 'c';
+    //     } else if (totalAmount >= 20000 && totalAmount < 60000) {
+    //       label = 'd';
+    //     } else if (totalAmount >= 10000 && totalAmount < 20000) {
+    //       label = 'e';
+    //     } else {
+    //       label = 'z';
+    //     }
+    //     if (esandaChattelMap.get(label) != null) {
+    //       originalRate = esandaChattelMap.get(label).X4_8_years_old__c;
+    //     } else {
+    //       originalRate = 'error';
+    //     }
+    //   } else if (param.vehiclesProfile == 'Over_8_years_old__c') {
+    //     if (totalAmount >= 150000) {
+    //       label = 'a';
+    //     } else if (totalAmount >= 100000 && totalAmount < 150000) {
+    //       label = 'b';
+    //     } else if (totalAmount >= 60000 && totalAmount < 100000) {
+    //       label = 'c';
+    //     } else if (totalAmount >= 20000 && totalAmount < 60000) {
+    //       label = 'd';
+    //     } else if (totalAmount >= 10000 && totalAmount < 20000) {
+    //       label = 'e';
+    //     } else {
+    //       label = 'z';
+    //     }
+    //     if (esandaChattelMap.get(label) != null) {
+    //       originalRate = esandaChattelMap.get(label).Over_8_years_old__c;
+    //     } else {
+    //       originalRate = 'error';
+    //     }
+    //   } else {
+    //     originalRate = '0.00';
+    //   }
+    // } else if (param.goodsType == 'equipment') {
+    //   if (param.vehiclesProfile == 'New_Goods__c') {
+    //     if (totalAmount >= 60000) {
+    //       label = 'a';
+    //     } else if (totalAmount >= 20000 && totalAmount < 60000) {
+    //       label = 'b';
+    //     } else if (totalAmount >= 10000 && totalAmount < 20000) {
+    //       label = 'c';
+    //     } else {
+    //       label = 'z';
+    //     }
+    //     if (esandaEquipmentMap.get(label) != null) {
+    //       originalRate = esandaEquipmentMap.get(label).New_Goods__c;
+    //     } else {
+    //       originalRate = 'error';
+    //     }
+    //   } else if (param.vehiclesProfile == 'Used_up_to_5_years_old__c') {
+    //     if (totalAmount >= 60000) {
+    //       label = 'a';
+    //     } else if (totalAmount >= 20000 && totalAmount < 60000) {
+    //       label = 'b';
+    //     } else if (totalAmount >= 10000 && totalAmount < 20000) {
+    //       label = 'c';
+    //     } else {
+    //       label = 'z';
+    //     }
+    //     if (esandaEquipmentMap.get(label) != null) {
+    //       originalRate = esandaEquipmentMap.get(label)
+    //         .Used_up_to_5_years_old__c;
+    //     } else {
+    //       originalRate = 'error';
+    //     }
+    //   } else if (param.vehiclesProfile == 'Over_5_years_old__c') {
+    //     if (totalAmount >= 60000) {
+    //       label = 'a';
+    //     } else if (totalAmount >= 20000 && totalAmount < 60000) {
+    //       label = 'b';
+    //     } else if (totalAmount >= 10000 && totalAmount < 20000) {
+    //       label = 'c';
+    //     } else {
+    //       label = 'z';
+    //     }
+    //     if (esandaEquipmentMap.get(label) != null) {
+    //       originalRate = esandaEquipmentMap.get(label).Over_5_years_old__c;
+    //     } else {
+    //       originalRate = 'error';
+    //     }
+    //   } else {
+    //     originalRate = '0.00';
+    //   }
+    // } else if (param.goodsType == 'leisure') {
+    //   if (param.vehiclesProfile == 'New_1_year_old__c') {
+    //     if (totalAmount >= 60000) {
+    //       label = 'a';
+    //     } else if (totalAmount >= 20000 && totalAmount < 60000) {
+    //       label = 'b';
+    //     } else if (totalAmount >= 10000 && totalAmount < 20000) {
+    //       label = 'c';
+    //     } else {
+    //       label = 'z';
+    //     }
+    //     if (esandaLeisureMap.get(label) != null) {
+    //       originalRate = esandaLeisureMap.get(label).New_1_year_old__c;
+    //     } else {
+    //       originalRate = 'error';
+    //     }
+    //   } else if (param.vehiclesProfile == 'X2_5_years_old__c') {
+    //     if (totalAmount >= 60000) {
+    //       label = 'a';
+    //     } else if (totalAmount >= 20000 && totalAmount < 60000) {
+    //       label = 'b';
+    //     } else if (totalAmount >= 10000 && totalAmount < 20000) {
+    //       label = 'c';
+    //     } else {
+    //       label = 'z';
+    //     }
+    //     if (esandaLeisureMap.get(label) != null) {
+    //       originalRate = esandaLeisureMap.get(label).X2_5_years_old__c;
+    //     } else {
+    //       originalRate = 'error';
+    //     }
+    //   } else if (param.vehiclesProfile == 'Over_5_years_old__c') {
+    //     if (totalAmount >= 60000) {
+    //       label = 'a';
+    //     } else if (totalAmount >= 20000 && totalAmount < 60000) {
+    //       label = 'b';
+    //     } else if (totalAmount >= 10000 && totalAmount < 20000) {
+    //       label = 'c';
+    //     } else {
+    //       label = 'z';
+    //     }
+    //     if (esandaLeisureMap.get(label) != null) {
+    //       originalRate = esandaLeisureMap.get(label).Over_5_years_old__c;
+    //     } else {
+    //       originalRate = 'error';
+    //     }
+    //   } else {
+    //     originalRate = '0.00';
+    //   } // end if for vehiclesProfile
+    // } else {
+    //   originalRate = '0.00';
+    // } // end if for goodsType
+    // // System.debug(totalAmount + '|' + param.goodsType + '|' + param.vehiclesProfile + '|' + param.brokeragePer + '|' + label);
+    // try {
+    //   r = Decimal.valueOf(originalRate);
+    // } catch (Exception e) {
+    //   r = 0.0;
+    // }
+    // // System.debug('Base Rate 1 >> ' + r);
+    // if (
+    //   param.brokeragePer != null &&
+    //   (param.brokeragePer >= 3.30 &&
+    //   param.brokeragePer <= 4.40)
+    // ) {
+    //   r += 0.5;
+    // }
+    // // System.debug('Base Rate def >> ' + r);
+    // return r;
   }
 
   //Liberty Drive Calculators
@@ -2129,6 +2078,88 @@ public class QuotingCalculation {
     return r;
   }
 
+  public static Decimal getLibertyMultiplier(CalcParam param) {
+    Decimal r = 0.0;
+    if ('Consumer Loan'.equals(param.productLoanType)) {
+      if (param.term >= 60) {
+        if ('AAA'.equals(param.clientTier)) {
+          r = 1.75;
+        } else if (
+          'AA'.equals(param.clientTier) ||
+          'A+'.equals(param.clientTier)
+        ) {
+          r = 1.5;
+        } else if (
+          'A'.equals(param.clientTier) ||
+          'B+'.equals(param.clientTier)
+        ) {
+          r = 1.25;
+        } else if (
+          'B'.equals(param.clientTier) ||
+          'C'.equals(param.clientTier)
+        ) {
+          r = 1.0;
+        }
+      } else if (param.term == 48) {
+        if (
+          'B'.equals(param.clientTier) ||
+          'C'.equals(param.clientTier)
+        ) {
+          r = 0.75;
+        } else {
+          r = 1.0;
+        }
+      } else if (param.term == 36) {
+        if (
+          'B'.equals(param.clientTier) ||
+          'C'.equals(param.clientTier)
+        ) {
+          r = 0.5;
+        } else {
+          r = 0.75;
+        }
+      } else if (param.term == 24) {
+        if (
+          'B'.equals(param.clientTier) ||
+          'C'.equals(param.clientTier)
+        ) {
+          r = 0.25;
+        } else {
+          r = 0.5;
+        }
+      }
+    } else {
+      if (param.term >= 60) {
+        if ('AAA'.equals(param.clientTier)) {
+          r = 1.65;
+        } else if ('AA'.equals(param.clientTier)) {
+          r = 1.35;
+        } else {
+          r = 1.0;
+        }
+      } else if (param.term == 48) {
+        if ('AAA'.equals(param.clientTier) || 'AA'.equals(param.clientTier)) {
+          r = 1.0;
+        } else {
+          r = 0.75;
+        }
+      } else if (param.term == 36) {
+        if ('AAA'.equals(param.clientTier) || 'AA'.equals(param.clientTier)) {
+          r = 0.75;
+        } else {
+          r = 0.5;
+        }
+      } else if (param.term == 24) {
+        if ('AAA'.equals(param.clientTier) || 'AA'.equals(param.clientTier)) {
+          r = 0.5;
+        } else {
+          r = 0.25;
+        }
+      }
+    }
+    return r;
+  }
+
   public static Decimal getLibertyCommission(CalcParam param) {
     Decimal r = 0.00;
     if (param == null)
@@ -2151,45 +2182,42 @@ public class QuotingCalculation {
       } else {
         if ('10+ years'.equals(param.vehicleYear)) {
           if ('AAA'.equals(param.clientTier)) {
-            r = 5.69;
+            r = 3.25;
           } else if ('AA'.equals(param.clientTier)) {
-            r = 5.25;
+            r = 3.50;
           } else if ('A+'.equals(param.clientTier)) {
-            r = 5.63;
+            r = 3.75;
           }
         } else if ('5-9 years'.equals(param.vehicleYear)) {
           if ('AAA'.equals(param.clientTier)) {
-            r = 5.69;
+            r = 3.25;
           } else if (
             'AA'.equals(param.clientTier) || 'A+'.equals(param.clientTier)
           ) {
-            r = 5.25;
+            r = 3.50;
           }
         } else if ('0-4 years'.equals(param.vehicleYear)) {
           if ('AAA'.equals(param.clientTier)) {
-            r = 5.51;
+            r = 3.15;
           } else if (
             'AA'.equals(param.clientTier) || 'A+'.equals(param.clientTier)
           ) {
-            r = 5.25;
+            r = 3.50;
           }
         } else {
           if ('AAA'.equals(param.clientTier)) {
-            r = 3.50;
+            r = 2.00;
           } else if ('AA'.equals(param.clientTier)) {
-            r = 4.13;
+            r = 2.75;
           } else if ('A+'.equals(param.clientTier)) {
-            r = 4.50;
+            r = 3.00;
           }
         }
-        if ('A'.equals(param.clientTier)) {
-          r = 5.00;
-        } else if (
-          'B'.equals(param.clientTier) || 'C'.equals(param.clientTier)
+        if ('A'.equals(param.clientTier) || 'B'.equals(param.clientTier) || 'C'.equals(param.clientTier)
         ) {
           r = 4.00;
         } else if ('B+'.equals(param.clientTier)) {
-          r = 6.25;
+          r = 5.00;
         }
       }
     } else {
@@ -3382,10 +3410,11 @@ public class QuotingCalculation {
     Integer scale
   ) {
     Decimal r = 0.0;
-    //System.debug('Lender >> ' + param.lender);
-    //System.debug('amuntPmt >> ' + param.amountBasePmt);
-    //System.debug('ratePmt  >> ' + (param.baseRate/100/12));
-    //System.debug('term     >> ' + param.term);
+    // System.debug('@@Lender >> ' + param.lender);
+    // System.debug('amuntPmt >> ' + param.amountBasePmt);
+    // System.debug('baseRate  >> ' + param.baseRate);
+    // System.debug('ratePmt  >> ' + (param.baseRate/100/12));
+    // System.debug('term     >> ' + param.term);
     if (param.residualValue == null) {
       param.residualValue = 0.0;
     }
@@ -4284,6 +4313,10 @@ public class QuotingCalculation {
         if ('Y'.equals(param.greenCar)) {
           r -= 0.5;
         }
+        Decimal t = param.term > 0? param.term / 12.0 : 0.0;
+        if (t > 5) {
+          r += 0.3;
+        }
       }
     }
     return r;
@@ -4325,76 +4358,147 @@ public class QuotingCalculation {
 
   //Calc Params
   public class CalcParam {
+    @AuraEnabled
     public String lender { get; set; }
-
+    @AuraEnabled
     public Decimal totalAmount { get; set; }
+    @AuraEnabled
     public Decimal totalInsurance { get; set; }
+    @AuraEnabled
     public Decimal totalInsuranceIncome { get; set; }
+    @AuraEnabled
     public Decimal clientRate { get; set; }
+    @AuraEnabled
     public Decimal baseRate { get; set; }
+    @AuraEnabled
     public String paymentType { get; set; }
+    @AuraEnabled
     public String repaymentType { get; set; }
+    @AuraEnabled
     public Decimal term { get; set; }
+    @AuraEnabled
     public Decimal dof { get; set; }
+    @AuraEnabled
     public Decimal monthlyFee { get; set; }
+    @AuraEnabled
     public Decimal docFees { get; set; }
+    @AuraEnabled
     public Decimal residualValue { get; set; }
+    @AuraEnabled
     public Decimal brokeragePer { get; set; }
     //Pepper / Liberty
+    @AuraEnabled
     public Decimal commRate { get; set; }
     //Macquarie
+    @AuraEnabled
     public Decimal amountBasePmt { get; set; }
+    @AuraEnabled
     public Decimal amountBaseComm { get; set; }
     //Finance One
+    @AuraEnabled
     public Decimal nafCommission { get; set; }
     //Liberty Options
+    @AuraEnabled
     public Decimal riskFeeBase { get; set; }
+    @AuraEnabled
     public String ltv { get; set; }
+    @AuraEnabled
     public String customerProfile { get; set; }
+    @AuraEnabled
     public String adverseCredit { get; set; } //Y / N
+    @AuraEnabled
     public String clientTier { get; set; }
+    @AuraEnabled
     public String loanType { get; set; }
+    @AuraEnabled
     public String loanTypeDetail { get; set; }
+    @AuraEnabled
     public String productLoanType { get; set; }
+    @AuraEnabled
     public Integer carAge { get; set; }
+    @AuraEnabled
     public String assetType { get; set; }
+    @AuraEnabled
     public String privateSales { get; set; }
+    @AuraEnabled
     public String saleBacksPurchased { get; set; } //Metro
+    @AuraEnabled
     public String goodsType { get; set; } //Anz Others
+    @AuraEnabled
     public String goodsSubType { get; set; } //Macquarie
+    @AuraEnabled
     public String vehiclesProfile { get; set; } //Anz Others
+    @AuraEnabled
     public String condition { get; set; } //Anz Consumer: New/Demo or Used
+    @AuraEnabled
     public String vehicleYear { get; set; } //Macquarie
+    @AuraEnabled
     public String lpiLevel { get; set; } //Liberty LPI
+    @AuraEnabled
     public String state { get; set; } //Liberty LPI
+    @AuraEnabled
     public Integer vedascore { get; set; } //Wisr
+    @AuraEnabled
     public String greenCar { get; set; } //firstmac
+    @AuraEnabled
     public String riskGrade { get; set; } // AFS
+    @AuraEnabled
     public String bankrupt { get; set; } // AFS
+    @AuraEnabled
     public String residency { get; set; } // AFS
+    @AuraEnabled
     public Decimal maxRate { get; set; }
+    @AuraEnabled
     public String hasDefault { get; set; }
+    @AuraEnabled
     public String hasImports { get; set; }
+    @AuraEnabled
     public Decimal rental { get; set; }
+    @AuraEnabled
     public Decimal vehiclePrice { get; set; }
+    @AuraEnabled
     public Decimal commBonus { get; set; }
+    @AuraEnabled
     public String commType { get; set; }
+    @AuraEnabled
     public Decimal commPayable { get; set; }
+    @AuraEnabled
     public String dateOfBirth { get; set; }
     // New cacls
+    @AuraEnabled
     public Decimal equifaxScore {get;set;}
+    @AuraEnabled
     public String abnLength {get;set;}
+    @AuraEnabled
     public String gstLength {get;set;}
+    @AuraEnabled
     public String assetAge {get;set;}  
+    @AuraEnabled
     public String tier {get;set;}  
+    @AuraEnabled
     public Decimal endOfTerm {get;set;}
+    @AuraEnabled
     public String maritalStatus {get;set;}
+    @AuraEnabled
     public Decimal noOfDependants {get;set;}
+    @AuraEnabled
     public Decimal noOfPeople {get;set;} 
+    @AuraEnabled
     public String interestType { get; set; }
+    @AuraEnabled
+    public String creditScore { get; set; }
+    @AuraEnabled
+    public String companyScore { get; set; }
+    @AuraEnabled
+    public String directorSoleTraderScore { get; set; }
+    @AuraEnabled
+    public String paidDefault {set; get;}
+    @AuraEnabled
+    public Boolean hasMaxRate {set; get;}
+    @AuraEnabled
+    public Decimal applicationFee {set; get;}
 
-    public CalcParam(String lender) {
-      this.lender = lender;
+    public CalcParam() {
       this.totalAmount = 0.0;
       this.totalInsurance = 0.0;
       this.totalInsuranceIncome = 0.0;
@@ -4416,6 +4520,11 @@ public class QuotingCalculation {
       this.greenCar = 'N';
       this.rental = 0.0;
       this.commBonus = 0.0;
+    }
+
+    public CalcParam(String lender) {
+      this();
+      this.lender = lender;
     }
 
     public Decimal getNaf() {
@@ -4847,8 +4956,10 @@ public class QuotingCalculation {
           r += 1.0;
         }
 
+        // Lelo - 2022-06-28
         // Residency
-        if ('Property Owner'.equals(param.residency) && param.term > 60) {
+        // if ('Property Owner'.equals(param.residency) && param.term > 60) {
+        if (param.term > 60) {
           r += 0.5;
         }
 
@@ -5348,12 +5459,12 @@ public class QuotingCalculation {
   }
 
   public static BasicLenderRates__c getAffordableRate(CalcParam param) {
-    if (param != null && String.isNotBlank(param.clientTier)) {
-      System.debug(param.clientTier);
+    //if (param != null && String.isNotBlank(param.clientTier)) {
+    if (param != null && String.isNotBlank(param.creditScore)) {  
       Map<String, BasicLenderRates__c> lender = getBasicRates(param.lender);
-      if (lender != null && lender.containsKey(param.clientTier)) {
-        System.debug(param.clientTier);
-        return lender.get(param.clientTier);
+      //if (lender != null && lender.containsKey(param.clientTier)) {
+      if (lender != null && lender.containsKey(param.creditScore)) {
+        return lender.get(param.creditScore);
       }
     }
     return null;
@@ -5499,9 +5610,6 @@ public class QuotingCalculation {
 
     // calculate the payment rate based on client rate, which is determined by consultants
     decimal realRate = param.baseRate / 100;
-    if ('Angle Finance'.equals(param.lender)) {
-      realRate = param.clientRate / 100;
-    }
     
     decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
     
@@ -5544,6 +5652,56 @@ public class QuotingCalculation {
     return r;
   }
 
+  private static Application_Quoting_Result__c calculateAngleFinance(CalcParam 
+    param) {
+    Application_Quoting_Result__c r = new Application_Quoting_Result__c();
+    r.Payment_Calc_Type__c = 'DF';
+    r.NAF__c = param.getNaf();
+
+    // calculate the payment rate based on client rate, which is determined by consultants
+    decimal realRate = param.clientRate / 100;
+    
+    decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
+    
+    decimal rate = FinancialUtilities.rate(
+      1000,
+      12,
+      0,
+      futureValue,
+      realRate / 12,
+      false
+    );
+
+    r.Rental__c = FinancialUtilities.pmt(
+      param.amountBasePmt,
+      rate,
+      param.term,
+      param.residualValue,
+      param.getPaymentTypeBoolean()
+    );
+    r.Rental__c = r.Rental__c.setScale(2);
+
+    r.Estimated_Commission__c = (param.brokeragePer / 100 * 
+    param.amountBaseComm) / 1.1;
+    r.Estimated_Commission__c = r.Estimated_Commission__c.setScale(2);
+
+    //calculate the insurance income
+    r.Insurance_Income__c = param.totalInsuranceIncome;
+    r.Insurance_Income__c = r.Insurance_Income__c / 1.1;
+    r.Insurance_Income__c = r.Insurance_Income__c.setScale(2);
+
+    // calculate the dof without GST
+    r.DOF__c = param.dof / 1.1;
+    r.DOF__c = r.DOF__c.setScale(2);
+
+    // calculate the monthly payment
+    r.Monthly_Payment__c = r.Rental__c + param.monthlyFee;
+    r.Monthly_Payment__c = r.Monthly_Payment__c.setScale(2);
+
+    r.recalculateFormulas();
+
+    return r;
+  }
   //Shift Asset --> BaseRateCalc
   private static Decimal getShiftAssetBaseRate(CalcParam param) {
       Decimal r = 0.0;
@@ -5618,69 +5776,171 @@ public class QuotingCalculation {
   }
   
   private static Decimal getGetGrowAssetCarBaseRate(CalcParam param) {
-      Decimal r = 0.0;
-      system.debug('param***'+param);
-      
-      String abnLengthSearch = '';
-      String assetAgeSearch = '';
-      
-      if(param.assetType == 'Cars/Vans/Utes'){
-          if(param.abnLength == '> 36 months'){
-              abnLengthSearch = '> 36 Months ABN + GST';
-          }else{
-              abnLengthSearch = '< 36 Months ABN + GST';
-          }
-          
-          if(Integer.valueOf(param.assetAge) <= 2){
-              assetAgeSearch = 'New (0-2yrs old)';
-          }else if(Integer.valueOf(param.assetAge) > 2){ 
-              assetAgeSearch = 'Used';
-          }
-          
-          List <Grow_Asset_Car_Rates__c> gacTier1 = [select id, name, ABN_length__c, Asset_age__c, Additional_rate__c, Asset_backed__c, Asset_type__c, Condition__c,	Non_Asset_backed__c from Grow_Asset_Car_Rates__c 
-                                                      where Asset_type__c = 'Tier 1' 
-                                                      AND ABN_length__c =:  abnLengthSearch 
-                                                      AND Asset_age__c =: assetAgeSearch
-                                                      order by name asc];
-          
-          if(param.customerProfile == 'Y'){
-              r = Decimal.valueOf(gacTier1[0].Asset_backed__c.replace('%',''));
-          }else{
-              r = Decimal.valueOf(gacTier1[0].Non_Asset_backed__c.replace('%',''));
-          }
-      }else if(param.assetType == 'Auto'){
-          
-          if(Integer.valueOf(param.assetAge) <= 10){
-              assetAgeSearch = 'New/Used (<= 10 years EOT)';
-          }else if(Integer.valueOf(param.assetAge) <= 15){ 
-              assetAgeSearch = 'Used (<= 15 years EOT)';
-          }else if(Integer.valueOf(param.assetAge) <= 25){
-              assetAgeSearch = 'Used (<= 25 years EOT)';
-          }
-          
-          List <Grow_Asset_Car_Rates__c> gacTier1 = [select id, name, ABN_length__c, Asset_age__c, Additional_rate__c, Asset_backed__c, Asset_type__c, Condition__c,	Non_Asset_backed__c from Grow_Asset_Car_Rates__c 
-                                                      where Asset_type__c = 'Tier 2' 
-                                                      AND Asset_age__c =: assetAgeSearch
-                                                      order by name asc];
-          
-          if(param.customerProfile == 'Y'){
-              r = Decimal.valueOf(gacTier1[0].Asset_backed__c.replace('%',''));
-          }else{
-              r = Decimal.valueOf(gacTier1[0].Non_Asset_backed__c.replace('%',''));
-          }
-      }
-      
-      if(param.privateSales == 'Y'){
-          r = r + 1;
-      }
-      if(param.equifaxScore < 500){
-          r = r + 2;
-      }
-      if(param.abnLength == '> 12 months'){
-          r = r + 2;
-      }
-      return r;
+    Decimal r = 0.0;
+    system.debug('param***'+param);
+    
+    String abnLengthSearch = '';
+    String assetAgeSearch = '';
+    Decimal assetAgeEndOfTerm = Integer.valueOf(param.assetAge) + param.term / 12;
+    String tier;
+  
+    if ((assetAgeEndOfTerm) <= 7) {
+      assetAgeSearch = '0-7 years';
+    } else if ((assetAgeEndOfTerm ) <= 15) {
+      assetAgeSearch = '8-15 years';
     }
+  
+    if(param.assetType == 'Tier 1 - Cars'){
+      tier = 'Tier 1';
+    } else if (param.assetType == 'Tier 2 - Trucks yellow goods') {
+      tier = 'Tier 2';
+      if (assetAgeSearch == '' && (assetAgeEndOfTerm) <= 25) {
+        assetAgeSearch = '16-25 years';
+      }
+    } else if (param.assetType == 'Tier 3 - Specialised') {
+      tier = 'Tier 3';
+      assetAgeSearch = 'New';
+      if (param.condition == 'Used') {
+        assetAgeSearch = 'Used';
+      }
+    }
+  
+    List <Grow_Asset_Car_Rates__c> rates;
+  
+    if (tier != null && assetAgeSearch != '') {
+      rates = [select Asset_backed__c, Non_Asset_backed__c from 
+        Grow_Asset_Car_Rates__c where Asset_type__c =: tier AND Asset_age__c =: 
+          assetAgeSearch];
+    }
+  
+    if (rates != null) {
+      try {
+        if(param.customerProfile == 'Y'){
+          r = Decimal.valueOf(rates[0].Asset_backed__c.replace('%',''));
+        }else{
+          r = Decimal.valueOf(rates[0].Non_Asset_backed__c.replace('%',''));
+        }
+      } catch (Exception e) {}
+      
+      rates = [select Additional_rate__c, Condition__c from 
+        Grow_Asset_Car_Rates__c];
+  
+      for (Grow_Asset_Car_Rates__c rate : rates) {
+  
+        if ('Company score < 500'.equals(rate.Condition__c)) {
+          if(param.companyScore == '< 500'){
+            r = r + Decimal.valueOf(rate.Additional_rate__c.replace('%',''));
+          }
+        }
+        
+        if ('Director score < 600'.equals(rate.Condition__c)) {
+          if(param.directorSoleTraderScore == '< 600'){
+            r = r + Decimal.valueOf(rate.Additional_rate__c.replace('%',''));
+          }
+        }
+        
+        if ('Private sales'.equals(rate.Condition__c)) {
+          if(param.privateSales == 'Y'){
+            r = r + Decimal.valueOf(rate.Additional_rate__c.replace('%',''));
+          }
+        }
+        
+        if ('Term > 60 months'.equals(rate.Condition__c)) {
+          if(param.term > 60){
+            r = r + Decimal.valueOf(rate.Additional_rate__c.replace('%',''));
+          }
+        }
+        
+        if ('ABN / GST age < 24 months'.equals(rate.Condition__c)) {
+          if(param.abnLength == '> 12 months' || param.gstLength == '< 2 years'){
+            r = r + Decimal.valueOf(rate.Additional_rate__c.replace('%',''));
+          }
+        }
+        
+        if (
+          '<$5000 paid on adverse on file ( excludes paid Telco/utility < $ 1000)'
+            .equals(rate.Condition__c)) {
+          if(param.paidDefault == 'Oth Default <$5K'){
+            r = r + Decimal.valueOf(rate.Additional_rate__c.replace('%',''));
+          }
+        }
+        
+        if ('Term < 24 months'.equals(rate.Condition__c)) {
+          if(param.term < 24){
+            r = r + Decimal.valueOf(rate.Additional_rate__c.replace('%',''));
+          }
+        }
+      }
+  
+      if (param.brokeragePer > 5) {
+        r += (param.brokeragePer - 5).intValue() * 0.5;
+      }
+    }
+    
+    /*
+    if(param.assetType == 'Cars/Vans/Utes'){
+        if(param.abnLength == '> 36 months'){
+            abnLengthSearch = '> 36 Months ABN + GST';
+        }else{
+            abnLengthSearch = '< 36 Months ABN + GST';
+        }
+        
+        if(Integer.valueOf(param.assetAge) <= 2){
+            assetAgeSearch = 'New (0-2yrs old)';
+        }else if(Integer.valueOf(param.assetAge) > 2){ 
+            assetAgeSearch = 'Used';
+        }
+        
+        List <Grow_Asset_Car_Rates__c> gacTier1 = [select id, name, ABN_length__c, Asset_age__c, Additional_rate__c, Asset_backed__c, Asset_type__c, Condition__c,	Non_Asset_backed__c from Grow_Asset_Car_Rates__c 
+                                                    where Asset_type__c = 'Tier 1' 
+                                                    AND ABN_length__c =:  abnLengthSearch 
+                                                    AND Asset_age__c =: assetAgeSearch
+                                                    order by name asc];
+        
+        if(param.customerProfile == 'Y'){
+            r = Decimal.valueOf(gacTier1[0].Asset_backed__c.replace('%',''));
+        }else{
+            r = Decimal.valueOf(gacTier1[0].Non_Asset_backed__c.replace('%',''));
+        }
+    }else if(param.assetType == 'Auto'){
+        
+        if(Integer.valueOf(param.assetAge) <= 10){
+            assetAgeSearch = 'New/Used (<= 10 years EOT)';
+        }else if(Integer.valueOf(param.assetAge) <= 15){ 
+            assetAgeSearch = 'Used (<= 15 years EOT)';
+        }else if(Integer.valueOf(param.assetAge) <= 25){
+            assetAgeSearch = 'Used (<= 25 years EOT)';
+        }
+        
+        List <Grow_Asset_Car_Rates__c> gacTier1 = [select id, name, ABN_length__c, Asset_age__c, Additional_rate__c, Asset_backed__c, Asset_type__c, Condition__c,	Non_Asset_backed__c from Grow_Asset_Car_Rates__c 
+                                                    where Asset_type__c = 'Tier 2' 
+                                                    AND Asset_age__c =: assetAgeSearch
+                                                    order by name asc];
+        
+        if(param.customerProfile == 'Y'){
+            r = Decimal.valueOf(gacTier1[0].Asset_backed__c.replace('%',''));
+        }else{
+            r = Decimal.valueOf(gacTier1[0].Non_Asset_backed__c.replace('%',''));
+        }
+    }
+    */
+  
+    /*
+    if(param.privateSales == 'Y'){
+        r = r + 0.5;
+    }
+    if(param.equifaxScore < 500){
+        r = r + 0.5;
+    }
+    if(param.abnLength == '> 12 months'){
+        r = r + 2;
+    }
+    if(param.term > 60){
+        r = r + 0.5;
+    }
+    */
+    return r;
+  }
     
     private static Decimal getGetGrowBusinessLoanBaseRate(CalcParam param) {
       Decimal r = 0.0;
@@ -5910,4 +6170,64 @@ public class QuotingCalculation {
       return r;
   }
   
+  
+  /** Wiser VL - fees */
+  public static Decimal getWisrVLMaxDOF(Decimal amount) { 
+    // amount -> asset proice - net deposit
+    Decimal r = 0.0;
+    if (amount >= 50000) {
+      r = 1990.0;
+    } else if (amount >= 40000) {
+      r = 1500.0;
+    } else if (amount >= 30000) {
+      r = 1250.0;
+    } else if (amount >= 20000) {
+      r = 990.0;
+    } else if (amount >= 10000) {
+      r = 900.0;
+    } else if (amount >= 7500) {
+      r = 750.0;
+    } else if (amount >= 5000) {
+      r = 500.0;
+    }
+    return r;
+  }
+
+  public static Decimal getWisrVLMaxAppFee(Decimal naf) { 
+    Decimal r = 0.0;
+    if (naf < 10000) {
+      r = 495.0;
+    } else if (naf < 20000) {
+      r = 520.0;
+    } else if (naf < 25000) {
+      r = 555.0;
+    } else if (naf < 30000) {
+      r = 575.0;
+    } else if (naf < 35000) {
+      r = 630.0;
+    } else if (naf < 40000) {
+      r = 735.0;
+    } else if (naf < 45000) {
+      r = 840.0;
+    } else if (naf < 50000) {
+      r = 945.0;
+    } else {
+      r = 990.0;
+    }
+    return r;
+  }
+
+  // AFS Commission rate
+  public static Decimal getAFSRateCommission(CalcParam param) {
+    Decimal r = 0.00;
+    AFSRateV2__c rate = QuotingCalculation.getAFSConsumerRate(param);
+    if (rate != null) {
+      r = rate.Comm__c;
+    } else if('Gold Club - Non-Property'.equals(param.productLoanType)){
+      r = 5.00;
+    } else {
+      r = 0.00;
+    }
+    return r;
+  }
 }

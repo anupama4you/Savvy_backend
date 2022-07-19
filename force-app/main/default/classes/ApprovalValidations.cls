@@ -199,7 +199,9 @@ public class ApprovalValidations {
         'Pepper PL'.equals(quotingCalc) ||
         'Yamaha'.equals(p.Lender__c))
       ) {
-        docs.add('Spouse Information');
+        if (!SOQLSingletonQueries.recs().isBrokerPartnerUser) {
+          docs.add('Spouse Information');
+        }
       }
 
       // Skip Servicing calculation
@@ -245,11 +247,9 @@ public class ApprovalValidations {
       }
     }
 
-    //E-SignLive Validation
-    if (!PreApprovalValidatorHelper.isESignLivePackageCompleted(opp.Id)) {
-      docs.add('Savvy Consent');
-    }
-
+    //Adding Consent doc type
+    docs.add('Consent');
+    
     //YTD - Sole Trader / Low Doc
     if (
       'Self-Employed'.equals(ytdType) && 
@@ -294,7 +294,7 @@ public class ApprovalValidations {
         for (Application_Employment__c x : appEmpl) {
           if ('1'.equals(x.Applicant__c)) {
             docs.add('Applicant 1 Second Job Payslip');
-          } else if ('2'.equals(x.Applicant__c)) {
+          } else if ('2'.equals(x.Applicant__c) && app.No_of_People__c == 2) {
             docs.add('Applicant 2 Second Job Payslip');
           }
         }
@@ -314,6 +314,8 @@ public class ApprovalValidations {
         this.addMessage(DOCUMENT_MSG, 'Applicant 2 - Drivers License - Front');
         this.addMessage(DOCUMENT_MSG, 'Applicant 2 - Drivers License - Back');
       }
+
+      docs.add('Applicant 2 Consent');
     }
 
     // Preliminary Assessment Surplus
@@ -453,7 +455,9 @@ public class ApprovalValidations {
           'Refinance'.equalsIgnoreCase(productLoanType)) ||
           (isConsumerLoan && !hasBankStatements)
         ) {
-          docs.add('Secondary Evidence of Income');
+          if (!SOQLSingletonQueries.recs().isBrokerPartnerUser) {
+            docs.add('Secondary Evidence of Income');
+          }
         }
         //Secondary Evidence of Income for PAYG
         if (
@@ -465,10 +469,12 @@ public class ApprovalValidations {
           Map<String, List<Application_Income__c>> d = ApplicationService.getApplicationIncomeMap(
             app.Id
           );
-          if (!d.isEmpty()) {
-            if (!isConsumerLoan || (isConsumerLoan && !hasBankStatements)) {
-              docs.add('Secondary Evidence of Income');
-            }
+          if (
+            !d.isEmpty() &&
+            (!isConsumerLoan || (isConsumerLoan && !hasBankStatements)) &&
+            !SOQLSingletonQueries.recs().isBrokerPartnerUser
+          ) {
+            docs.add('Secondary Evidence of Income');
           }
         }
         // Secondary evidence for Commercials
@@ -476,7 +482,8 @@ public class ApprovalValidations {
         if (
           'Self-Employed'.equals(ytdType) &&
           'Sole Trader'.equals(ytdSelfEmpType) &&
-          'Low-Doc'.equals(ytdSelfEmpClass)
+          'Low-Doc'.equals(ytdSelfEmpClass) &&
+          !SOQLSingletonQueries.recs().isBrokerPartnerUser
         ) {
           docs.add('Secondary Evidence of Income');
         }

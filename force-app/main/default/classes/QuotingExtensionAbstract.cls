@@ -305,7 +305,8 @@ public abstract class QuotingExtensionAbstract {
       'Application__r.No_of_Dependants_1__c',
       'Application__r.No_of_People__c',
       'Application__r.State__c',
-      'Application__r.Type_of_Asset__c'
+      'Application__r.Type_of_Asset__c',
+      'OwnerId'
     };
     if (extraFields != null && !extraFields.isEmpty()) {
       fields.addAll(extraFields);
@@ -730,9 +731,20 @@ public abstract class QuotingExtensionAbstract {
       param.maritalStatus = Opp.Application__r.Marital_Status_1__c;
       param.noOfDependants = Opp.Application__r.No_of_Dependants_1__c;
       param.noOfPeople = Opp.Application__r.No_of_People__c;
-      QuotingCalculation.LibertyLPI p = QuotingCalculation.calculateLibertyLPI(param);
-      cci = p.premium;
-      cciIncome = p.income;
+      try {
+        QuotingCalculation.LibertyLPI p = QuotingCalculation.calculateLibertyLPI(param);
+        cci = p.premium;
+        cciIncome = p.income;
+      } catch (Exception e) {
+        ApexPages.addMessage(
+            new ApexPages.Message(
+              ApexPages.Severity.ERROR,
+              'LPI could not be calculate  [' +
+              e.getMessage() +
+              ']'
+            )
+          );
+      }
     }
   }
 

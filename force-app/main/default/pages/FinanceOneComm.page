@@ -649,7 +649,7 @@
                         </tr>
                         <tr>
                             <td class="financeColumn">
-                            	<apex:outputLabel styleClass="calcLabel" value="Client Rate" for="clientRate" />
+                                <apex:outputLabel styleClass="calcLabel" value="Client Rate" for="clientRate" />
                             </td>
                             <td class="baseRateColumn">
                                 <!--<apex:input type="number" html-step="0.01" label="Client Rate" value="{!clientRate}" html-placeholder="%" id="clientRate" styleClass="calcInput" onchange="messageRefresh()" />-->
@@ -668,7 +668,7 @@
                         </tr>-->
                         <tr>
                             <td class="financeColumn">
-                            	<apex:outputLabel styleClass="calcLabel" value="Commission" for="commission" />
+                                <apex:outputLabel styleClass="calcLabel" value="Commission" for="commission" />
                             </td>
                             <td class="baseRateColumn">
                                 <apex:outputText label="Commission" value="{0, number, $##,###,##0.00}" id="commission" >

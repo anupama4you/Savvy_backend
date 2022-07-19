@@ -12,6 +12,9 @@ public class TestGrowAssetCarCalc {
         GrowAssetCarExtension ctr = new GrowAssetCarExtension(sc);
         
         ctr.reset();
+        ctr.companyScore = '> 500';
+        ctr.directorSoleTraderScore = '> 600';
+        ctr.paidDefault = 'Pd Telco <$1K';
         ctr.validate();
         ctr.realtimeNaf = 150001;
         ctr.propertyOwner = 'N';
@@ -20,19 +23,10 @@ public class TestGrowAssetCarCalc {
         ctr.propertyOwner = 'Y';
         ctr.brokeragePercentage = 9;
         ctr.abnLength = '< 2 years';        
-        ctr.assetType = 'Trucks';
+        ctr.assetType = 'Tier 1 - Cars';
         ctr.assetAge = '26';
         ctr.validate();
-        ctr.assetType = 'Yellow';
-        ctr.assetAge = '26';
-        ctr.validate();
-        ctr.assetType = 'Solar';
-        ctr.assetAge = '26';
-        ctr.validate();
-        ctr.assetType = 'Car';
-        ctr.assetAge = '26';
-        ctr.validate();
-            
+
         ctr.getIsBrokerPartnerUser();
         
     }
@@ -76,8 +70,11 @@ public class TestGrowAssetCarCalc {
         ctr.isAssetBoat = true;
         ctr.tradeIn = 2;
         ctr.payoutOn = 2;
-        ctr.assetType = 'Cars/Vans/Utes';
+        ctr.assetType = 'Tier 1 - Cars';
         ctr.assetAge = '5';
+        ctr.companyScore = '> 500';
+        ctr.directorSoleTraderScore = '> 600';
+        ctr.paidDefault = 'Pd Telco <$1K';
         ctr.savePreApproval();
     }
     
@@ -106,9 +103,12 @@ public class TestGrowAssetCarCalc {
         ctr.abnLength = '> 2 years';
         ctr.gstLength = '> 2 years';
         ctr.deposit = 12000;
-        ctr.assetType = 'Cars/Vans/Utes';
+        ctr.assetType = 'Tier 1 - Cars';
         ctr.assetAge = '5';
-        ctr.baseRateCalc();       
+        ctr.baseRateCalc();
+        ctr.companyScore = '> 500';
+        ctr.directorSoleTraderScore = '> 600';
+        ctr.paidDefault = 'Pd Telco <$1K';       
         ctr.calculate();
         
         
@@ -174,9 +174,12 @@ public class TestGrowAssetCarCalc {
         ctr.abnLength = '> 2 years';
         ctr.gstLength = '> 2 years';
         ctr.deposit = 12000;
-        ctr.assetType = 'Cars/Vans/Utes';
+        ctr.assetType = 'Tier 1 - Cars';
         ctr.assetAge = '5';
-        ctr.baseRateCalc();       
+        ctr.baseRateCalc();
+        ctr.companyScore = '> 500';
+        ctr.directorSoleTraderScore = '> 600';
+        ctr.paidDefault = 'Pd Telco <$1K';       
         ctr.calculate();
         
         ctr.productLoanType = 'Consumer Loan';
@@ -266,14 +269,28 @@ public class TestGrowAssetCarCalc {
         ctr.nwcTerm = '12';
         ctr.nwcParam.state = 'SA';
         //NWCCalculator HJ - F - 12-07-2018
+    }
+
+    @isTest static void testCalculatorA2() {
+        test.startTest();
+        Test_DataGeneratorHelper.createApplication();
+        Test_DataGeneratorHelper.reloadOpportunity();
+        ApexPages.StandardController sc = new ApexPages.StandardController(Test_DataGeneratorHelper.tstOpportunity);
         
+        PageReference GrowAssetCar = Page.GrowAssetCar;
+        GrowAssetCar.getParameters().put('id',Test_DataGeneratorHelper.tstOpportunity.Id);
+        Test.setCurrentPageReference(GrowAssetCar);
+        GrowAssetCarExtension ctr = new GrowAssetCarExtension(sc);
+        ctr.assetType = 'a';
+        ctr.assetAge = '1';
+        ctr.isValidCalculate();
         // test for baseRateCalc ()
         ctr.reset();
         ctr.equifaxScore = 700;
         ctr.abnLength = '> 2 years';
         ctr.gstLength = '> 2 years';
         ctr.deposit = 12000;
-        ctr.assetType = 'Cars/Vans/Utes';
+        ctr.assetType = 'Tier 1 - Cars';
         ctr.assetAge = '5';
         ctr.productGoodsType = ctr.productGoodsTypes.get(1).getValue();
         ctr.changeGoodsType();
@@ -285,7 +302,10 @@ public class TestGrowAssetCarCalc {
         ctr.manufactureYear = ctr.manufactureYearOptions.get(1).getValue();
         ctr.ltv = 0;
         ctr.brokeragePercentage = 2;
-        ctr.baseRateCalc();       
+        ctr.baseRateCalc();
+        ctr.companyScore = '> 500';
+        ctr.directorSoleTraderScore = '> 600';
+        ctr.paidDefault = 'Pd Telco <$1K';       
         ctr.calculate();
         //System.assert(ctr.rental > 0);
 
@@ -398,7 +418,7 @@ public class TestGrowAssetCarCalc {
         //NWCCalculator HJ - I - 12-07-2018 - Car
         ctr.calculateNWC();
         ctr.checkManuallyNWCPrice();
-        ctr.calculateNWC();
+        //ctr.calculateNWC();
         //NWCCalculator HJ - F - 12-07-2018
         
         
@@ -407,6 +427,22 @@ public class TestGrowAssetCarCalc {
         Test_DataGeneratorHelper.quoting.App_Insurance_Quote__c = Test_DataGeneratorHelper.quote.Id;
         update Test_DataGeneratorHelper.quoting;
         //ctr = new PepperCalculatorMVExtension(sc);
+        ctr.term = 72;
+        ctr.assetType = 'Tier 3 - Specialised';
+        ctr.loanType = 'Easy Doc';
+        ctr.gstLength = '> 2 years';
+        ctr.abnLength = '> 24 months';
+        ctr.propertyOwner = 'Y';
+        ctr.realtimeNaf = 260000;
+        ctr.isValidCalculate();
+        ctr.assetType = 'Tier 1 - Cars';
+        ctr.realtimeNaf = 190000;
+        ctr.isValidCalculate();
+        ctr.loanType = 'Low Doc';
+        ctr.gstLength = '< 2 years';
+        ctr.abnLength = '> 12 months';
+        ctr.realtimeNaf = 190000;
+        ctr.isValidCalculate();
     }
     
     @isTest static void testCalculatorB() {
@@ -426,9 +462,12 @@ public class TestGrowAssetCarCalc {
         GrowAssetCarExtension ctr = new GrowAssetCarExtension(sc);
 
         ctr = new GrowAssetCarExtension(sc);
+        ctr.companyScore = '> 500';
+        ctr.directorSoleTraderScore = '> 600';
+        ctr.paidDefault = 'Pd Telco <$1K';
         ctr.productLoanType = 'Consumer Loan';
         ctr.productGoodsType = 'Car';
-        ctr.assetType = 'Trucks';
+        ctr.assetType = 'Tier 1 - Cars';
         ctr.assetAge = '5';
         
         ctr.mvAcceptance = 'A';

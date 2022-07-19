@@ -1,6 +1,6 @@
 @isTest(SeeAllData=true)
 private class TestFinanceOneCalc {
-	
+
 	@isTest static void testCalculator() {
         
 		test.startTest();
@@ -163,7 +163,7 @@ private class TestFinanceOneCalc {
         ctr.calculate();
         System.debug('clientRate >> ' + ctr.clientRate);
         System.debug('baseRate >> ' + ctr.baseRate);
-        
+        ctr.productGoodsSubType = 's';
         ctr.savePreApproval();
         ctr.saveAmendment();
         //ctr.saveFormalApproval();
@@ -471,6 +471,7 @@ private class TestFinanceOneCalc {
         ctr.term = 60;
         ctr.baseRateCalc();
         ctr.clientRate = ctr.baseRate + 1;
+        ctr.productGoodsSubType = 's';
         ctr.calculate();
         System.debug('rental: ' + ctr.rental);
         System.assert(ctr.rental > 0);
@@ -569,7 +570,5 @@ private class TestFinanceOneCalc {
         ctr.productGoodsSubType = 's';
         ctr.save();
         ctr.getProductGoodsSubTypes();
-
-        ctr = new FinanceOneExtension(sc);
     }	
 }

@@ -806,42 +806,45 @@ public QuotingToolHelper qh { get; set; }
     Decimal tmpMaxAppFee = this.maxAppFee;
     Decimal tmpMaxDof = this.maxDof;
     this.maxAppFee = 0.0;
-    this.maxDof = 0.0;
-    if (this.getBaseAmountForDOF() >= 50000) {
-      this.maxDof = 1990.0;
-    } else if (this.getBaseAmountForDOF() >= 40000) {
-      this.maxDof = 1500.0;
-    } else if (this.getBaseAmountForDOF() >= 30000) {
-      this.maxDof = 1250.0;
-    } else if (this.getBaseAmountForDOF() >= 20000) {
-      this.maxDof = 990.0;
-    } else if (this.getBaseAmountForDOF() >= 10000) {
-      this.maxDof = 900.0;
-    } else if (this.getBaseAmountForDOF() >= 7500) {
-      this.maxDof = 750.0;
-    } else if (this.getBaseAmountForDOF() >= 5000) {
-      this.maxDof = 500.0;
-    }
+    this.maxDof = QuotingCalculation.getWisrVLMaxDOF(this.getBaseAmountForDOF());
+    this.maxAppFee = QuotingCalculation.getWisrVLMaxAppFee(this.getRealtimeNafVal());
 
-    if (this.getRealtimeNafVal() < 10000) {
-      this.maxAppFee = 495.0;
-    } else if (this.getRealtimeNafVal() < 20000) {
-      this.maxAppFee = 520.0;
-    } else if (this.getRealtimeNafVal() < 25000) {
-      this.maxAppFee = 555.0;
-    } else if (this.getRealtimeNafVal() < 30000) {
-      this.maxAppFee = 575.0;
-    } else if (this.getRealtimeNafVal() < 35000) {
-      this.maxAppFee = 630.0;
-    } else if (this.getRealtimeNafVal() < 40000) {
-      this.maxAppFee = 735.0;
-    } else if (this.getRealtimeNafVal() < 45000) {
-      this.maxAppFee = 840.0;
-    } else if (this.getRealtimeNafVal() < 50000) {
-      this.maxAppFee = 945.0;
-    } else {
-      this.maxAppFee = 990.0;
-    }
+    // this.maxDof = 0.0;
+    // if (this.getBaseAmountForDOF() >= 50000) {
+    //   this.maxDof = 1990.0;
+    // } else if (this.getBaseAmountForDOF() >= 40000) {
+    //   this.maxDof = 1500.0;
+    // } else if (this.getBaseAmountForDOF() >= 30000) {
+    //   this.maxDof = 1250.0;
+    // } else if (this.getBaseAmountForDOF() >= 20000) {
+    //   this.maxDof = 990.0;
+    // } else if (this.getBaseAmountForDOF() >= 10000) {
+    //   this.maxDof = 900.0;
+    // } else if (this.getBaseAmountForDOF() >= 7500) {
+    //   this.maxDof = 750.0;
+    // } else if (this.getBaseAmountForDOF() >= 5000) {
+    //   this.maxDof = 500.0;
+    // }
+    
+    // if (this.getRealtimeNafVal() < 10000) {
+    //   this.maxAppFee = 495.0;
+    // } else if (this.getRealtimeNafVal() < 20000) {
+    //   this.maxAppFee = 520.0;
+    // } else if (this.getRealtimeNafVal() < 25000) {
+    //   this.maxAppFee = 555.0;
+    // } else if (this.getRealtimeNafVal() < 30000) {
+    //   this.maxAppFee = 575.0;
+    // } else if (this.getRealtimeNafVal() < 35000) {
+    //   this.maxAppFee = 630.0;
+    // } else if (this.getRealtimeNafVal() < 40000) {
+    //   this.maxAppFee = 735.0;
+    // } else if (this.getRealtimeNafVal() < 45000) {
+    //   this.maxAppFee = 840.0;
+    // } else if (this.getRealtimeNafVal() < 50000) {
+    //   this.maxAppFee = 945.0;
+    // } else {
+    //   this.maxAppFee = 990.0;
+    // }
 
 
     if (processAppFee && !this.appFeeManualInput) {

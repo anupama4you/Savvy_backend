@@ -79,8 +79,10 @@ private class TestCarStartFinanceCalc {
         ctr.tradeIn = 0;
         ctr.payoutOn = 0;
         ctr.residualValue = 1000;
+        ctr.dof = 900;
+        ctr.commission = 1;
         ctr.baseRateCalc();
-        ctr.clientRate = 1;
+        ctr.clientRate = ctr.baseRate + 1;
         ctr.calculate();
         ctr.savePreApproval();
         

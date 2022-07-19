@@ -15,7 +15,7 @@ public class AngleFinanceExtension {
     public String abnLength {get;set;}
     public String gstLength {get;set;}
     public String assetAge {get;set;}    
-    public Decimal originationFee {set; get;}
+    //public Decimal originationFee {set; get;}
     public Decimal endOfTerm {set; get;}
     //------------
     
@@ -547,8 +547,8 @@ public class AngleFinanceExtension {
           }
         }
         if (applicationFee != null) r += applicationFee;
-        //if (dof != null) r += dof;
-        if (originationFee != null) r += originationFee;
+        if (dof != null) r += dof;
+        //if (originationFee != null) r += originationFee;
         if (ppsr != null) r += ppsr;
         if (netDeposit != null) r -= netDeposit;
         r += this.getTotalInsuranceType(calcType);
@@ -885,7 +885,7 @@ public class AngleFinanceExtension {
     
     public PageReference reset () {
         this.endOfTerm = 0;
-        this.originationFee = 0;
+        //this.originationFee = 0;
         this.endOfTerm = 0;
         this.applicationFee = lenderSettings.Application_Fee__c;
         this.privateSales = '';
@@ -1695,7 +1695,7 @@ public class AngleFinanceExtension {
                 ppsr = d.PPSR__c;    
                 monthlyFee = d.Monthly_Fee__c;
                 assetAge = d.Vehicle_Age__c;
-                originationFee = d.DOF__c;
+                //originationFee = d.DOF__c;
                 assetType = d.Goods_type__c;
                 equifaxScore = String.isNotBlank(d.Credit_Score__c) ? Decimal.valueOf(d.Credit_Score__c) : null;
                 abnLength = d.Extra_Label_1__c;
@@ -1892,7 +1892,7 @@ public class AngleFinanceExtension {
         d.NAF__c = naf;
         d.Vehicle_Age__c = assetAge;
         d.Goods_type__c = assetType;
-        d.DOF__c = originationFee;
+        //d.DOF__c = originationFee;
         d.Credit_Score__c = equifaxScore != null? String.valueOf(equifaxScore.intValue()) : null;
         d.Extra_Label_1__c = abnLength;
                         
@@ -2729,8 +2729,8 @@ public class AngleFinanceExtension {
             if (carPrice != null) r += carPrice;
         }
         if (applicationFee != null) r += applicationFee;
-        //if (dof != null) r += dof;
-        if (originationFee != null) r += originationFee;
+        if (dof != null) r += dof;
+        //if (originationFee != null) r += originationFee;
         if (ppsr != null) r += ppsr;
         //if (registrationFee != null) r += registrationFee;
         if (netDeposit != null) r -= netDeposit;

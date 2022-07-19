@@ -1350,6 +1350,22 @@ public without sharing class SOQLSingletonQueries {
 		set;
 	}
 
+  public Account myAccount {
+		get { 
+      if (myAccount == null && this.myAccountId != null) {
+        // myAccount = this.myContact.AccountId;
+        List<Account> d = [
+          SELECT 
+            Id, Name, Business_Name__c, Business_Logo__c 
+          FROM Account WHERE Id = :this.myAccountId
+        ];
+        myAccount = d.isEmpty() ? null : d.get(0);
+      }
+      return myAccount; 
+    }
+		set;
+	}
+
   public Boolean isFranchised {
 		get { 
       return (
@@ -1437,5 +1453,47 @@ public without sharing class SOQLSingletonQueries {
     }
 		return r;
 	}
+
+  public static Map<Id, Account> getPartnerOwnerAccounts(Set<Id> accountIds) {
+    Map<Id, Account> r = new Map<Id, Account>();
+    if (accountIds != null && !accountIds.isEmpty()) {
+      List<Account> d = [
+        SELECT Default_Ownership__c, Franchised__c 
+        FROM Account
+        WHERE Id in :accountIds
+      ];
+      for (Account a: d) {
+        r.put(a.Id, a);
+      }
+    }
+		return r;
+	}
   
+  public static Account getPartnerAccount(Id userId) {
+    Account r = null;
+    if (String.isNotBlank(userId)) {
+      List<User> userList = [
+        SELECT Name, ContactId FROM User WHERE Id = :userId LIMIT 1
+      ];
+      if (!userList.isEmpty()) {
+        List<Contact> contactList = [
+          SELECT FirstName, LastName, Email, AccountId 
+          FROM Contact WHERE Id = :userList[0].ContactId LIMIT 1
+        ];
+        
+        if(!contactList.isEmpty()){
+          List<Account> d = [
+            SELECT 
+              Id, Name, Business_Name__c, Business_Logo__c, Business_Website__c,
+              Business_Address__c, Franchised__c, Phone, Fax,
+              ABN__c, ACL__c, ACN__c
+            FROM Account WHERE Id =: contactList[0].AccountId limit 1
+          ];
+          r = d[0];
+        }
+      }
+    }
+    return r;
+	}
+
 }

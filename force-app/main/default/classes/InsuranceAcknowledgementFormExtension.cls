@@ -1,4 +1,4 @@
-public with sharing class InsuranceAcknowledgementFormExtension {
+public without sharing class InsuranceAcknowledgementFormExtension {
 	
 	private final Custom_Opportunity__c o;
 	//public Application__c app {set;get;}
@@ -7,23 +7,42 @@ public with sharing class InsuranceAcknowledgementFormExtension {
 	public Application_Additional_Driver__c mainDriver {set;get;}
 
 	public List<Insurance_Quote_Annotation__c> offenceList {set;get;}
-    public List<Insurance_Quote_Annotation__c> licencetList {set;get;}
-    public List<Insurance_Quote_Annotation__c> accidentList {set;get;}
-    public List<Insurance_Failure_Reason__c> reasons {set;get;}
+  public List<Insurance_Quote_Annotation__c> licencetList {set;get;}
+  public List<Insurance_Quote_Annotation__c> accidentList {set;get;}
+  public List<Insurance_Failure_Reason__c> reasons {set;get;}
+
+  public Account ownerAccount {set;get;}
+  public Application__c app {set;get;}
 
 	public InsuranceAcknowledgementFormExtension(ApexPages.StandardController ctrl) {
+    Set<String> fields = new Set<String>{
+      'OwnerId'
+    };
+    if (!Test.isRunningTest()) ctrl.addFields(new List<String>(fields));
 		this.o = (Custom_Opportunity__c)ctrl.getRecord();
-        
-        this.quoting = QuotingToolHelper.getApplicationQuoting(this.o.Id, this.o.Application__c);
-        if (this.quoting != null)  {
-        	this.quote = InsuranceQuoteUtils.getApplicationInsuranceQuoteById(this.quoting.App_Insurance_Quote__c);
-        	if (this.quote != null) {
-        		this.mainDriver = InsuranceQuoteUtils.getMainDriver(this.quote.Id);
-            }
+    this.quoting = QuotingToolHelper.getApplicationQuoting(this.o.Id, this.o.Application__c);
+    if (this.quoting != null)  {
+      this.quote = InsuranceQuoteUtils.getApplicationInsuranceQuoteById(this.quoting.App_Insurance_Quote__c);
+      if (this.quote != null) {
+        this.mainDriver = InsuranceQuoteUtils.getMainDriver(this.quote.Id);
         }
-        this.reasons = this.getInsuranceFailureReasons();
+    }
+    this.reasons = this.getInsuranceFailureReasons();
 
-        loadMVAnnotations();
+    loadMVAnnotations();
+    this.ownerAccount = this.getAccountVar();
+
+    Id appId = this.o.Application__c;
+    if (appId != null) {
+      List<Application__c> apps = [
+        SELECT
+          First_Name__c, Last_Name__c
+        FROM Application__c
+        WHERE Id = :appId
+      ];
+      this.app = apps.isEmpty()? null : apps.get(0);
+    }
+
 	}
 
   public Boolean getDisplayMV() {
@@ -275,6 +294,81 @@ public with sharing class InsuranceAcknowledgementFormExtension {
     return getIntegrityQuestionRespose(5);
   }
 
+  public Boolean getIsPartnerUser() {
+    return this.ownerAccount != null && !this.ownerAccount.Franchised__c;
+  }
 
+  public String getBusinessLogo() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.Business_Logo__c : null;
+  }
+
+  public String getBusinessABN() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.ABN__c : null;
+  }
+
+  public String getBusinessACL() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.ACL__c : null;
+  }
+
+  public String getBusinessACN() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.ACN__c : null;
+  }
+
+  public String getBusinessName() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.Business_Name__c : null;
+  }
+
+  public String getBusinessPhone() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.Phone : null;
+  }
+
+  public String getBusinessFax() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.Fax : null;
+  }
+
+  public String getBusinessAddress() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.Business_Address__c : null;
+  }
+
+  public Account getAccountVar() {
+    return SOQLSingletonQueries.getPartnerAccount(this.o.OwnerId);
+    // Id userId = this.o != null 
+    //   ? this.o.OwnerId : UserInfo.getUserId();
+    
+    // System.debug('@@userId: ' + userId);
+    // List<Contact> contactList = [
+    //   SELECT FirstName, LastName, Email, AccountId 
+    //   FROM Contact WHERE Id IN (
+    //     SELECT ContactId FROM User WHERE Id = :userId
+    //   )
+    // ];
+    // System.debug('@@contactList:' + JSON.serializePretty(contactList));
+    // if(!contactList.isEmpty() && contactList[0].AccountId != null){
+    //   List<Account> accountList;
+    //   accountList = [
+    //     SELECT 
+    //       Id, Name, Fax, Phone, Business_Address__c,
+    //       Business_Name__c, Business_Logo__c, Franchised__c,
+    //       ABN__c, ACL__c, ACN__c
+    //     FROM Account WHERE Id =: contactList[0].AccountId limit 1
+    //   ];
+    //   System.debug('@@accountList[0]:' + JSON.serializePretty(accountList[0]));
+    //   return accountList[0];
+    // }
+    // return null;
+  }
+
+  public String getCustomeFullname() {
+    return this.app != null 
+    ? this.app.First_Name__c + ' ' + this.app.Last_Name__c : null;
+  }
   
 }

@@ -104,6 +104,7 @@ public class QuotingToolAssistant {
         }else if(LENDER_QUOTING == 'Shift ODR' || LENDER_QUOTING == 'Grow Business Loan'){
             r.add(new SelectOption ('Term Loan', 'Term Loan'));
         }else if(LENDER_QUOTING == 'Grow Asset'){
+            r.add(new SelectOption ('Full Doc', 'Full Doc'));
             r.add(new SelectOption ('Low Doc', 'Low Doc'));
             r.add(new SelectOption ('Easy Doc', 'Easy Doc'));
         }else if(LENDER_QUOTING == 'Angle Finance'){
@@ -136,8 +137,12 @@ public class QuotingToolAssistant {
             r.add(new SelectOption ('Tertiary assets', 'Tertiary assets'));
             r.add(new SelectOption ('Fitout Finance', 'Fitout Finance'));
         }else if(LENDER_QUOTING == 'Grow Asset'){
-            r.add(new SelectOption ('Auto', 'Auto'));
-            r.add(new SelectOption ('Cars/Vans/Utes', 'Cars/Vans/Utes'));
+            //r.add(new SelectOption ('Auto', 'Auto'));
+            //r.add(new SelectOption ('Cars/Vans/Utes', 'Cars/Vans/Utes'));
+          r.add(new SelectOption ('Tier 1 - Cars', 'Tier 1 - Cars'));
+          r.add(new SelectOption ('Tier 2 - Trucks yellow goods', 
+            'Tier 2 - Trucks yellow goods'));
+          r.add(new SelectOption ('Tier 3 - Specialised', 'Tier 3 - Specialised'));
         }else if(LENDER_QUOTING == 'Morris'){
             r.add(new SelectOption ('Motor Vehicle', 'Motor Vehicle')); 
             r.add(new SelectOption ('Trucks/Yellow/Buses/Trailers/Caravans', 'Trucks/Yellow/Buses/Trailers/Caravans')); 
@@ -177,6 +182,10 @@ public class QuotingToolAssistant {
             r.add(new SelectOption ('36', '36'));
             r.add(new SelectOption ('48', '48'));
             r.add(new SelectOption ('60', '60'));
+          if (LENDER_QUOTING == 'Grow Asset') {
+            r.add(new SelectOption ('72', '72'));
+            r.add(new SelectOption ('84', '84'));
+          }
         }else if(LENDER_QUOTING == 'Shift ODR'){
             r.add(new SelectOption ('0', '0'));
             r.add(new SelectOption ('12', '12'));
@@ -201,7 +210,7 @@ public class QuotingToolAssistant {
         }else if(LENDER_QUOTING == 'Grow Asset' || LENDER_QUOTING == 'Selfco'){
             r.add(new SelectOption ('> 12 months', '> 12 months'));
             r.add(new SelectOption ('> 24 months', '> 24 months'));
-            r.add(new SelectOption ('> 36 months', '> 36 months'));
+            //r.add(new SelectOption ('> 36 months', '> 36 months'));
         }else if(LENDER_QUOTING == 'Angle Finance'){
             /*r.add(new SelectOption ('ABN < 2 years,  GST < 1 year', 'ABN < 2 years,  GST < 1 year'));
             r.add(new SelectOption ('ABN 0-2 years,  GST > 1 year', 'ABN 0-2 years,  GST > 1 year'));
@@ -326,13 +335,16 @@ public class QuotingToolAssistant {
         List<SelectOption> r = new List<SelectOption> ();
         if(LENDER_QUOTING == 'Shift Asset' || LENDER_QUOTING == 'Grow Asset'){
             r.add(new SelectOption ('Advance', 'Advance'));
-        }else if(LENDER_QUOTING == 'Angle Finance' || LENDER_QUOTING == 'Morris'){
+        }else if(LENDER_QUOTING == 'Morris'){
             r.add(new SelectOption ('Arrears', 'Arrears'));
         }else if(LENDER_QUOTING == 'Selfco' || LENDER_QUOTING == 'Capital Finance'){
             r.add(new SelectOption ('Arrears', 'Arrears'));
             r.add(new SelectOption ('Advance', 'Advance'));
         }else if(LENDER_QUOTING == 'Silver Chef' || LENDER_QUOTING == 'Commercial Equity Group' || LENDER_QUOTING == 'Group and General'){
             r.add(new SelectOption ('', 'None'));
+        }else if(LENDER_QUOTING == 'Angle Finance'){
+          r.add(new SelectOption ('Arrears', 'Arrears'));
+          r.add(new SelectOption ('Advance', 'Advance'));
         }
         return r;
     }

@@ -944,11 +944,18 @@ public class PepperCommExtension extends QuotingExtension {
         new ApexPages.Message(ApexPages.Severity.ERROR, sError)
       );
     }
-    ApexPages.addMessage(
-      new ApexPages.Message(ApexPages.Severity.ERROR, '**Errors list**')
-    );
-    for (String e : errors) {
+
+    /*for (String e : errors) {
       ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, e));
+    }*/
+    if (ppAPIManager.pepperAppResponseDTO.reasonsForSubmissionFailure != null) {
+      ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
+        '**Errors list**'));
+      for (PepperApplicationResponseDTO.ReasonsForSubmissionFailure r : 
+        ppAPIManager.pepperAppResponseDTO.reasonsForSubmissionFailure) {
+        ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 
+          r.applicationSection+' '+r.errorMessage+' '+r.errorContext));
+      }
     }
   }
 

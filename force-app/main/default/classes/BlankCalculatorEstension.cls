@@ -140,6 +140,8 @@ public with sharing class BlankCalculatorEstension {
         p = Page.SocietyOne;
       } else if ('Westpac'.equals(lender)) {
         p = Page.Westpac;
+      } else if ('APF'.equals(lender)) {
+        p = Page.APF;
       }
       if (p != null) {
         p.getParameters().put('id', opp.Id);

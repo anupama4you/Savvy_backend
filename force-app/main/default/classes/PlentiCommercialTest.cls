@@ -79,7 +79,6 @@ public class PlentiCommercialTest {
     // test for baseRateCalc() and calculateValidation()
     ctr.greenCar = 'N';
     ctr.brokeragePercentage = 1;
-    ctr.abn = '> 5 yrs / >3 yrs';
     ctr.calculate();
     // System.debug('rental: ' + ctr.rental);
     System.assert(ctr.rental > 0);
@@ -112,25 +111,20 @@ public class PlentiCommercialTest {
     ctr.hasValidQuotation();
     ctr.calculateQuote();
     ctr.storeQuotingData();
-
     ctr.customerProfile = 'Non Property Owner';
-    ctr.realtimeNaf = 200000;
-    ctr.clientTier = 'Tier 2';
+    ctr.abn = '> 1 yr / Unreg > 1 yr';
+    ctr.realtimeNaf = 50000;
+    ctr.clientTier = 'Tier 1';
+    ctr.isValidationOk();
+    ctr.abn = '> 2 years';
+    ctr.clientTier = 'Tier 3';
     ctr.isValidationOk();
     ctr.abn = '> 2 yrs / >1 year';
-    ctr.realtimeNaf = 150000;
-    ctr.clientTier = 'Tier 1';
-    ctr.isValidationOk();
-    ctr.abn = '> 1 year / 1 day';
-    ctr.realtimeNaf = 100000;
-    ctr.clientTier = 'Tier 1';
-    ctr.isValidationOk();
-    ctr.abn = '> 1 year / Unreg';
-    ctr.realtimeNaf = 30000;
-    ctr.clientTier = 'Tier 1';
     ctr.isValidationOk();
     ctr.clientRate = 1;
 	  ctr.baseRate = 1;
+    ctr.realtimeNaf = 110000;
+    ctr.privateSales = 'Y';
     ctr.isValidationOk();
   }
 
@@ -272,7 +266,6 @@ public class PlentiCommercialTest {
     ctr.clientRate = ctr.baseRate + 1;
     ctr.greenCar = 'N';
     ctr.brokeragePercentage = 1;
-    ctr.abn = '> 5 yrs / >3 yrs';
     ctr.calculate();
     System.debug('rental: ' + ctr.rental);
     System.assert(ctr.rental > 0);
@@ -577,7 +570,6 @@ public class PlentiCommercialTest {
     ctr.clientRate = ctr.baseRate + 1;
     ctr.greenCar = 'N';
     ctr.brokeragePercentage = 1;
-    ctr.abn = '> 5 yrs / >3 yrs';
     ctr.calculate();
     System.debug('rental: ' + ctr.rental);
     System.assert(ctr.rental > 0);

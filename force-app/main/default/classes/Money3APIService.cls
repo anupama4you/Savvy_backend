@@ -114,6 +114,10 @@ public class Money3APIService {
         request.purpose = appQuoting.Loan_Purpose__c != null ? appQuoting.Loan_Purpose__c : '';
         //get broker details
         request.broker = getBrokerDetails(user);
+        // Partner name
+        if (opp.Partner_Owner__c != null && !opp.Franchise_Owner__c) {
+          request.broker.company = String.isNotBlank(opp.Partner_Owner__r.Name) ? opp.Partner_Owner__r.Name : opp.Owner_Name__c;
+        }
         //get applicants details
         request.applicants = getApplicants(app);
         //get owners

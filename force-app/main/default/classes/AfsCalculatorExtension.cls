@@ -639,14 +639,16 @@ public class AfsCalculatorExtension extends QuotingExtension {
         param.vehiclePrice = this.getVehiclePrice();
         param.assetType = this.assetType;
         param.productLoanType = this.productLoanType;
-        AFSRateV2__c rate = QuotingCalculation.getAFSConsumerRate(param);
-        if (rate != null) {
-            param.commRate = rate.Comm__c;
-        } else if('Gold Club - Non-Property'.equals(this.productLoanType)){
-            param.commRate = 5.00;
-        } else {
-            param.commRate = 0.00;
-        }
+
+        param.commRate = QuotingCalculation.getAFSRateCommission(param);
+        // AFSRateV2__c rate = QuotingCalculation.getAFSConsumerRate(param);
+        // if (rate != null) {
+        //     param.commRate = rate.Comm__c;
+        // } else if('Gold Club - Non-Property'.equals(this.productLoanType)){
+        //     param.commRate = 5.00;
+        // } else {
+        //     param.commRate = 0.00;
+        // }
         
         System.debug(quotingType + '|' + param.totalAmount + '|' + param.totalInsurance + '|' + param.totalInsuranceIncome);
 
@@ -801,29 +803,26 @@ public class AfsCalculatorExtension extends QuotingExtension {
         if ('New/Demo'.equals(this.assetCondition)) {
             opts.add('N/A');
         } else {
-          opts.add('0-3 years');
-          if ('Car'.equals(this.assetType)) {
-            if ('Property Owner'.equals(this.residency)) {
-              opts.add('4-10 years');
-            } else if ('Renting'.equals(this.residency)) {
-              opts.add('4-5 years');
-              opts.add('6-10 years');
-            } else {
-              opts.add('4-7 years');
-              opts.add('8-10 years');
+          if ('Property Owner'.equals(this.residency)) {
+            opts.add('0-3 years');
+            opts.add('4-5 years');
+            opts.add('6-10 years');
+            opts.add('11+ years');
+            if ('Car'.equals(this.assetType)) {
+              opts.add('Classic');
             }
+          } else if ('Renting'.equals(this.residency)) {
+            opts.add('0-5 years');
+            opts.add('6-10 years');
+            opts.add('11-20 years');
+            opts.add('21+ years');
           } else {
-            if ('Property Owner'.equals(this.residency) || 'Renting'.equals(this.residency)) {
-              opts.add('4-5 years');
-              opts.add('6-10 years');
-            } else {
-              opts.add('4-7 years');
-              opts.add('8-10 years');
-            }
+            opts.add('0-3 years');
+            opts.add('4-7 years');
+            opts.add('8-10 years');
+            opts.add('11-20 years');
+            opts.add('21+ years');
           }
-          opts.add('11-20 years');
-          opts.add('21-30 years');
-          opts.add('30+ years');
         }
         for (String opt: opts) {
             r.add(new SelectOption(opt, opt));

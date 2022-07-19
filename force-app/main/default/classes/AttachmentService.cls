@@ -14,7 +14,7 @@ public class AttachmentService {
     		for(Attachment att : newList){
     			System.debug('att.Name:' + att.Name + ':' + parentOpptyMap);
     			if(att.Name.contains('Consent') && att.Name.contains('_esigned') && !parentOpptyMap.isEmpty() && parentOpptyMap.get(att.ParentId) != null){
-    				CloudRequiredDocument d = new CloudRequiredDocument('Savvy Consent');
+    				CloudRequiredDocument d = new CloudRequiredDocument('Consent');
     				d.blobFile = att.Body;
     				d.contentType = 'application/pdf';
     				d.docName = att.Name;

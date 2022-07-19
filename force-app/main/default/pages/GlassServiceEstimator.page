@@ -475,7 +475,7 @@ reRender="fldVariant, fldAssetOptions, pnlEstimations, pnlVehicleData, pnlLTV, m
                                                                         <apex:outputText value="PASSENGER VEHICLES" rendered="{!q.Type_Source__c = 'PVG'}" />
                                                                     </td>
                                                                 </tr>
-                                                                <tr>    
+                                                                <tr>
                                                                     <td>
                                                                         <apex:outputLabel value="Date Rel: {!q.Release_Date__c}" styleClass=""/>
                                                                     </td>

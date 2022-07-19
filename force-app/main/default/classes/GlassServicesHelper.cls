@@ -4,7 +4,6 @@ public with sharing class GlassServicesHelper {
     public static Map<String, Glass_Variant__c> recordGlassVariant {set; get;}
     private static Map<String, String> typeOptionsMap;
     
-    
     private static List<String> redBookLenders = new List<String> {'Pepper', 'RateSetter'};
 
         public static List <SelectOption> getMakeSelectOptions(String newUsed, String year) {
@@ -86,7 +85,6 @@ public with sharing class GlassServicesHelper {
             SELECT Family__c FROM Glass_Variant__c
             where Make__c = :code AND Year__c = :y GROUP BY Family__c ORDER BY Family__c ASC
         ];
-
         // String yearFilter = '%' + year + '%';
         // if ('new'.equals(newused) || 'demo'.equals(newused)) {
         //     data = [Select o.Id, o.Code__c, o.Name, o.New_Years__c, o.Used_Years__c From Glass_Model__c o Where Make__r.Code__c = :code And o.New_Years__c like :yearFilter Order by o.Name];
@@ -125,8 +123,6 @@ public with sharing class GlassServicesHelper {
     }
     
     public static List <SelectOption> getMakeModelsSelectOptionsRedbook(String code, String year){
-
-        system.debug('yyyyy'+ code + year);
         if (String.isBlank(code)) {
             return null;
         }
@@ -295,8 +291,6 @@ public with sharing class GlassServicesHelper {
         }
         return r;
     }
-
-    
     
     public static List <SelectOption> getVariantFactoryOptionsSelectOptions(String code) {
         if (String.isBlank(code)) {
@@ -533,12 +527,10 @@ public with sharing class GlassServicesHelper {
     }
     
     public static Map<String, List<AssetOptionDTO>> getVariantOptionsByCode(String code) {
-        system.debug('variantOptions:::code-->'+ code);
         Map<String, List<AssetOptionDTO>> r = new Map<String, List<AssetOptionDTO>>();
         if(!String.isBlank(code)){
             List<Glass_Variant_Option__c> data = [SELECT Type_Option__c, Options__c FROM Glass_Variant_Option__c 
                                                   WHERE Variant_Code__c = :code];
-                            system.debug('variantOptions:::r-->'+ data);
             loadTypeOptionsMap();
             for (Glass_Variant_Option__c v : data) {
                 List<AssetOptionDTO> dtos = AssetOptionDTO.build(v.Type_Option__c, v.Options__c);
@@ -547,7 +539,6 @@ public with sharing class GlassServicesHelper {
                 }
                 r.put(v.Type_Option__c, dtos);
             }
-            system.debug('variantOptions:::r-->'+ r);
         }
         return r;
     }
@@ -732,8 +723,6 @@ public with sharing class GlassServicesHelper {
     }
     
     public static Glass_Variant__c getGlassCarAux(Parameter param) {
-        system.debug('param ID Car'+ param.IdCar);
-
         List<Glass_Variant__c> r = [SELECT Id, Name, Average_Kms__c, Engine__c, KM_Category__c, CC__c, Code__c, Model__r.Type_Source__c,
                                     New_Price__c, NVIC__c, Release_Date__c, Retail_Price__c, Style__c, Trade_Low_Price__c,
                                     Trade_Price__c, Transmission__c, Year__c, Make__c, Family__c, Description__c, Series__c,
@@ -757,6 +746,22 @@ public with sharing class GlassServicesHelper {
     //     return 'OLDER LIGHT COMMERCIAL';
     // }
     
+    public class Parameter {
+        public String condition {get;set;}
+        public String year {set; get;}
+        public String make {set; get;}
+        public String family {set; get;}
+        public String variantCode {set; get;}
+        public String variant {set; get;}
+        public String serie {set; get;}
+        public String color {set; get;}
+        public String accesories {set; get;}
+        public String state {set; get;}
+        public String IdCar {set; get;}
+        public String idOpp {set; get;}
+        public Integer sizeCars {set; get;}
+        public Parameter(){}
+    }
     
     //By Yohan Villamizar 10-04-2019
     public static Glass_Variant__c getGlassCarByCode(Parameter param) {
@@ -774,7 +779,6 @@ public with sharing class GlassServicesHelper {
     }
     
     public static String getCodeModel(Parameter param) {
-        system.debug('glass service print::'+ param);
         Decimal year = Decimal.valueOf(param.year);
         String make = param.make;
         String family = param.family;
@@ -794,13 +798,11 @@ public with sharing class GlassServicesHelper {
     }
 
     public static Decimal calculateUsedOptions(List<String> options, String year) {
-        System.debug('calculateUsedOptions:::'+ options+ year);
       if(options == null || options.isEmpty() || String.isBlank(year)){
         return 0;
       }
 
       Integer yearOptions = Date.today().year() - Integer.valueOf(year);
-      System.debug('calculateUsedOptions--yearoptions:::'+yearOptions);
     
       if(yearOptions > 10){
         yearOptions = 10;
@@ -811,8 +813,7 @@ public with sharing class GlassServicesHelper {
           FROM Glass_Option_Adjustment__c 
           WHERE Years__c =: yearOptions AND Option__c IN:options
       ];
-      System.debug('calculateUsedOptions:::'+ (Decimal)total.get(0).get('total'));
-
+      
       return (Decimal)total.get(0).get('total') != null?(Decimal)total.get(0).get('total'):0;
     }
 }

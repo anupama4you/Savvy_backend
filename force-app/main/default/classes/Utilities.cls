@@ -166,29 +166,48 @@ public class Utilities {
         return retStr;
     }
 
-    /*******************************************************************************************************
-    * @author Lelo
-    * @description cache for Message codes
-    */
-    public static void loadMessageCodes() {
-      // System.debug('loadMessageCodes...');
-      if (messagesCodeList == null) {
-        messagesCodeList = new Map<String, List<Message_Codes__c>>();
-        List<Message_Codes__c> d = [
-          select name, code__c, description__c, domain__c 
-          from message_codes__c 
-        ];
-        for (message_codes__c m : d) {
-          List<Message_Codes__c> domains = messagesCodeList.get(m.Domain__c);
-          if (domains == null) {
-              // System.debug('loading setting ' + m.Domain__c + '...');
-            domains = new List<Message_Codes__c>();
-            messagesCodeList.put(m.Domain__c, domains);
-          }
-          domains.add(m);
+  /*******************************************************************************************************
+  * @author Lelo
+  * @description cache for Message codes
+  */
+  public static void loadMessageCodes() {
+    // System.debug('loadMessageCodes...');
+    if (messagesCodeList == null) {
+      messagesCodeList = new Map<String, List<Message_Codes__c>>();
+      List<Message_Codes__c> d = [
+        select name, code__c, description__c, domain__c 
+        from message_codes__c 
+      ];
+      for (message_codes__c m : d) {
+        List<Message_Codes__c> domains = messagesCodeList.get(m.Domain__c);
+        if (domains == null) {
+            // System.debug('loading setting ' + m.Domain__c + '...');
+          domains = new List<Message_Codes__c>();
+          messagesCodeList.put(m.Domain__c, domains);
         }
+        domains.add(m);
       }
-      
     }
+  }
+  
+  /*******************************************************************************************************
+  * @author Lelo
+  * @description extract all fields from an sobject
+  */
+  public static Set<String> getCustomFields(String apiName) {
+    SObjectType objType = ((SObject) (Type.forName('Schema.' + apiName).newInstance())).getSObjectType();
+    Map<String, SObjectField> fieldsByName = objType.getDescribe().fields.getMap();
+    Set<String> r = new Set<String>();
+
+    for (SObjectField field : fieldsByName.values()) {
+        if (field.getDescribe().isCustom()) {
+            r.add(field.getDescribe().getName());
+        }
+    }
+
+    System.debug('customFields => ' + r);
+
+    return r;
+  }
 
 }

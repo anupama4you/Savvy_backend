@@ -395,7 +395,6 @@
             <apex:actionFunction action="{!sendCustomerEmail2}" name="sendCustomerEmail2" status="stsSend2" reRender="pageMessage"/>
             <!-- End -->
             <apex:actionFunction name="nafRefresh" reRender="maxDof, realtimeNaf" />
-            <!--<apex:actionFunction action="{!feesCalc}" name="feesCalc" reRender="monthlyFee,realtimeNaf"/>-->
             <div class="titleDiv">
                 <h1>Society One for {!Custom_Opportunity__c.Name}</h1>
                 <div class="buttonPanel">
@@ -412,10 +411,6 @@
                                 <apex:commandButton styleClass="calculateButtons" value="Save Amendment" action="{!saveAmendment}" reRender="calcFormData" status="stsProcess"/>
                                 <apex:commandButton styleClass="calculateButtons" value="Save Formal Approval" action="{!saveFormalApproval}" reRender="calcFormData" status="stsProcess"/>
                                 <input name="DoAction" type="button" value="Send Quote" class="btn calculateButtons" onclick="sendCustomerEmail1();return false;"/>
-                                <!--<apex:commandButton styleClass="calculateButtons" value="Plenti Application (Test)" action="{!sendApplicationTest}" rendered="{!paramActive}"
-                                  status="stsProcess" reRender="calcFormData" />
-                                <apex:commandButton styleClass="calculateButtons" value="Plenti Application" action="{!sendApplication}" status="stsProcess"
-                                  reRender="calcFormData" rendered="{!AND(NOT(isBrokerPartnerUser),OR(NOT(hasLenderApp),paramActive))}" />-->
                             </td>
                             <td>
                                 <apex:image url="{!$Resource.SocietyOneLogo}" height="40" />
@@ -475,7 +470,7 @@
                             <td class="financeColumn">
                                 <!-- <apex:outputText value="${!dto.applicationFee}" id="applicationFee" /> -->
                                 <apex:outputPanel id="applicationFee" layout="block">
-                                    <apex:input type="number" html-step="0.01" value="{!dto.applicationFee}" html-placeholder="$" styleClass="calcInput2" onchange="nafRefresh()" />
+                                    <apex:input type="number" html-step="0.01" value="{!dto.applicationFee}" html-placeholder="$" styleClass="calcInput2" onchange="nafRefresh();" />
                                     &nbsp;&nbsp;&nbsp;
                                     <apex:outputText value="Max. {0, number, $##,###,##0.00}">
                                         <apex:param value="{!dto.maxAppFee}"/>
@@ -494,14 +489,6 @@
                                 <apex:outputText value="Max. {0, number, $##,###,##0}" id="maxDof">
                                   <apex:param value="{!dto.maxDof}" />
                                 </apex:outputText>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="financeColumn">
-                            <apex:outputLabel styleClass="calcLabel" value="Risk Fee" for="riskFee" />
-                            </td>
-                            <td class="financeColumn">
-                            <apex:input type="number" html-step="0.01" value="{!dto.riskFee}" html-placeholder="$" id="riskFee" styleClass="calcInput" onchange="nafRefresh();" />
                             </td>
                         </tr>
                         <tr>
@@ -549,25 +536,11 @@
                             </td>
                             <td class="financeColumn">
                                 <apex:selectList value="{!dto.loanTypeDetail}" multiselect="false" size="1" styleClass="selectList" id="security">
-                                    <!--<apex:actionSupport event="onchange" action="{!feesCalc}" reRender="applicationFee,realtimeNaf"/>-->
                                     <apex:selectOption itemLabel="Secured" itemValue="Secured"/>
                                     <apex:selectOption itemLabel="Unsecured" itemValue="Unsecured"/>
                                 </apex:selectList>
                             </td>
                         </tr>
-                        <!--<tr>
-                            <td class="financeColumn">
-                                <apex:outputLabel styleClass="calcLabel" value="Additional Details" for="additionalDetails" />
-                            </td>
-                            <td class="financeColumn">
-                                <apex:selectList value="{!dto.additionalDetails}" multiselect="false" size="1" styleClass="selectList" id="additionalDetails">
-                                    <apex:actionSupport event="onchange" action="{!feesCalc}" reRender="applicationFee,realtimeNaf"/>
-                                    <apex:selectOption itemLabel="--N/A--" itemValue="N/A"/>
-                                    <apex:selectOption itemLabel="Self Employed" itemValue="Self Employed"/>
-                                    <apex:selectOption itemLabel="Business Purpose" itemValue="Business Purpose"/>
-                                </apex:selectList>
-                            </td>
-                        </tr>-->
                         <tr>
                           <td class="financeColumn">
                             <apex:outputLabel styleClass="calcLabel" value="Tier" for="tier" />
@@ -734,36 +707,6 @@
                             <td colspan="5">&nbsp;</td>
                         </tr>
                     </table>
-                    <!--API Details Start -->
-                    <!--div class="titleTableTab">
-                      <h3>Plenti API Details</h3>
-                    </div>
-                    <table class="tableDetails api-details">
-                      <tr>
-                        <td class="financeColumn">
-                          <apex:outputLabel styleClass="calcLabel" value="Plenti API user" for="apiUser" />
-                        </td>
-                        <td class="resultValue" colspan="3">
-                          <apex:selectList value="{!apiUser}" multiselect="false" size="1" styleClass="selectList" id="apiUser">
-                            <apex:selectOptions value="{!usersAPIOptions}" />
-                          </apex:selectList>
-                        </td>
-                      </tr>
-                      <tr style="display: {!IF(hasLenderApp, '','none')}">
-                        <td class="financeColumn">
-                          <apex:outputLabel style="display:inline-block;" value="Application Id" />
-                        </td>
-                        <td class="resultValue">
-                          <apex:outputField value="{!lenderAPIResp.Application_ID__c}" />
-                        </td>
-                        <td class="financeColumn">
-                          <apex:outputLabel style="display:inline-block;" value="Date" />
-                        </td>
-                        <td class="resultValue">
-                          <apex:outputField value="{!lenderAPIResp.CreatedDate}" />
-                        </td>
-                      </tr>
-                    </table>-->
                     <p>&nbsp;</p>
                     <apex:outputPanel layout="block">
                         <h4>Loan Purpose</h4>

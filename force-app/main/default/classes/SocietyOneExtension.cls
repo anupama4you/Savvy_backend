@@ -20,12 +20,6 @@ public class SocietyOneExtension {
     public Map<ApexPages.severity, List<String>> userMgs {set; get;}
     //-
     public Lenders__c lenderSettings {set;get;}
-/*
-    public Boolean paramActive {set; get;}
-    public String apiUser {get;set;}
-    public List <SelectOption> usersAPIOptions {get;set;}
-    public LenderAPIResponse__c lenderAPIResp {get;set;}
-    */
 
     public SocietyOneExtension(ApexPages.StandardController controller) {
         try {
@@ -37,10 +31,7 @@ public class SocietyOneExtension {
         for (RecordType rt : productTypes) {
             RecordTypes.put(rt.Name, rt.Id);
         }
-/*        
-        String active = System.currentPageReference().getParameters().get('active');
-        paramActive = !StringUtils.isNullOrEmpty(active);
-*/
+
         this.Opp = (Custom_Opportunity__c)controller.getRecord ();
         
         qh = new QuotingToolHelper();
@@ -113,32 +104,12 @@ public class SocietyOneExtension {
             ApexPages.Severity.ERROR,'Max DOF exceed.'));
           r = false;
         }
-        //if (dto.ltv == null || dto.ltv <= 0.0) {
-        //    ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'LVR(%) should be filled.'));
-        //    r = false;
-        //}
-        //if (dto.ppsr == null || dto.ppsr == 0.0) {
-        //    ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'PPSR cannot be Zero.'));
-        //    r = false;
-        //}
-        //if (dto.baseRate == null || dto.baseRate == 0.0) {
-        //    ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Base Rate cannot be Zero.'));
-        //    r = false;
-        //}
+
         if (dto.clientRate == null || dto.clientRate == 0.0) {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Client Rate cannot be Zero.'));
             r = false;
         }
-        //if (dto.term == null || dto.term == 0) {
-        //    ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Please choose an appropriate term.'));
-        //    r = false;
-        //} else {
-        //	if (dto.term != 36 && dto.term != 60) {
-        //		ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Term should be 36 or 60 months.'));
-        //    	r = false;
-        //	}
-        //}
-        
+
         //Lelo              2017-09-19
         if (dto.residualValue > 0 && dto.term > 60) {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'You cannot have a balloon or residual payment when the loan term is > 5 years.'));
@@ -154,12 +125,6 @@ public class SocietyOneExtension {
             new ApexPages.Message(
               ApexPages.Severity.ERROR,'The Loan Purpose needs to be inserted into the quoting tool'));
           r = false;
-          // ApexPages.Severity sev = isApproval ? ApexPages.Severity.ERROR : ApexPages.Severity.WARNING;
-          // r = isApproval ? false : r;
-          // String msg = isApproval 
-          //   ? 'The Loan Purpose needs to be inserted into the quoting tool' 
-          //   : 'The Loan Purpose is neccessary for any approval';
-          // ApexPages.addMessage(new ApexPages.Message(sev, msg));        
         }
         if('Other'.equals(dto.purposeType) && String.isNotBlank(dto.loanPurpose) && dto.loanPurpose.length() > 40) {
           ApexPages.addMessage(
@@ -168,13 +133,6 @@ public class SocietyOneExtension {
           r = false;
         }
         //-
-        //if (dto.riskFee == null || dto.riskFee == 0.0) {
-        //    ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Risk Fee cannot be Zero.'));
-        //    if (r) {
-        //        ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Calcution has been done.'));
-        //    }
-        //    //r = false;
-        //}
 
         if ('Unsecured'.equals(dto.loanTypeDetail) && dto.term > 60) {
           ApexPages.addMessage(new ApexPages.Message(
@@ -191,7 +149,6 @@ public class SocietyOneExtension {
     }
     
     public PageReference calculate () {
-    	//this.feesCalc();
         if (!isValidationOk()) {
             return null;
         }
@@ -206,25 +163,17 @@ public class SocietyOneExtension {
       dto.loanType = 'Purchase';
       dto.productLoanType = 'Consumer Loan';
       dto.loanTypeDetail = 'Unsecured';
-      //dto.additionalDetails = '';
       //Initial values
-      dto.docFees = 0.0;
-      dto.monthlyFee = 0.0;
-      dto.ppsr = 0.0;
+      dto.monthlyFee = lenderSettings.Monthly_Fee__c;
+      dto.ppsr = lenderSettings.PPSR__c;
       dto.maxAppFee = lenderSettings.Application_Fee__c;
       dto.applicationFee = dto.maxAppFee;
       dto.maxDof = lenderSettings.Max_DOF__c;
       dto.dof = dto.maxDof;
-      //dto.baseRate = 0.0;
-      //dto.clientRate = 0.0;
+      dto.clientRate = 0.0;
       dto.term = 60;
       dto.paymentType = 'Arrears';
-      dto.riskFee = 0.0;
-      //dto.vehicleGroup = '1';
-      //dto.awd = 'N';
-      //dto.turbo = 'N';
-      //dto.diesel = 'N';
-      
+
       //Insurance Products
       //Lelo          Insurance           2017-12-04
       dto.insuranceInputMode = 'A';
@@ -240,16 +189,8 @@ public class SocietyOneExtension {
       dto.loanPurpose = '';
       dto.purposeType = '';
       dto.tier = '';
-      //this.feesCalc();
       this.resetCalculationResult(); //Lelo       2017-07-25
-/*
-      this.usersAPIOptions = PlentiAPIManager.getUserOptionsConnect();
-      for (SelectOption so: this.usersAPIOptions) {
-        if (so.getLabel().equals(this.Opp.Owner_Name__c)) {
-          this.apiUser = so.getValue();
-        }
-      }
-      */
+
       if (this.Opp.Application__c != null) {
         dto.purposeType = PlentiAPIService.getPurpose(this.Opp.Application__r.Loan_For__c);
         System.debug('loan for => ' + this.Opp.Application__r.Loan_For__c + '|' + dto.loanPurpose);
@@ -269,12 +210,6 @@ public class SocietyOneExtension {
         qDto.dof = String.valueOf(dto.dof);
         qDto.ppsr = String.valueOf(dto.ppsr);
         qDto.residualValue = String.valueOf(dto.residualValue);
-        /*
-        qDto.baseRate = '';
-        if (dto.baseRate != null) {
-        	qDto.baseRate = String.valueOf(dto.baseRate);
-        }
-        */
         qDto.clientRate = String.valueOf(dto.clientRate);
         qDto.term = String.valueOf(dto.term);
         qDto.paymentType = dto.paymentType;
@@ -344,7 +279,6 @@ public class SocietyOneExtension {
         calcPdf.getParameters().put('dof', qDto.dof);
         calcPdf.getParameters().put('ppsr', '0.00');
         calcPdf.getParameters().put('residualValue', qDto.residualValue);
-        //calcPdf.getParameters().put('baseRate', qDto.baseRate);
         calcPdf.getParameters().put('clientRate', qDto.clientRate);
         calcPdf.getParameters().put('term', qDto.term);
         calcPdf.getParameters().put('paymentType', qDto.paymentType);
@@ -363,11 +297,6 @@ public class SocietyOneExtension {
         calcPdf.getParameters().put('loanTypeDetail', qDto.loanTypeDetail);
         calcPdf.getParameters().put('loanType', qDto.loanType);
         calcPdf.getParameters().put('productLoanType', qDto.productLoanType);
-        
-        //calcPdf.getParameters().put('customerProfile', dto.additionalDetails);
-        calcPdf.getParameters().put('riskFee', 
-            (dto.riskFee != null)? String.valueOf(dto.riskFee.format()): '0.00');
-        
         calcPdf.getParameters().put('deposit', qDto.deposit);
         calcPdf.getParameters().put('tradeIn', qDto.tradeIn);
         calcPdf.getParameters().put('payoutOn', qDto.payoutOn);
@@ -441,9 +370,7 @@ public class SocietyOneExtension {
         
         updateProduct.Loan_Type__c = dto.loanType;
         updateProduct.Loan_Product__c = dto.productLoanType;
-        //updateProduct.Loan_Type_Detail__c = dto.loanTypeDetail + ' | ' + dto.additionalDetails;
         updateProduct.Loan_Type_Detail__c = dto.loanTypeDetail;
-        //updateProduct.Loan_Type__c = dto.loanTypeDetail;
         updateProduct.Loan_Term__c = dto.term;
         if (dto.residualValue == null || dto.residualValue == 0) {
             updateProduct.Balloon_Residual_Requested__c = 0;
@@ -466,7 +393,6 @@ public class SocietyOneExtension {
             updateProduct.Brokerage__c = dto.estimatedCommission;
         }
         updateProduct.Lender_App_Fee__c = dto.applicationFee;
-        // updateProduct.Equalisation_Fee_PPSR__c = dto.ppsr + dto.riskFee;
         updateProduct.Equalisation_Fee_PPSR__c = dto.ppsr;
         
         //Lelo                      2016-07-26
@@ -537,9 +463,6 @@ public class SocietyOneExtension {
             dto.loanType = d.Loan_Type__c;
             dto.productLoanType = d.Loan_Product__c;
             dto.carPrice = d.Vehicle_Price__c;
-            //dto.deposit = d.Deposit__c;
-            //dto.tradeIn = d.Trade_In__c;
-            //dto.payoutOn = d.Payout_On__c;
             dto.residualValue = d.Residual_Value__c;
             if (d.Term__c != null) {
                 dto.term = Integer.valueOf(d.Term__c);
@@ -554,11 +477,9 @@ public class SocietyOneExtension {
                 //Loan Details
                 dto.paymentType = d.Payment__c;
                 dto.loanTypeDetail = d.Loan_Facility_Type__c;
-        		    //dto.additionalDetails = d.Customer_Profile__c;
                 dto.applicationFee = d.Application_Fee__c;
                 dto.dof = d.DOF__c;
                 dto.monthlyFee = d.Monthly_Fee__c;
-                // dto.riskFee = d.Risk_Fee__c;
                 
                 //Load Calculations
                 dto.estimatedCommission = d.Commission_Estimation__c;
@@ -582,12 +503,7 @@ public class SocietyOneExtension {
                     System.debug('cleaning 1...');
                 }
                 //-
-                // load Lender API
-                //this.lenderAPIResp = QuotingToolHelper.getLenderAPIResponse(d.LenderAPIResponse__c);
             }
-            //this.feesCalc();
-            //realtimeNafCalc();
-            //ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM,'Previous calculation loaded successfully.'));
         }
         //Lelo              Insurance           2017-12-04
         if (this.quote == null) {
@@ -668,11 +584,8 @@ public class SocietyOneExtension {
 		    d.LTV__c = null;
         d.Payment__c = dto.paymentType;
         d.Loan_Facility_Type__c = dto.loanTypeDetail;
-        //d.Customer_Profile__c = dto.additionalDetails;
         d.Purpose_Type__c = dto.purposeType;
         d.Loan_Purpose__c = dto.loanPurpose;
-        //d.Risk_Fee__c = dto.riskFee;
-        //System.debug('Risk fee >> ' + dto.riskFee);
         //Data calculated - Commission
         d.Commission_Estimation__c = dto.estimatedCommission;
         d.Commission_Insurance_Income__c = dto.getInsuranceIncome();
@@ -689,8 +602,6 @@ public class SocietyOneExtension {
         d.PPSR__c = null;
         d.Base_Rate__c = null;
         d.Brokerage__c = null;
-        //d.Risk_Fee__c = null;
-        //d.Registration_Fee__c = null;
         d.Vehicle_Age__c = null;
         d.Adverse_Credit_File__c = null;
         d.Is_MotorCycles__c = null;
@@ -771,8 +682,6 @@ public class SocietyOneExtension {
         String quotingType = QuotingCalculation.CALC_QUOTING;
         param.totalAmount = dto.getTotalAmount(quotingType);
         param.amountBaseComm = dto.carPrice;
-        //param.totalInsurance = dto.getTotalInsuranceType(quotingType);
-        //param.totalInsuranceIncome = dto.getTotalInsuranceIncomeType(quotingType);
         param.clientRate = dto.clientRate;
         param.paymentType = dto.paymentType;
         param.term = dto.term;
@@ -795,9 +704,7 @@ public class SocietyOneExtension {
         //Protected
         quotingType = QuotingCalculation.CALC_PROTECTED;
         param.totalAmount = dto.getTotalAmount(quotingType);
-        //param.totalInsurance = dto.getTotalInsuranceType(quotingType);
-        //param.totalInsuranceIncome = dto.getTotalInsuranceIncomeType(quotingType);
-        
+
         System.debug(quotingType + '|' + param.totalAmount + '|' + param.totalInsurance + '|' + param.totalInsuranceIncome);
         r = QuotingCalculation.calculate(param);
         if (r != null) {
@@ -816,91 +723,10 @@ public class SocietyOneExtension {
     }
 
     //-
-    /*
-    public List<RateSetterPLDOF__c> getDOFRates() {
-    	List<RateSetterPLDOF__c> r = RateSetterPLDOF__c.getAll().values();
-    	r.sort();
-    	return r;
-    }
-
-    public List<RateSetterPLAppfee__c> getAppFeeRates() {
-    	List<RateSetterPLAppfee__c> r = RateSetterPLAppfee__c.getAll().values();
-    	r.sort();
-    	return r;
-    }
-
-    public List<RateSetterPLMonthlyFee__c> getMonthlyFeeRates() {
-    	List<RateSetterPLMonthlyFee__c> r = RateSetterPLMonthlyFee__c.getAll().values();
-    	r.sort();
-    	return r;
-    }
-
-    public List<RateSetterPLRates__c> getRates() {
-    	List<RateSetterPLRates__c> r = RateSetterPLRates__c.getAll().values();
-    	r.sort();
-    	return r;
-    }
-*/
-    //public void feesCalc() {
-    	//Application Fee
-    	//dto.applicationFee = QuotingToolHelper.getRateSetterPLAppfee(dto.getBaseFees(), dto.term);
-    	//if ('Secured'.equals(dto.loanTypeDetail)) {
-    	//	dto.applicationFee += 100;
-    	//}
-    	//if ('Self Employed'.equals(dto.additionalDetails)) {
-    	//	dto.applicationFee += 150;
-    	//} else if ('Business Purpose'.equals(dto.additionalDetails)) {
-    	//	dto.applicationFee += 250;
-    	//}
-    	//DOF
-    	// dto.dof = QuotingToolHelper.getRateSetterPLDOF(dto.getBaseFees() + dto.applicationFee, dto.term);
-    	//Monthly Fee
-    	//dto.monthlyFee = 0.0;
-        // dto.monthlyFee = QuotingToolHelper.getRateSetterPLMonthlyfee(dto.getBaseFees(), dto.term);
-        //System.debug(dto.dof + '|' + dto.monthlyFee + '|' + dto.applicationFee + '|' + dto.getBaseFees());
-    //}
-
     public Boolean getIsBrokerPartnerUser() {
       return SOQLSingletonQueries.recs().isBrokerPartnerUser;
     }
-/*
-  public void sendApplicationTest (){
-      if (!hasCalculationDone()) return;
-      System.debug('>>>>> Response APPLICATION Pepper (Test)  -I  <<<<<< - ');
-      try{
-          PlentiAPIService appService = new PlentiAPIService();
-          appService.requestApplicationTest(Opp.Id, apiUser);
-      } catch(GenericException ex) {
-          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,ex.getMessage()));
-      }
-      System.debug('>>>>> Response APPLICATION Pepper  (test)-F  <<<<<< - ');
-  }
 
-  public void sendApplication (){
-    if (!hasCalculationDone()) return;
-    System.debug('>>>>> Response APPLICATION Pepper  -I  <<<<<< - ');
-    try{
-      PlentiAPIService appService = new PlentiAPIService();
-      PlentiAPIManager apiManager = appService.requestApplication(Opp.Id, apiUser, true);
-      this.lenderAPIResp = apiManager.lenderAPIResp;
-      if (this.lenderAPIResp == null) {
-        throw new GenericException('[Plenti API] there isn\'t any Lender API Response returned to Quoting tools.');
-      }
-      this.quoting.LenderAPIResponse__c = this.lenderAPIResp.Id;
-      update this.quoting;
-      ApexPages.addMessage(
-        new ApexPages.Message(
-          ApexPages.Severity.CONFIRM,
-          'Application sent to Plenti! ID[' + apiManager.lenderAPIResp.Application_ID__c + ']'));
-    }catch(GenericException ex){
-      ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,ex.getMessage()));
-    }
-  }
-
-  public Boolean getHasLenderApp() {
-    return this.lenderAPIResp != null;
-  }
-*/
   public List<SelectOption> getPurposeTypeOptions() {
     List<SelectOption> r = new List<SelectOption>();
     r.add(new SelectOption('','--None--'));

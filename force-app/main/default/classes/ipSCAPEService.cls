@@ -473,9 +473,12 @@ public class ipSCAPEService {
             'Boat Finance'.equals(loanType) ||
             'Bike Finance'.equals(loanType)) {
             r = 'Leisure Loan';
-        } else if ('Truck Loan'.equals(loanType) ||
-                   'Hire Purchase'.equals(loanType) ||
-                   'Aircraft Finance'.equals(loanType)) {
+        } else if (
+          'Truck Loan'.equals(loanType) ||
+          'Hire Purchase'.equals(loanType) ||
+          'Aircraft Finance'.equals(loanType) ||
+          'Chattel Mortgage'.equals(loanType)
+        ) {
             r = 'Commercial Loan';
         }
         return r;

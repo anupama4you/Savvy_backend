@@ -87,13 +87,26 @@ public class ActiveCampaignCalloutTest{
         //lead = TestLead;
         //opp = TestOpportunity;
         
-        lead = [Select Reason_for_closure__c, Status__c, First_Name__c, Loan_Type__c, Home_Phone__c, Mobile_Number__c, Suburb__c, 
+        lead = [
+          SELECT Reason_for_closure__c, Status__c, First_Name__c, Loan_Type__c, Home_Phone__c, Mobile_Number__c, Suburb__c, 
                 Date_of_Birth__c, Lead_Owner__c , Owner_Mobile__c, Owner_Email__c, Finance_Amount__c, Street_Address__c, Street_Type__c,
-                Postcode__c, State__c, Owner_Phone__c, Last_Name__c, Email_Address__c, Credit_History__c From Lead__c 
-                WHERE Loan_Type__c != 'Small Loan' AND Credit_History__c = 'Excellent' LIMIT 1];
-        opp = [Select Reason_for_closure__c, Opp_Loan_Term__c, Owner_Name__c , Email_Address__c, 
-                Owner_Email__c , Owner_Mobile__c, Owner_Phone__c, Account_First_Name__c, State__c, Opp_Loan_Type__c,
-                Lead__c, Status__c, emailoptout__c From Custom_Opportunity__c WHERE Email_Address__c != null LIMIT 1];
+                Postcode__c, State__c, Owner_Phone__c, Last_Name__c, Email_Address__c, Credit_History__c 
+          FROM Lead__c 
+          WHERE Loan_Type__c != 'Small Loan' 
+          AND Credit_History__c = 'Excellent' 
+          AND Partner_Owner__c = null
+          LIMIT 1
+        ];
+        opp = [
+          SELECT 
+            Reason_for_closure__c, Opp_Loan_Term__c, Owner_Name__c , Email_Address__c, Name,
+            Owner_Email__c , Owner_Mobile__c, Owner_Phone__c, Account_First_Name__c, State__c, Opp_Loan_Type__c,
+            Lead__c, Status__c, emailoptout__c 
+          FROM Custom_Opportunity__c 
+          WHERE Email_Address__c != null 
+          AND Partner_Owner__c = null
+          LIMIT 1
+        ];
         
         if (lead != null){
             mapId.put(lead.Id, 'Yes');

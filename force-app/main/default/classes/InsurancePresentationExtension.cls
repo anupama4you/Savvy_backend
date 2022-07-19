@@ -79,29 +79,29 @@ public class InsurancePresentationExtension {
     public String integrityQ4Sel {set;get;}
     public String integrityQ5Sel {set;get;}
 
+    public Account ownerAccount {set;get;}
 
     public InsurancePresentationExtension() {
-        String paramTmp = System.currentPageReference().getParameters().get('P');
-        this.resetDiaplayingOptions();
-        if (!String.isBlank(paramTmp)) {
-            try {
-                this.appId = CryptoUtils.decrypt(paramTmp);
-                loadData();
-                
-            } catch (SecurityException e) {
-                System.debug(e.getMessage());
-                errorMessage = '(MSG-105) This URL is not valid, please contact with your Sales Representative.';
-            } catch (Exception e) {
-                System.debug(e.getMessage());
-                errorMessage = '(MSG-205) This URL is not valid, please contact with yor Sales Representative.';
-            }
-        } else {
-            this.o = null;
-            errorMessage = '(MSG-104) This URL is not valid, please contact with yor Sales Representative.';
+      String paramTmp = System.currentPageReference().getParameters().get('P');
+      this.resetDiaplayingOptions();
+      if (!String.isBlank(paramTmp)) {
+        try {
+          this.appId = CryptoUtils.decrypt(paramTmp);
+          loadData();
+        } catch (SecurityException e) {
+          System.debug(e.getMessage());
+          errorMessage = '(MSG-105) This URL is not valid, please contact with your Sales Representative.';
+        } catch (Exception e) {
+          System.debug(e.getMessage());
+          errorMessage = '(MSG-205) This URL is not valid, please contact with yor Sales Representative.';
         }
-        Profile p = [Select Name from Profile where Id =: userinfo.getProfileid()];
-        userProfile = p.name;
-        System.debug('userProfile >> ' + userProfile);
+      } else {
+        this.o = null;
+        errorMessage = '(MSG-104) This URL is not valid, please contact with yor Sales Representative.';
+      }
+      Profile p = [Select Name from Profile where Id =: userinfo.getProfileid()];
+      userProfile = p.name;
+      System.debug('userProfile >> ' + userProfile);
     }
     
     private void resetDiaplayingOptions() {
@@ -235,6 +235,8 @@ public class InsurancePresentationExtension {
           this.loadMVData();
           this.loadPDSDocuments();
           System.debug('Customer_Choice_Status__c >>> ' + this.quote.Customer_Choice_Status__c);
+
+          this.ownerAccount = this.getAccountVar();
         } else {
             errorMessage = '(MSG-115) The quote can not be found it, please contact with yor Sales Representative.';
         }
@@ -2241,5 +2243,63 @@ public class InsurancePresentationExtension {
     return BusinessParamHelper.getParameter('INTEGRITY_QUESTION_5');
   }
 
+  public Boolean getIsPartnerUser() {
+    return this.ownerAccount != null && !this.ownerAccount.Franchised__c;
+  }
 
+  public String getBusinessLogo() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.Business_Logo__c : null;
+  }
+
+  public String getBusinessABN() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.ABN__c : null;
+  }
+
+  public String getBusinessACL() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.ACL__c : null;
+  }
+
+  public String getBusinessACN() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.ACN__c : null;
+  }
+
+  public String getBusinessName() {
+    return this.ownerAccount != null
+      ? this.ownerAccount.Business_Name__c : null;
+  }
+
+  public Account getAccountVar() {
+    if (this.o == null) {
+      this.o = InsuranceQuoteUtils.getOpportunityForInsuranceQuote(this.quoting.Opportunity__c);
+    }
+    Id userId = this.quoting != null 
+      ? this.o.OwnerId : UserInfo.getUserId();
+    System.debug('@@userId: ' + userId);
+    List<Contact> contactList = [
+      SELECT FirstName, LastName, Email, AccountId 
+      FROM Contact WHERE Id IN (
+        SELECT ContactId FROM User WHERE Id = :userId
+      )
+    ];
+    System.debug('@@contactList:' + JSON.serializePretty(contactList));
+    if(!contactList.isEmpty() && contactList[0].AccountId != null){
+      List<Account> accountList;
+      accountList = [
+        SELECT 
+          Id, Name, Fax, Phone, BillingStreet, 
+          BillingCity, BillingCountry, BillingState, 
+          BillingPostalCode, Website, PersonMobilePhone, 
+          Business_Name__c, Business_Logo__c, Franchised__c,
+          ABN__c, ACL__c, ACN__c
+        FROM Account WHERE Id =: contactList[0].AccountId limit 1
+      ];
+      System.debug('@@accountList[0]:' + JSON.serializePretty(accountList[0]));
+      return accountList[0];
+    }
+    return null;
+  }
 }

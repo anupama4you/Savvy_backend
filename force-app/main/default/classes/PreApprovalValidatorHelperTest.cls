@@ -38,7 +38,7 @@ public class PreApprovalValidatorHelperTest {
     // No savvy consent yet.
     PreApprovalValidatorHelper.hasSavvyConsentUploaded(o);
 
-    String docType = 'Savvy Consent';
+    String docType = 'Consent';
     PreApprovalValidatorHelper.validateADocumentUploaded(o.Id, docType);
     Test_DataGeneratorHelper.buildCloudDocuments(o.Id, new List<String>{docType});
     PreApprovalValidatorHelper.validateADocumentUploaded(o.Id, docType);

@@ -84,8 +84,8 @@ public class RateSetterCalculatorExtension extends QuotingExtension {
             r = false;
         }
         if(this.realtimeNaf >= 100000){
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Max Lend should be equal or less than $100.000'));
-            r = false;
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Max Lend should be equal or less than $100.000'));
+            // r = false;
         }
         // System.debug('1) r >> ' + r);
         // validation before calculation
@@ -119,8 +119,8 @@ public class RateSetterCalculatorExtension extends QuotingExtension {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Client Rate cannot be Zero.'));
             r = false;
         } else if (this.clientRate < this.baseRate ) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Client rate should not be below of base rate: ' + this.baseRate + '%'));
-            r = false;
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Client rate should not be below of base rate: ' + this.baseRate + '%'));
+            // r = false;
         } else if (this.clientRate > (this.baseRate + 2) && this.baseRate > 0.0) {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Client rate should not be above of max rate: ' + (this.baseRate + 2) + '%'));
             r = false;
@@ -660,6 +660,7 @@ public class RateSetterCalculatorExtension extends QuotingExtension {
         param.customerProfile = this.customerProfile;
         param.condition = this.assetCondition;
         param.greenCar = this.greenCar;
+        param.term = this.term;
         System.debug('params => ' + param.clientTier + '|' + param.vehicleYear + '|' + param.customerProfile + '|' + param.condition);
         this.baseRate = QuotingCalculation.getBaseRate(param);
         this.maxRate = this.baseRate > 0? this.baseRate + 2: 0.00;

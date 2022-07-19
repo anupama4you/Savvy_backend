@@ -513,7 +513,10 @@ public abstract class APIServiceManager {
           o.ApplicationServicing__r.Gross_Annual_Income_2__c,
           o.ApplicationServicing__r.Gross_Annual_Income_2_Second_Job__c,
           o.Application__r.Trust_Name__c,
-          o.Application__r.No_of_Directors__c
+          o.Application__r.No_of_Directors__c,
+          o.Application__r.Nature_of_Business_2__c,
+          o.Application__r.Business_ABN_2__c,
+          o.Application__r.Business_Structure_2__c
         FROM Custom_Opportunity__c o
         WHERE id = :opp.Id
       ];

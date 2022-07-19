@@ -12,87 +12,96 @@
 
   <apex:outputpanel rendered="{!isAttemp1}">
     Hi {!RelatedToVar.First_Name__c},
-    <p>Thank you for making an enquiry with {!AccountVar.Business_Name__c}.</p>
-    <p>
-      I have tried to contact you today without success. Please call me on 
-      {!AccountVar.Phone} 
-      <apex:outputText value=" or " rendered="!{AND(NOT(ISBLANK(AccountVar.Phone),NOT(ISBLANK(AccountVar.MobilePhone)))}"/>
-      {!ContactVar.MobilePhone}
+    <p style="margin: 10px 0px;">Thank you for making an enquiry with {!AccountVar.Business_Name__c}.</p>
+    <p style="margin: 10px 0px;">
+      I have tried to contact you today without success. Please call me on {!AccountVar.Phone}
+      <apex:outputText value=" or " rendered="{!AND(NOT(ISBLANK(AccountVar.Phone)),NOT(ISBLANK(ContactVar.MobilePhone)))}" /> {!ContactVar.MobilePhone}
     </p>
-    <p>At {!AccountVar.Business_Name__c} we have access to a large panel of lenders so chances are we can find a finance option
+    <p style="margin: 10px 0px;">At {!AccountVar.Business_Name__c} we have access to a large panel of lenders so chances are we can find a finance option
       that suits your needs with a market leading interest rate. </p>
-    <p>I look forward to talking to you soon.</p>
+    <p style="margin: 10px 0px;">I look forward to talking to you soon.</p>
 
   </apex:outputpanel>
 
   <apex:outputpanel rendered="{!isAttemp2}">
     Hi {!RelatedToVar.First_Name__c},
-    <!--<p>I haven’t been able to reach you over the phone.
-                    So, to make the process more convenient for you, I thought I’d send over some questions here to get us started. 
-                    We have over 25 different lenders to choose from, and your answers to the below will help me find the best rates for you;</p>-->
-    <p>I tried to make contact with you today but was unable to reach you. I thought I would send you a list of questions so
-      we can pre-qualify you for a loan.</p>
-    <p>If you could take the time to answer the questions on the table below
-      <b>(you can reply to this email and type into the table)</b> I can come back to you with an indicative approval within
-      24 hours.
+    <p style="margin: 10px 0px;">
+      I tried to make contact with you today but was unable to reach you. I thought I'd send you a list of questions so we can
+      pre-qualify you for a loan.
     </p>
-    <p>If you would prefer to go through this over the phone please give me a call on
-      <b>{!AccountVar.Phone}</b> 
-      <apex:outputText value=" or " rendered="!{AND(NOT(ISBLANK(AccountVar.Phone),NOT(ISBLANK(AccountVar.MobilePhone)))}" />
-      <b>{!ContactVar.MobilePhone}</b>.</p>
-    <br/>
-    <h4>Pre-assessment Questions</h4>
-    <ul>
+    <p style="margin: 10px 0px;">
+      I can come back to you with some options once I have this information. The other option is to submit a full, no-obligation
+      application through our portal
+      <a href="{!RelatedToVar.Partner_Client_Portal__c}">{!RelatedToVar.Partner_Client_Portal__c}</a>. This wont affect your credit score at all but provides us with all the
+      information we need to return an accurate quote and indication of approval.
+    </p>
+    <h4 style="margin: 10px 0px;">Pre-assessment Questions</h4>
+    <ul style="margin: 10px 0px;">
       <li>Are you working fulltime permanent (sick and holiday paid) or Casual?</li>
       <li>How much income do you receive after tax?</li>
       <li>How long have you been at current employer?</li>
       <li>If less than 2 years, how long at previous job?</li>
       <li>Are you renting / boarding or buying ? and how much do you pay per month?</li>
-      <li>How long have you been at you current address?</li>
+      <li>How long have you been at your current address?</li>
       <li>Are you married / single / partnered?</li>
-      <li>Do you receive any family payment from Centrelink? If so, how much</li>
+      <li>Do you receive any family payment from Centrelink? If so, how much?</li>
       <li>Do you have any other ongoing commitments? Ie: loans, credit cards, store cards, interest free</li>
       <li>Do you have/had any bad credit listed on your credit report?</li>
       <li>If so, provide details: who to / how much / paid (when paid) /discharged (date) or unpaid ?</li>
     </ul>
+    <p style="margin: 10px 0px;">
+      If you would prefer to go through this over the phone please give me a call on
+      <b>{!AccountVar.Phone}</b>
+      <apex:outputText value=" or " rendered="{!AND(NOT(ISBLANK(AccountVar.Phone)),NOT(ISBLANK(ContactVar.MobilePhone)))}" />
+      <b>{!ContactVar.MobilePhone}</b>.
+    </p>
   </apex:outputpanel>
 
   <apex:outputpanel rendered="{!isAttemp3}">
     Hi {!RelatedToVar.First_Name__c},
-    <p>I attempted to contact you again today in relation to your finance enquiry but have been unable to reach you.</p>
-    <p>I will call again soon, however if you have a free moment, please call me on 
-      {!AccountVar.Phone}
-      <apex:outputText value=" or " rendered="!{AND(NOT(ISBLANK(AccountVar.Phone),NOT(ISBLANK(AccountVar.MobilePhone)))}" />
-      {!ContactVar.MobilePhone}.</p>
-    <p>I am available on mobile after hours as well if that makes it any easier </p>
+    <p style="margin: 10px 0px;">I attempted to contact you again today in relation to your finance enquiry but have been unable to reach you.</p>
+    <p style="margin: 10px 0px;">I will call again soon, however if you have a free moment, please call me on {!AccountVar.Phone}
+      <apex:outputText value=" or " rendered="{!AND(NOT(ISBLANK(AccountVar.Phone)),NOT(ISBLANK(ContactVar.MobilePhone)))}" /> {!ContactVar.MobilePhone} or please let me know it's a convenient time to call.</p>
+    <p style="margin: 10px 0px;">I am available on mobile after hours as well if that makes it any easier.</p>
+    <p style="margin: 10px 0px;">If you would like to fast track your approval, feel free to submit your application through our portal
+      <a href="{!RelatedToVar.Partner_Client_Portal__c}">{!RelatedToVar.Partner_Client_Portal__c}</a>.
+    </p>
+    <p style="margin: 10px 0px;">
+      This wont affect your credit score but will give us all the information to provide you with accurate quotes.
+    </p>
 
   </apex:outputpanel>
 
   <apex:outputpanel rendered="{!isAttemp4}">
     Hi {!RelatedToVar.First_Name__c},
-    <p>I understand you are probably very busy, I tried to make contact with you today but unfortunately was unable to reach
-      you.</p>
-    <p>Please note that {!AccountVar.Business_Name__c} is part of one of the largest vehicle and equipment broker groups in
-      Australia. We have 25 lenders on our panel so we can find a loan that suits your requirements with the best rates available
-      in the market.</p>
-    <p>Please give me a call on {!AccountVar.Phone} 
-      <apex:outputText value=" or " rendered="!{AND(NOT(ISBLANK(AccountVar.Phone),NOT(ISBLANK(AccountVar.MobilePhone)))}" /> 
-      {!ContactVar.MobilePhone} to discuss your finance requirements.</p>
-    <p>Look forward to speaking with you soon </p>
+    <p style="margin: 10px 0px;">
+      I understand you are probably very busy, I tried to make contact with you today but unfortunately was unable to reach you.
+    </p>
+    <p style="margin: 10px 0px;">
+      Please note that {!AccountVar.Business_Name__c} is one of the largest Car &amp; Asset finance brokers in Australia with 25
+      lenders on our panel. This allows us to offer the best rates on the market.
+    </p>
+    <p style="margin: 10px 0px;">Please give me a call on {!AccountVar.Phone}
+      <apex:outputText value=" or " rendered="{!AND(NOT(ISBLANK(AccountVar.Phone)),NOT(ISBLANK(ContactVar.MobilePhone)))}" /> {!ContactVar.MobilePhone} to discuss your finance requirements.</p>
+    <p style="margin: 10px 0px;">Look forward to speaking with you soon.</p>
 
   </apex:outputpanel>
 
   <apex:outputpanel rendered="{!isAttemp5}">
     Hi {!RelatedToVar.First_Name__c},
-    <p>I have tried to make contact with you several times since you made your enquiry. If I don’t hear back from you in the
-      next 72 hours, I will close down your enquiry. </p>
-    <p>If you are still interested in discussing finance options, I am always here to help, otherwise, hopefully I can speak
-      with you in the future. </p>
+    <p style="margin: 10px 0px;">
+      I have tried to make contact with you several times since you made your finance enquiry. If I don't hear back from you in
+      the next 72 hours, we will close your file.
+    </p>
+    <p style="margin: 10px 0px;">
+      If you are still interested in discussing finance options, I am always here to help, otherwise, hopefully I can assist you
+      in the future.
+    </p>
 
   </apex:outputpanel>
 
   <br/>
-  <p>Regards,</p>
+  <p style="margin: 10px 0px;">Regards,</p>
   <br/>
   <c:Signature_with_Logo />
 

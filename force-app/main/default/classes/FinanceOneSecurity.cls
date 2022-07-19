@@ -96,7 +96,8 @@ public class FinanceOneSecurity {
                 security.watercraft[0].watercraftType = quoting.Goods_sub_type__c;
             }
             
-            if(quoting.Goods_type__c.equals('Equipment')){
+            if(quoting.Goods_type__c.equals('Equipment') || 
+              quoting.Goods_type__c.equals('Truck')){
                 security.motorVehicles = new FinanceOneDTOs.MotorVehicle[0];
                 security.watercraft = new FinanceOneDTOs.Watercraft[0];
                 security.motorbikes = new FinanceOneDTOs.Motorbike[0];
@@ -105,7 +106,7 @@ public class FinanceOneSecurity {
                 security.otherGoods = new FinanceOneDTOs.OtherGoods[1];
                 security.otherGoods[0] = new FinanceOneDTOs.OtherGoods();
                 security.otherGoods[0].isUnderFinance = false;
-                security.otherGoods[0].description = asset.Make__c+' '+asset.Model__c+' '+asset.Variant_Desc__c+' '+asset.Series__c;
+                security.otherGoods[0].description = asset.Make__c+' '+asset.Model__c+' '+asset.Variant__c+' '+asset.Series__c;
             }
         }else{
             security.preApproval = true;

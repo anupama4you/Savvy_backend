@@ -135,12 +135,30 @@ public class LeadService {
     // Lelo         2020-10-15
     List<Lead__c> newSLObjs = new List<Lead__c>();
 
+    Set<Id> partnerIds = new Set<Id>();
+    for(Lead__c newLead : newList){
+      if (String.isNotBlank(newLead.Partner_Owner__c)) {
+        partnerIds.add(newLead.Partner_Owner__c);
+      }
+    }
+    Map<Id, Account> partnerMap = SOQLSingletonQueries.getPartnerOwnerAccounts(partnerIds);
+    System.debug('@@partnerMap: ' + JSON.serializePretty(partnerMap));
+
 		for(Lead__c newLead : newList){
+      System.debug('@@Lead add to Active Campaign: ' + newLead.Id + '|' + newLead.Partner_Owner__c);
       if ('Small Loan'.equals(newLead.Loan_Type__c)) {
         newSLObjs.add(newLead);
-      } else {
+      } else if (
+        String.isBlank(newLead.Partner_Owner__c) || 
+        (
+          partnerMap.containsKey(newLead.Partner_Owner__c) &&
+          partnerMap.get(newLead.Partner_Owner__c).Franchised__c
+        )
+      ) {
+        System.debug('@@ adding lead to active campaign...');
         ldUpOBjs.add(newLead);
-        if(newLead.Last_Name__c != oldMap.get(newLead.id).Last_Name__c 
+        if(
+          newLead.Last_Name__c != oldMap.get(newLead.id).Last_Name__c 
           || newLead.First_Name__c != oldMap.get(newLead.id).First_Name__c 
           || newLead.Email_Address__c != oldMap.get(newLead.id).Email_Address__c 
           || newLead.Status__c != oldMap.get(newLead.id).Status__c 
@@ -149,11 +167,14 @@ public class LeadService {
           || newLead.Owner.name != oldMap.get(newLead.id).Owner.name 
           || newLead.Owner_Email__c != oldMap.get(newLead.id).Owner_Email__c 
           || newLead.Owner_Mobile__c!=oldMap.get(newLead.id).Owner_Mobile__c 
-          || newLead.Owner_Phone__c!=oldMap.get(newLead.id).Owner_Phone__c){
+          || newLead.Owner_Phone__c!=oldMap.get(newLead.id).Owner_Phone__c
+        ){
           ldUpdIds.add(newLead.Id);
           
-          if(newLead.Status__c != oldMap.get(newLead.id).Status__c 
-            || newLead.Reason_For_Closure__c != oldMap.get(newLead.Id).Reason_For_Closure__c){
+          if(
+            newLead.Status__c != oldMap.get(newLead.id).Status__c || 
+            newLead.Reason_For_Closure__c != oldMap.get(newLead.Id).Reason_For_Closure__c
+          ){
             idToStatusMap.put(newLead.id,'Yes');
           } else {
             idToStatusMap.put(newLead.id,'No');
@@ -197,47 +218,67 @@ public class LeadService {
     }
 	}
 	
-    public static void queueActiveLeadOnInsert(List<Lead__c> newList){
+  public static void queueActiveLeadOnInsert(List<Lead__c> newList){
     	Set<Id> ldIds = new Set<Id>();
     	List<Lead__c> ldUpOBjs=new List<Lead__c>();
     	Map<Id,String> idToStatusMap=new Map<Id,String>();
+
+      Set<Id> partnerIds = new Set<Id>();
+      for(Lead__c newLead : newList){
+        if (String.isNotBlank(newLead.Partner_Owner__c)) {
+          partnerIds.add(newLead.Partner_Owner__c);
+        }
+      }
+      Map<Id, Account> partnerMap = SOQLSingletonQueries.getPartnerOwnerAccounts(partnerIds);
+      
     	for(Lead__c newLead : newList){
-        // Exlude Small Personal Loans
-        if (!'Small Loan'.equals(newLead.Loan_Type__c)) {
+        // Exlude Small Personal Loans and Partner leads
+        if (
+          !'Small Loan'.equals(newLead.Loan_Type__c) &&
+          (
+            String.isBlank(newLead.Partner_Owner__c) || 
+            (
+              partnerMap.containsKey(newLead.Partner_Owner__c) &&
+              partnerMap.get(newLead.Partner_Owner__c).Franchised__c
+            )
+          )
+        ) {
           ldIds.add(newLead.id);
           ldUpOBjs.add(newLead);
           idToStatusMap.put(newLead.id,'Yes');
+          // System.debug('@@Lead add to Active Campaign: ' + newLead.Id);
         }
-    	}
-    	if(ldIds.size()>0){
-    		
-    		integer ctr;
-    		List<Lead__c> leadBatch = new List<Lead__c>();
-    		List<Lead__c> leadBatch2 = new List<Lead__c>();
-    		if (ldUpOBjs.size() > 90){
-    			for (ctr = 0; ctr > 90; ctr++){
-    				leadBatch.add(ldUpOBjs[ctr]);
-    				ldUpOBjs.remove(ctr);
-    			}
-    		} 
-    		
-    		if(ldUpOBjs.size() > 0){
-    			for(Lead__c ld: ldUpOBjs){
-    				leadBatch2.add(ld);
-    			}
-    		}
-    		if(!Test.isRunningTest()) { 
-	    		if(!leadBatch.isEmpty()){
-	    			System.enqueueJob(new queueActiveLeadCampaignCallout (leadBatch,idToStatusMap));
-	    		}
-	    		
-	    		if(!leadBatch2.isEmpty()){
-	            	System.enqueueJob(new queueActiveLeadCampaignCallout (leadBatch2,idToStatusMap));
-	            }
-	            
-    		 
-    		}
-    	}
+        // if (String.isNotBlank(newLead.Partner_Owner__c)) {
+        //   System.debug('@@ Franchise lead: ' + newLead.Id + ' >> '  + partnerMap.get(newLead.Partner_Owner__c).Franchised__c);
+        // }
+      }
+
+      if(ldIds.size()>0){
+        integer ctr;
+        List<Lead__c> leadBatch = new List<Lead__c>();
+        List<Lead__c> leadBatch2 = new List<Lead__c>();
+        if (ldUpOBjs.size() > 90){
+          for (ctr = 0; ctr > 90; ctr++){
+            leadBatch.add(ldUpOBjs[ctr]);
+            ldUpOBjs.remove(ctr);
+          }
+        } 
+        
+        if(ldUpOBjs.size() > 0){
+          for(Lead__c ld: ldUpOBjs){
+            leadBatch2.add(ld);
+          }
+        }
+        if(!Test.isRunningTest()) { 
+          if(!leadBatch.isEmpty()){
+            System.enqueueJob(new queueActiveLeadCampaignCallout (leadBatch,idToStatusMap));
+          }
+          
+          if(!leadBatch2.isEmpty()){
+            System.enqueueJob(new queueActiveLeadCampaignCallout (leadBatch2,idToStatusMap));
+          }
+        }
+      }
     }
     
     public static void queueActiveLeadOnDelete(List<Lead__c> oldList){
@@ -408,7 +449,9 @@ public class LeadService {
             a.Status__c = 'Closed Lead';
             a.Reason_for_closure__c = 'Duplicate Lead';
             a.Automatic_Closure__c = true;
-            a.External_Lead__c = extPhones.contains(a.Mobile_Number__c);
+            if (!SOQLSingletonQueries.recs().isBrokerPartnerUser) {
+              a.External_Lead__c = extPhones.contains(a.Mobile_Number__c);
+            }
         }
       }
     }
@@ -619,7 +662,9 @@ public class LeadService {
         }
         if (
           distributeThisLead &&
+          String.isBlank(a.Partner_Owner__c) &&
           String.isBlank(a.Application__c) &&
+          !'Novated Lease'.equals(a.qq_form__c) &&
           (
             'Employed'.equals(a.Employment_Status__c) ||
             'Full Time'.equals(a.Employment_Status__c) ||
@@ -659,7 +704,7 @@ public class LeadService {
 		System.debug('assosiating Campaign and List...');
 		if (newList == null || newList.isEmpty()) { return; }
 		for (Lead__c a : newList) {
-      if (!a.External_Lead__c && a.Partner_Owner__c == null) {
+      if (!a.External_Lead__c && String.isBlank(a.Partner_Owner__c)) {
         ipSCAPECampaignSettings__c cs = ipSCAPEService.getCampaignSetting(a);
         if (cs != null) {
           a.CC_Campaign_ID__c = cs.Campaign_ID__c;
@@ -878,12 +923,18 @@ public class LeadService {
     }
     System.debug('Total monthlyAccounts: ' + monthlyAccounts.size());
     System.debug('Total limitedBcAccounts: ' + limitedBcAccounts.size());
+
+    Id sysAdmin = SOQLSingletonQueries.recs().sysAdminUser.Id;
+
     // load current totals
     q = 'SELECT Partner_Owner__c, Count(Id) total FROM Lead__c ';
     // q += 'WHERE (createdDate = LAST_N_DAYS:' + days + ') ';
     // q += 'WHERE (createdDate = THIS_MONTH) ';
     q += 'WHERE (createdDate = TODAY) ';
     q += 'AND (External_Lead__c = true) ';
+    q += 'AND (CreatedById = :sysAdmin) ';
+    q += 'AND (Reason_for_closure__c != \'Duplicate Lead\') ';
+    
     if (startingTime != null) {
       q += 'AND (createdDate >= :startingTime) ';
     }
@@ -904,6 +955,8 @@ public class LeadService {
       q += 'WHERE (createdDate = THIS_MONTH) ';
       q += 'AND (External_Lead__c = true) ';
       q += 'AND (Partner_Owner__c IN :ids) ';
+      q += 'AND (CreatedById = :sysAdmin) ';
+      q += 'AND (Reason_for_closure__c != \'Duplicate Lead\') ';
       if (startingTime != null) {
         q += 'AND (createdDate >= :startingTime) ';
       }
@@ -925,6 +978,8 @@ public class LeadService {
       q += 'WHERE (createdDate = THIS_MONTH) ';
       q += 'AND (External_Lead__c = true) ';
       q += 'AND (Partner_Owner__c IN :limitedBcAccounts) ';
+      q += 'AND (CreatedById = :sysAdmin) ';
+      q += 'AND (Reason_for_closure__c != \'Duplicate Lead\') ';
       if (startingTime != null) {
         q += 'AND (createdDate >= :startingTime) ';
       }

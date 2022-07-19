@@ -92,8 +92,7 @@ public class CarStartFinanceCalculatorExtension extends QuotingExtension {
                 }
             }else{
                 if(this.clientRate < this.baseRate || this.clientRate > this.maxRate){
-                    ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Client rate should be between '+this.baseRate+'% and '+this.maxRate+'%.'));
-                    r = false;
+                  ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Client rate should be between '+this.baseRate+'% and '+this.maxRate+'%.'));
                 }
                 
                 if(this.dof < rateSel.Dof__c || this.dof > rateSel.Dof_Max__c){
@@ -177,7 +176,7 @@ public class CarStartFinanceCalculatorExtension extends QuotingExtension {
         //pass variables about the product info
         calcPdf.getParameters().put('loanTypeDetail', this.loanTypeDetail);
         calcPdf.getParameters().put('loanPurpose', this.loanPurpose);
-        calcPdf.getParameters().put('riskFee', this.riskFee.format());
+        calcPdf.getParameters().put('riskFee', this.riskFee > 0? this.riskFee.format() : '0.00');
         calcPdf.getParameters().put('commission', this.commission.format());
         calcPdf.getParameters().put('maxRate', String.valueOf(this.maxRate));
         

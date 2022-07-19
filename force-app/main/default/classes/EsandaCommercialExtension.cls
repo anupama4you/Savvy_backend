@@ -168,10 +168,10 @@ public class EsandaCommercialExtension {
         yesNoOptions.add(new SelectOption ('N', 'No'));
         profileTypes = new List <SelectOption> ();
         //profileTypes.add(new SelectOption ('', '--None--'));
-        profileTypes.add(new SelectOption ('Property Owner - New Car', 'Property Owner_20-21 Car'));
-        profileTypes.add(new SelectOption ('Property Owner - Old Car', 'Property Owner_19-Older Car'));
-        profileTypes.add(new SelectOption ('Non Property Owner - New Car', 'Non Property Owner_20-21 Car'));
-        profileTypes.add(new SelectOption ('Non Property Owner - Old Car', 'Non Property Owner_19-Older Car'));
+        profileTypes.add(new SelectOption ('Property Owner - New Car', 'Property Owner_21-22 Car'));
+        profileTypes.add(new SelectOption ('Property Owner - Old Car', 'Property Owner_20-Older Car'));
+        profileTypes.add(new SelectOption ('Non Property Owner - New Car', 'Non Property Owner_21-22 Car'));
+        profileTypes.add(new SelectOption ('Non Property Owner - Old Car', 'Non Property Owner_20-Older Car'));
         paymentTypes = new List <SelectOption> ();
         //paymentTypes.add(new SelectOption ('', '--None--'));
         paymentTypes.add(new SelectOption ('Arrears', 'Arrears'));

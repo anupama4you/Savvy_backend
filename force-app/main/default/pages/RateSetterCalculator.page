@@ -544,6 +544,7 @@
                             </td>
                             <td class="financeColumn">
                                 <apex:selectList value="{!term}" multiselect="false" size="1" styleClass="selectList" id="term">
+                                  <apex:actionSupport event="onchange" action="{!baseRateCalc}" reRender="baseRate, maxRate" status="stsBR" />
                                   <apex:selectOption itemLabel="24" itemValue="24"/>
                                   <apex:selectOption itemLabel="30" itemValue="30"/>
                                   <apex:selectOption itemLabel="36" itemValue="36"/>

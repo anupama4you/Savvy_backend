@@ -5,12 +5,21 @@
         <table width="100%">
             <tr style="border: 0px;" width="100%">
                 <td style="border: 0px;" width="30%" align="left">
+                  <apex:outputPanel rendered="{!ISBLANK(AccountVar.Business_Logo__c)}">
+                    <!--Display default Logo if Portal User has no logo.-->
                     <apex:image url="{!$Resource.newSavvyLogo}" alt="Logo" />
+                  </apex:outputPanel>
+                  <apex:outputPanel rendered="{!NOT(ISBLANK(AccountVar.Business_Logo__c))}">
+                    <!--Display Portal User's Logo if available-->
+                    <apex:image id="Logo" value="{!AccountVar.Business_Logo__c}" height="60" />
+                  </apex:outputPanel>
                 </td>
                 <td style="border: 0px;" width="70%" align="left">
-                    <p><span style="color:#ee245f;">FINANCE APPLICATION</span><br/>
-                        <span style="font-size:0.8em;"><span style="color:#ee245f;">E</span> applications@savvy.com.au <font>|</font> <span style="color:#ee245f;">P</span> 1300 974 066 <font>|</font> <span style="color:#ee245f;">F</span> 1300 978 066<br/>
-                            <span style="color:#ee245f;">A</span> Level 1, 145 The Parade, Norwood, SA 5067 <font>|</font> <span style="color:#ee245f;">www</span>.savvy.<span style="color:#ee245f;">com.au</span></span></p>
+                    <p>
+                      <span>ASSET DETAILS DOCUMENT</span><br/>
+                      <!-- <span style="font-size:0.8em;"><span style="color:#ee245f;">E</span> applications@savvy.com.au <font>|</font> <span style="color:#ee245f;">P</span> 1300 974 066 <font>|</font> <span style="color:#ee245f;">F</span> 1300 978 066<br/>
+                      <span style="color:#ee245f;">A</span> Level 1, 145 The Parade, Norwood, SA 5067 <font>|</font> <span style="color:#ee245f;">www</span>.savvy.<span style="color:#ee245f;">com.au</span></span> -->
+                    </p>
                 </td>
             </tr>
         </table>
@@ -20,7 +29,7 @@
     </div>
     <div class="content">
     
-        <h3>Savvy Finance Asset Details - LTV for {!o.Name}</h3>
+        <h3>Asset Details - LTV for {!o.Name}</h3>
         
         <table class="tableSubsection" cellpadding="5">
             <tr>

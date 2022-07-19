@@ -671,12 +671,88 @@
                                     <apex:input type="number" html-step="0.01" label="Monthly Fee" value="{!monthlyFee}" html-placeholder="$" id="monthlyFee" styleClass="calcInput" />
                                 </td>
                             </tr>
-                            <tr>
+                            <!--<tr>
                                 <td class="financeColumn">
                                     <apex:outputLabel styleClass="calcLabel" value="Equifax score" />
                                 </td>
                                 <td class="financeColumn">
                                     <apex:input type="number" html-step="0.01" label="Equifax score" value="{!equifaxScore}" html-placeholder="$" id="equifaxScore" styleClass="calcInput" onchange="baseRateRefresh();nafRefresh()" />
+                                </td>
+                            </tr>-->
+                            <tr>
+                                <td class="financeColumn">
+                                    <apex:outputLabel styleClass="calcLabel" value="Company Score" />
+                                </td>
+                                <td class="financeColumn">
+                                <apex:selectList label="Company Score" value="{!companyScore}" multiselect="false" size="1" styleClass="selectList" id="companyScore" onchange="baseRateRefresh();">
+                                    <apex:selectOption itemLabel="--None--" itemValue=""  />
+                                    <apex:selectOption itemLabel="> 500" itemValue="> 500"  />
+                                    <apex:selectOption itemLabel="< 500" itemValue="< 500"  />
+                                </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="financeColumn">
+                                    <apex:outputLabel styleClass="calcLabel" value="Director/Sole Trader Score" />
+                                </td>
+                                <td class="financeColumn">
+                                <apex:selectList label="Director/Sole Trader Score" value="{!directorSoleTraderScore}" multiselect="false" size="1" styleClass="selectList" id="directorSoleTraderScore" onchange="baseRateRefresh();">
+                                    <apex:selectOption itemLabel="--None--" itemValue=""  />
+                                    <apex:selectOption itemLabel="> 600" itemValue="> 600"  />
+                                    <apex:selectOption itemLabel="< 600" itemValue="< 600"  />
+                                </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="financeColumn">
+                                    <apex:outputLabel styleClass="calcLabel" value="Default" />
+                                </td>
+                                <td class="financeColumn">
+                                <apex:selectList label="Default" value="{!paidDefault}" multiselect="false" size="1" styleClass="selectList" id="default" onchange="baseRateRefresh();">
+                                    <apex:selectOption itemLabel="--None--" itemValue=""  />
+                                    <apex:selectOption itemLabel="Pd Telco <$1K" itemValue="Pd Telco <$1K"  />
+                                    <apex:selectOption itemLabel="Oth Default <$5K" itemValue="Oth Default <$5K"  />
+                                </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="financeColumn">
+                                    <apex:outputLabel styleClass="calcLabel" value="Condition" />
+                                </td>
+                                <td class="financeColumn">
+                                <apex:selectList label="Default" value="{!condition}" multiselect="false" size="1" styleClass="selectList" id="condition" onchange="baseRateRefresh();">
+                                    <apex:selectOption itemLabel="--None--" itemValue=""  />
+                                    <apex:selectOption itemLabel="New" itemValue="New"  />
+                                    <apex:selectOption itemLabel="Used" itemValue="Used"  />
+                                </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="financeColumn">
+                                <apex:outputLabel styleClass="calcLabel" value="Type Value" for="selectedTypeValue" />
+                                </td>
+                                <td class="financeColumn">
+                                <apex:selectRadio value="{!selectedTypeValue}" layout="lineDirection" id="selectedTypeValue" onchange="changeTypeValue()">
+                                    <apex:selectOptions value="{!options}"/>
+                                </apex:selectRadio>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="financeColumn">
+                                    <apex:outputLabel styleClass="calcLabel" value="Residual Value (%)" for="residualValuePercentage" />
+                                </td>
+                                <td class="financeColumn">
+                                    <apex:input type="number" html-step="0.01" label="Residual Value (%)" value="{!residualValuePercentage}" html-placeholder="%" id="residualValuePercentage" 
+                                                styleClass="calcInput" onchange="nafRefresh();"/>
+                                </td>
+                                
+                            </tr>
+                            <tr>
+                                <td class="financeColumn">
+                                <apex:outputLabel styleClass="calcLabel" value="Residual Value" for="residualValue" />
+                                </td>
+                                <td class="financeColumn">
+                                <apex:input type="number" html-step="0.01" label="Residual Value" value="{!residualValue}" html-placeholder="$" id="residualValue" styleClass="calcInput" />
                                 </td>
                             </tr>
                             <tr>
@@ -704,7 +780,7 @@
                                     <apex:outputLabel styleClass="calcLabel" value="GST Length" />
                                 </td>
                                 <td class="financeColumn">
-                                    <apex:selectList label="GST Length" value="{!gstLength}" multiselect="false" size="1" styleClass="selectList" >
+                                    <apex:selectList label="GST Length" value="{!gstLength}" multiselect="false" size="1" styleClass="selectList" onchange="baseRateRefresh();" >
                                         <apex:selectOptions value="{!gstLengthOptions}"/>
                                     </apex:selectList>
                                 </td>
@@ -770,16 +846,16 @@
                                     </apex:outputText>
                                 </td>
                             </tr>
-                            <!--<tr>
-<td class="financeColumn">
-<apex:outputLabel styleClass="calcLabel" value="Client Rate" for="clientRate" />
-</td>
-<td class="financeColumn">
-<apex:outputText label="Base Rate" value="{0, number, ##,###,##0.00%}" id="clientRate" >
-<apex:param value="{!clientRate/100}" />
-</apex:outputText>
-</td>
-</tr>-->
+                            <tr>
+                              <td class="financeColumn">
+                                <apex:outputLabel styleClass="calcLabel" value="Client Rate" for="clientRate" />
+                              </td>
+                              <td class="financeColumn">
+                                <apex:outputText label="Base Rate" value="{0, number, ##,###,##0.00%}" id="clientRate" >
+                                  <apex:param value="{!clientRate/100}" />
+                                </apex:outputText>
+                              </td>
+                            </tr>
                             <tr>
                                 <td class="financeColumn">
                                     <apex:outputLabel styleClass="calcLabel" value="NAF" for="realtimeNaf" />
@@ -1764,8 +1840,7 @@ reRender="EsandaConsumerForm" status="stsProd" disabled="{!quote.Status__c=='P'}
                 </p>
                 <apex:pageBlock >
                     <apex:pageBlockTable value="{!gacTier1}" var="r">
-                        <apex:facet name="header">Tier 1: Car, vans and utes</apex:facet>
-                        <apex:column value="{!r.ABN_length__c}" />
+                        <apex:facet name="header">Tier 1 - Cars</apex:facet>
                         <apex:column value="{!r.Asset_age__c}" />
                         <apex:column value="{!r.Asset_backed__c}" />
                         <apex:column value="{!r.Non_Asset_backed__c}" />
@@ -1773,7 +1848,7 @@ reRender="EsandaConsumerForm" status="stsProd" disabled="{!quote.Status__c=='P'}
                 </apex:pageBlock>
                 <apex:pageBlock >
                     <apex:pageBlockTable value="{!gacTier2}" var="r">
-                        <apex:facet name="header">Tier 2: Trucks, trailers, yellow goods, access and material handling</apex:facet>
+                        <apex:facet name="header">Tier 2 - Trucks yellow goods</apex:facet>
                          <apex:column value="{!r.Asset_age__c}" />
                         <apex:column value="{!r.Asset_backed__c}" />
                         <apex:column value="{!r.Non_Asset_backed__c}" />
@@ -1781,7 +1856,7 @@ reRender="EsandaConsumerForm" status="stsProd" disabled="{!quote.Status__c=='P'}
                 </apex:pageBlock>
                 <apex:pageBlock >
                     <apex:pageBlockTable value="{!gacTier3}" var="r">
-                        <apex:facet name="header">Tier 3: Specialized</apex:facet>
+                        <apex:facet name="header">Tier 3 - Specialised</apex:facet>
                         <apex:column value="{!r.Asset_age__c}" />
                         <apex:column value="{!r.Asset_backed__c}" />
                         <apex:column value="{!r.Non_Asset_backed__c}" />

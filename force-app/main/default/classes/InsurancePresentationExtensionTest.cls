@@ -137,6 +137,21 @@ private class InsurancePresentationExtensionTest {
     ctrl.getHasLibertyLpiInsProduct();
     ctrl.getHasLibertyGapInsProduct();
 
+    // Integrity questions
+    ctrl.getIntegrityQ1();
+    ctrl.getIntegrityQ2();
+    ctrl.getIntegrityQ3();
+    ctrl.getIntegrityQ4();
+    ctrl.getIntegrityQ5();
+
+    // Partner user methods
+    ctrl.getIsPartnerUser();
+    ctrl.getBusinessLogo();
+    ctrl.getBusinessABN();
+    ctrl.getBusinessACL();
+    ctrl.getBusinessACN();
+    ctrl.getBusinessName();
+    
   }
 
   @isTest
@@ -266,76 +281,76 @@ private class InsurancePresentationExtensionTest {
     ctrl.getLPIAccepted();
     ctrl.getIsGAPClassic2();
 
-    quoting.Insurance_Gap_Type__c = 'Cover 3';
-    quoting.Insurance_Gap_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_Gap_Type__c = 'Cover 3';
+    ctrl.quoting.Insurance_Gap_Retail_Price__c = 1;
     ctrl.getIsGAPClassic3();
 
-    quoting.Insurance_Gap_Type__c = 'Cover 4';
-    quoting.Insurance_Gap_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_Gap_Type__c = 'Cover 4';
+    ctrl.quoting.Insurance_Gap_Retail_Price__c = 1;
     ctrl.getIsGAPClassic4();
 
-    quoting.Insurance_LTI_Type__c = 'Platinum Cover 1';
-    quoting.Insurance_LTI_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_LTI_Type__c = 'Platinum Cover 1';
+    ctrl.quoting.Insurance_LTI_Retail_Price__c = 1;
     ctrl.getIsLTIPlatinum1();
 
-    quoting.Insurance_LTI_Type__c = 'Platinum Cover 2';
-    quoting.Insurance_LTI_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_LTI_Type__c = 'Platinum Cover 2';
+    ctrl.quoting.Insurance_LTI_Retail_Price__c = 1;
     ctrl.getIsLTIPlatinum2();
 
-    quoting.Insurance_LTI_Type__c = 'Platinum Cover 3';
-    quoting.Insurance_LTI_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_LTI_Type__c = 'Platinum Cover 3';
+    ctrl.quoting.Insurance_LTI_Retail_Price__c = 1;
     ctrl.getIsLTIPlatinum3();
 
-    quoting.Insurance_LTI_Type__c = 'Gold Cover 2';
-    quoting.Insurance_LTI_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_LTI_Type__c = 'Gold Cover 2';
+    ctrl.quoting.Insurance_LTI_Retail_Price__c = 1;
     ctrl.getIsLTIGold2();
 
-    quoting.Insurance_LTI_Type__c = 'Silver Cover 1';
-    quoting.Insurance_LTI_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_LTI_Type__c = 'Silver Cover 1';
+    ctrl.quoting.Insurance_LTI_Retail_Price__c = 1;
     ctrl.getIsLTISilver1();
 
-    quoting.Insurance_Warranty_Type__c = 'Diamond - 36';
-    quoting.Insurance_Warranty_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_Warranty_Type__c = 'Diamond - 36';
+    ctrl.quoting.Insurance_Warranty_Retail_Price__c = 1;
     ctrl.quoting.recalculateFormulas();
     ctrl.getIsWARRDiamond36();
 
-    quoting.Insurance_Warranty_Type__c = 'Diamond - 60';
-    quoting.Insurance_Warranty_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_Warranty_Type__c = 'Diamond - 60';
+    ctrl.quoting.Insurance_Warranty_Retail_Price__c = 1;
     ctrl.quoting.recalculateFormulas();
     ctrl.getIsWARRDiamond60();
 
-    quoting.Insurance_Warranty_Type__c = 'Platinum - 36';
-    quoting.Insurance_Warranty_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_Warranty_Type__c = 'Platinum - 36';
+    ctrl.quoting.Insurance_Warranty_Retail_Price__c = 1;
     ctrl.quoting.recalculateFormulas();
     ctrl.getIsWARRPlatinum36();
 
-    quoting.Insurance_Warranty_Type__c = 'Platinum - 60';
-    quoting.Insurance_Warranty_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_Warranty_Type__c = 'Platinum - 60';
+    ctrl.quoting.Insurance_Warranty_Retail_Price__c = 1;
     ctrl.quoting.recalculateFormulas();
     ctrl.getIsWARRPlatinum60();
 
-    quoting.Insurance_TAI_Type__c = 'Cover 1';
-    quoting.Insurance_TAI_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_TAI_Type__c = 'Cover 1';
+    ctrl.quoting.Insurance_TAI_Retail_Price__c = 1;
     ctrl.getIsTaiCover1();
 
-    quoting.Insurance_TAI_Type__c = 'Cover 2';
-    quoting.Insurance_TAI_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_TAI_Type__c = 'Cover 2';
+    ctrl.quoting.Insurance_TAI_Retail_Price__c = 1;
     ctrl.getIsTaiCover2();
 
-    quoting.Insurance_TAI_Type__c = 'Cover 3';
-    quoting.Insurance_TAI_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_TAI_Type__c = 'Cover 3';
+    ctrl.quoting.Insurance_TAI_Retail_Price__c = 1;
     ctrl.getIsTaiCover3();
 
-    quoting.Insurance_LTI_Type__c = 'Cover 3';
+    ctrl.quoting.Insurance_LTI_Type__c = 'Cover 3';
     ctrl.getIsLTICover3();
 
-    quoting.Insurance_Warranty_Type__c = 'Diamond';
-    quoting.Insurance_Warranty_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_Warranty_Type__c = 'Diamond';
+    ctrl.quoting.Insurance_Warranty_Retail_Price__c = 1;
     ctrl.quoting.recalculateFormulas();
     ctrl.getIsWarrantyDiamond();
 
-    quoting.Insurance_Warranty_Type__c = 'Platinum';
-    quoting.Insurance_Warranty_Retail_Price__c = 1;
+    ctrl.quoting.Insurance_Warranty_Type__c = 'Platinum';
+    ctrl.quoting.Insurance_Warranty_Retail_Price__c = 1;
     ctrl.quoting.recalculateFormulas();
     ctrl.getIsWarrantyPlatinum();
   }

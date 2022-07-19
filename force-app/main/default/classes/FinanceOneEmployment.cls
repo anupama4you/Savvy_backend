@@ -1848,15 +1848,15 @@ employment.current.benefits = new FinanceOneDTOs.CurrentBenefit[0];
                 employment.current.self[0].entity.address.postcode = entity.Postcode__c;
                 employment.current.self[0].entity.predominantBusinessActivity = a.Nature_of_Business__c;
                 employment.current.self[0].occupation = a.Current_Occupation_2__c;
-                if(secondJob.equals('standard')){
+                if('standard'.equals(secondJob)){
                     employment.current.unemployed = new FinanceOneDTOs.CurrentUnemployed[0];
                     employment.current.benefits = new FinanceOneDTOs.CurrentBenefit[0];
                 }
-                if(secondJob.equals('unemployed')){
+                if('unemployed'.equals(secondJob)){
                     employment.current.standard = new FinanceOneDTOs.CurrentStandardEmployment[0];
                     employment.current.benefits = new FinanceOneDTOs.CurrentBenefit[0];
                 }
-                if(secondJob.equals('benefit')){
+                if('benefit'.equals(secondJob)){
                     employment.current.unemployed = new FinanceOneDTOs.CurrentUnemployed[0];
                     employment.current.standard = new FinanceOneDTOs.CurrentStandardEmployment[0];
                 }

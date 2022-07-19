@@ -15,11 +15,32 @@ global class queueActiveOppTagCallout implements Queueable, Database.AllowsCallo
       'ActiveCampaign_Status'
     );
     Boolean isOn = param != null && 'ON'.equals(param.value__c);
+
+    Map<Id, Custom_Opportunity__c> partners = new Map<Id, Custom_Opportunity__c>();
+    Set<Id> oppsIds = new Set<Id>();
+    for (Custom_Opportunity__c oppObj : opps) {
+      oppsIds.add(oppObj.Id);
+    }
+    if (!oppsIds.isEmpty()) {
+      List<Custom_Opportunity__c> d = [
+        SELECT
+          Partner_Is_External__c, Partner_Owner__c, Franchise_Owner__c
+        FROM Custom_Opportunity__c
+        WHERE Id in :oppsIds
+      ];
+      for (Custom_Opportunity__c o: d) {
+        partners.put(o.Id, o);
+      }
+      // System.debug('@@opp partners: ' + JSON.serializePretty(partners));
+    }
+    
     for (Custom_Opportunity__c oppObj : opps) {
       if (
         mapStsUpd.containsKey(oppObj.id) && mapStsUpd.get(oppObj.id) == 'Yes'
       ) {
-        if (isOn && !'Home Loans'.equals(oppObj.Owner_Name__c)) {
+        // System.debug('@@checking oppId: ' + oppObj.Id + '|' + isExternalPartner(oppObj.Id, partners) + '|' + isOn);
+        if (isOn && !'Home Loans'.equals(oppObj.Owner_Name__c) && !isExternalPartner(oppObj.Id, partners)) {
+          // System.debug('@@process active campaing for opp: ' + oppObj.Name);
           HttpRequest req = new HttpRequest();
           req.setMethod('POST');
           req.setEndpoint(
@@ -170,4 +191,13 @@ global class queueActiveOppTagCallout implements Queueable, Database.AllowsCallo
     System.debug(msg);
     return msg;
   } // end method
+
+  public static Boolean isExternalPartner(Id oppId, Map<Id, Custom_Opportunity__c> partners) {
+    return (
+      oppId != null && partners != null && !partners.isEmpty() &&
+      partners.containsKey(oppId) &&  
+      partners.get(oppId).Partner_Is_External__c
+    );
+  }
+
 }

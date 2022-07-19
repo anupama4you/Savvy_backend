@@ -19,7 +19,10 @@
     
   </style>
   
-  <c:sidebarV2 oppId="{!o.Id}" appId="{!o.Application__c}" rendered="{!NOT(isBrokerPartnerUser)}" />
+  <c:sidebarV2 oppId="{!o.Id}" 
+    appId="{!o.Application__c}" 
+    rendered="{!NOT(isBrokerPartnerUser)}"  
+  />
   <div id="mainContent" class="{!IF(NOT(isBrokerPartnerUser),'main-content','')}">
     <apex:pageMessages id="pageMessage" />
     <!-- <h3>Please select a calculator, thank you.</h3> -->
@@ -328,7 +331,14 @@
               <apex:image url="{!$Resource.WestpacLogo}" height="40" />
             </apex:outputLink>
           </td>
-          <td colspan="3"></td>
+          <td align="center" valign="Top">
+            <apex:outputLink value="{!$Page.APF}?id={!o.Id}">
+              <strong>APF</strong>
+              <br/>
+              <apex:image url="{!$Resource.APFLogo}" height="40" />
+            </apex:outputLink>
+          </td>
+          <td colspan="2"></td>
         </tr>
         <!--New Calculators -->
         <tr>
@@ -450,4 +460,44 @@
   <apex:outputField value="{!o.Loan_Product__r.Lender__c}" rendered="false" />
   <apex:outputField value="{!o.Loan_Product__c}" rendered="false" />
   <apex:outputField value="{!o.Preapproval_Auth_Date__c}" rendered="false" />
+
+  <div>Message: 
+    <span><div id="MCMessageText"></div></span>
+  </div>
+  <script src="/support/console/52.0/integration.js" type="text/javascript" />
+  <script>
+    // Load the MessageChannel token in a variable
+    var SAMPLEMC = "{!$MessageChannel.AprovalChannel__c}";
+    var subscriptionToMC;
+
+    function publishMC() {
+      const message = {
+        messageToSend: document.getElementById('theMessage').value,
+        sourceSystem: "From VisualForce Page"
+      };
+      sforce.one.publish(SAMPLEMC, message);
+    }
+
+    // Display message in the textarea field
+    function displayMessage(message) {
+      var textLabel = document.querySelector("#MCMessageText");
+      textLabel.innerHTML = message ? JSON.stringify(message, null, '\t') : 'no message payload';
+    }
+
+    function subscribeMC() {
+      if (!subscriptionToMC) {
+        subscriptionToMC = sforce.one.subscribe(SAMPLEMC, displayMessage);
+      }
+    }
+
+    function unsubscribeMC() {
+      if (subscriptionToMC) {
+        sforce.one.unsubscribe(subscriptionToMC);
+        subscriptionToMC = null;
+      }
+    }
+
+    subscribeMC();
+
+  </script>
 </apex:page>

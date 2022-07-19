@@ -8,9 +8,30 @@ public with sharing class SidebarV2Controller {
 	public Id applicationId {set;get;}
 	private Set<String> dataTypes = null;
 
-	public SidebarV2Controller() {
-		
-	}
+  private Custom_Opportunity__c opp;
+
+  public Boolean isPartnerExternal {
+    get {
+      this.loadData();
+      return this.opp != null && this.opp.Partner_Is_External__c;
+    }
+  }
+
+  public String oppName {
+    get {
+      this.loadData();
+      return this.opp != null? this.opp.Name : null;
+    }
+  }
+
+  public String oppStatus {
+    get {
+      this.loadData();
+      return this.opp != null? this.opp.Status__c : null;
+    }
+  }
+
+	public SidebarV2Controller() {}
 
 	public String getLenderQuoting() {
 		System.debug('dataTypes 2 >> ' + applicationId + '|' + dataTypes);
@@ -84,4 +105,32 @@ public with sharing class SidebarV2Controller {
 	public String getAssetLTVFormalAprovalStatus() {
 		return ICO_FORMALAPPROVAL + getStatusDataType('Asset Detail - LTV (Formal Approval)');
 	}
+
+  public void submitForApproval() {
+    System.debug('submitForApproval...');
+    // Validations
+    // Approval validations
+    // Has API
+    // processing or go manual
+
+    // Submission
+
+    // result
+
+  }
+
+  public void loadData() {
+    if (this.opp == null) {
+      System.debug('@@opportunityId: ' + this.opportunityId);
+      List<Custom_Opportunity__c> d = [
+        SELECT Name, Status__c, Partner_Is_External__c
+        FROM Custom_Opportunity__c
+        WHERE Id =: this.opportunityId
+      ];
+      this.opp = !d.isEmpty() ? d.get(0) : null;
+    }
+  }
+
+  
+
 }

@@ -2,7 +2,7 @@ public class GlassServicePdfExtension {
 	
     public Glass_Variant__c variantObj {get;set;}
     public List <AssetOptionDTO> assetStandardFeautersData {get;set;}
-	public String modelTypeSource {get;set;}
+	  public String modelTypeSource {get;set;}
     public String make {get;set;}
     public String options {get;set;}
     public String newUsed {get;set;}
@@ -16,7 +16,7 @@ public class GlassServicePdfExtension {
     public String lender {get;set;}
     public String typeLoan {get;set;}
     public String carPrice {get;set;}
-	public String deposit {get;set;}   
+	  public String deposit {get;set;}   
     public String warranty {get;set;}   
     public String gap {get;set;}   
     public String lpi {get;set;}   
@@ -58,8 +58,15 @@ public class GlassServicePdfExtension {
     public String regoState {get;set;}
     public String redbookKey {get;set;}
 
+    public Custom_Opportunity__c opp;
+
     public GlassServicePdfExtension (ApexPages.StandardController controller) {
-        
+        Set<String> fields = new Set<String>{
+          'OwnerId'
+        };
+        if (!Test.isRunningTest()) controller.addFields(new List<String>(fields));
+        this.opp = (Custom_Opportunity__c)controller.getRecord ();
+
         String variantCode = System.currentPageReference().getParameters().get('VARIANT_CODE');
         variantObj = GlassServicesHelper.getVariantByCode(variantCode);
         assetStandardFeautersData = GlassServicesHelper.getVariantOptionsByCodeAndType(variantCode, 'Standard');
@@ -221,4 +228,8 @@ public class GlassServicePdfExtension {
         }
         return label;
     }
+
+  public Account getAccountVar() {
+    return SOQLSingletonQueries.getPartnerAccount(this.opp.OwnerId);
+  } 
 }

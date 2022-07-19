@@ -1464,9 +1464,8 @@ public without sharing class InsuranceQuoteUtils {
  		List<Custom_Opportunity__c> r = [
  			SELECT Name, Application__r.Entity_Name__c, Application_AssetDetail__r.Type__c, Application__r.Type_of_Asset__c, 
  			       Application__r.Application_Type__c, Application_AssetDetail__r.Rego__c, Application_AssetDetail__r.Rego_State__c,
-                   //Jesus Mora 2020-06-04 start
- 			       Application_AssetDetail__r.Engine_No__c, Application_AssetDetail__r.VIN__c, Application__r.Mode_of_Employment_1__c
-                   //Jesus Mora 2020-06-04 end
+ 			       Application_AssetDetail__r.Engine_No__c, Application_AssetDetail__r.VIN__c, Application__r.Mode_of_Employment_1__c,
+             OwnerId
  			FROM Custom_Opportunity__c WHERE Id = :oppId
  		];
  		if (!r.isEmpty()) {

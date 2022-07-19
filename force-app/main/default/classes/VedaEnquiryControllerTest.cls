@@ -10,7 +10,7 @@ public  class VedaEnquiryControllerTest {
     }
     @isTest
     private static void submitEnquiryTest(){
-      User pu = buildPartnerUser();
+      User pu = Test_DataGeneratorHelper.buildPartnerUser();
       System.runAs(pu) {
         Test_DataGeneratorHelper.createPartnerAPISettings();
         Test_DataGeneratorHelper.createOpportunity();
@@ -231,49 +231,5 @@ public  class VedaEnquiryControllerTest {
         Test.stopTest();
 
     }
- 
-    
-    
-    
-    private static User buildPartnerUser() {
-    Id recType = SOQLSingletonQueries.recs()
-      .recordTypes.get('Business Account');
-    String username = 'newone-123456789@noemail.com';
-    UserRole userrole = [Select Id, DeveloperName From UserRole Where DeveloperName = 'Director' Limit 1];
-    // User sysAdminUser = [Select Id, Name from User where Id = :UserInfo.getUserId()];
-    User adminUser = [Select Id, UserRoleId From User Where Name='Savvy Admin' Limit 1];
-    adminUser.UserRoleId  = userrole.Id;
-    update adminUser;
-    System.runAs(adminUser) {
-      Account a = new Account(
-        Name = 'Test Business Account',
-        RecordTypeId = recType
-      );
-      insert a;
-      Contact c = new Contact(LastName = 'Montoya');
-      c.AccountId = a.Id;
-      insert c;
-      
-      Profile p = [SELECT Id FROM Profile WHERE Name = 'Broker Community User'];
-      User u = new User(
-        alias = 'test123',
-        email = 'test123@noemail.com',
-        emailencodingkey = 'UTF-8',
-        lastname = 'Testing',
-        languagelocalekey = 'en_US',
-        localesidkey = 'en_US',
-        profileid = p.Id,
-        country = 'United States',
-        IsActive = true,
-        contactId = c.Id,
-        timezonesidkey = 'America/Los_Angeles',
-        username = username,
-        communityNickname = c.LastName + '_' + Math.random()
-      );
-      insert u;
-    }
-    User u = [SELECT id FROM user WHERE username = :username LIMIT 1];
-    return u;
-  }
 
 }

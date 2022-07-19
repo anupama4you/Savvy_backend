@@ -55,7 +55,8 @@ public class TestOppApplicationServCalculatorUtils {
             'GEOWAMetro', 'GEOWARegional', 'GEONSWMetro', 'GEONSWRegional',
             'GEOTASMetro', 'GEOTASRegional', 'GEOQLDMetro', 'GEOVICRegional',
             'GEOACTMetro', 'GEOACTRegional', 'GEONTMetro', 'GEONTRegional',
-            'Yamaha','MON3MI', 'GEOQLDRegional'
+            'Yamaha','MON3MI', 'GEOQLDRegional', 'APF-Centrelink only',
+            'APF-Standard PAYG'
     	};
         List<List<Decimal>> r = null;
         String key = null;

@@ -1,4 +1,4 @@
-<apex:page docType="html-5.0" showHeader="false" sidebar="false" controller="InsurancePresentationExtension" title="Savvy - Tailored protection package">
+<apex:page docType="html-5.0" showHeader="false" sidebar="false" controller="InsurancePresentationExtension" title="Tailored protection package">
     <head>
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
@@ -143,7 +143,14 @@
                         <!-- ::before -->
                         <p>&nbsp;</p>
                         <div class="toplogo">
-                            <apex:image url="{!$Resource.SavvyLogo2017}"/>
+                            <apex:outputPanel rendered="{!NOT(isPartnerUser)}">
+                              <!--Display default Logo if Portal User has no logo.-->
+                              <apex:image url="{!$Resource.SavvyLogo2017}" alt="Logo" />
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!isPartnerUser}">
+                              <!--Display Portal User's Logo if available-->
+                              <apex:image value="{!businessLogo}" height="60" alt="Logo" />
+                            </apex:outputPanel>
                         </div>
                         <apex:outputPanel rendered="{!NOT(isPublicMode)}">
                             <h2>*** PREVIEW ***</h2>
@@ -355,7 +362,14 @@
                         <!-- ::before -->
                         <p>&nbsp;</p>
                         <div class="toplogo">
-                            <apex:image url="{!$Resource.SavvyLogo2017}"/>
+                          <apex:outputPanel rendered="{!NOT(isPartnerUser)}">
+                            <!--Display default Logo if Portal User has no logo.-->
+                            <apex:image url="{!$Resource.SavvyLogo2017}" alt="Logo" />
+                          </apex:outputPanel>
+                          <apex:outputPanel rendered="{!isPartnerUser}">
+                            <!--Display Portal User's Logo if available-->
+                            <apex:image value="{!businessLogo}" height="60" alt="Logo" />
+                          </apex:outputPanel>
                         </div>
                         <apex:outputPanel rendered="{!NOT(isPublicMode)}">
                             <h2>*** PREVIEW ***</h2>
@@ -380,7 +394,14 @@
                     <!-- ::before -->
                     <p>&nbsp;</p>
                     <div class="toplogo">
-                        <apex:image url="{!$Resource.SavvyLogo2017}"/>
+                      <apex:outputPanel rendered="{!NOT(isPartnerUser)}">
+                        <!--Display default Logo if Portal User has no logo.-->
+                        <apex:image url="{!$Resource.SavvyLogo2017}" alt="Logo" />
+                      </apex:outputPanel>
+                      <apex:outputPanel rendered="{!isPartnerUser}">
+                        <!--Display Portal User's Logo if available-->
+                        <apex:image value="{!businessLogo}" height="60" alt="Logo" />
+                      </apex:outputPanel>
                     </div>
                     <apex:outputPanel rendered="{!NOT(isPublicMode)}">
                         <h2>*** PREVIEW ***</h2>
@@ -481,7 +502,14 @@
                     <!-- ::before -->
                     <p>&nbsp;</p>
                     <div class="toplogo">
-                        <apex:image url="{!$Resource.SavvyLogo2017}"/>
+                      <apex:outputPanel rendered="{!NOT(isPartnerUser)}">
+                        <!--Display default Logo if Portal User has no logo.-->
+                        <apex:image url="{!$Resource.SavvyLogo2017}" alt="Logo" />
+                      </apex:outputPanel>
+                      <apex:outputPanel rendered="{!isPartnerUser}">
+                        <!--Display Portal User's Logo if available-->
+                        <apex:image value="{!businessLogo}" height="60" alt="Logo" />
+                      </apex:outputPanel>
                     </div>
                     <apex:outputPanel rendered="{!NOT(isPublicMode)}">
                         <h2>*** PREVIEW ***</h2>
@@ -593,7 +621,14 @@
                         <!-- ::before -->
                         <p>&nbsp;</p>
                         <div class="toplogo">
-                            <apex:image url="{!$Resource.SavvyLogo2017}"/>
+                          <apex:outputPanel rendered="{!NOT(isPartnerUser)}">
+                            <!--Display default Logo if Portal User has no logo.-->
+                            <apex:image url="{!$Resource.SavvyLogo2017}" alt="Logo" />
+                          </apex:outputPanel>
+                          <apex:outputPanel rendered="{!isPartnerUser}">
+                            <!--Display Portal User's Logo if available-->
+                            <apex:image value="{!businessLogo}" height="60" alt="Logo" />
+                          </apex:outputPanel>
                         </div>
                         <apex:outputPanel rendered="{!NOT(isPublicMode)}">
                             <h2>*** PREVIEW ***</h2>
@@ -1107,20 +1142,42 @@
     </apex:outputPanel>
 </div>
 <footer>
-    <div class="container">
-        <div class="">
-            <div class="col-md-12 disclaimer">
-                <p>&nbsp;</p>
-                <p>
-                    <strong>Quantum Savvy Pty Ltd, is recognized by the Australian Securities and Investments Commission (ASIC) as an Authorised Representative of both Eric Insurance Ltd ABN 18 009 129 793 AFSL 2387279, Suncorp Metway Insurance Pty Ltd ABN 80 000 886 680 AFSL 229869, Davantage Group Pty Ltd ABN 35 161 967 166 AFSL 438157 &amp; LFI Group Pty Ltd ABN 31 138 903 581 AFSL 413 613.</strong>
-                </p>
-                <p>
-                    This information may be regarded as general advice. That is, your personal objectives, needs or financial situations were not taken into account when preparing this information. Accordingly, you should consider the appropriateness of any general advice we have given you, having regard to your own objectives, financial situation and needs before acting on it.
-                </p>
-            </div>
-        </div>
-        <p class="copyright">© Quantum Savvy Pty Ltd / ABN 12 134 138 686 / ACL 414426 / Savvy is a trade mark of Quantum Savvy Pty Ltd.</p>
+  <apex:outputPanel layout="block" rendered="{!isPartnerUser}" styleClass="container">
+    <div class="">
+      <div class="col-md-12 disclaimer">
+        <p>&nbsp;</p>
+        <p>
+          <strong>{!businessName}, is recognized by the Australian Securities and Investments Commission (ASIC) as an Authorised Representative
+            of both Eric Insurance Ltd ABN 18 009 129 793 AFSL 2387279, Suncorp Metway Insurance Pty Ltd ABN 80 000 886 680 AFSL
+            229869, Davantage Group Pty Ltd ABN 35 161 967 166 AFSL 438157 &amp; LFI Group Pty Ltd ABN 31 138 903 581 AFSL 413 613.</strong>
+        </p>
+        <p>
+          This information may be regarded as general advice. That is, your personal objectives, needs or financial situations were
+          not taken into account when preparing this information. Accordingly, you should consider the appropriateness of any general
+          advice we have given you, having regard to your own objectives, financial situation and needs before acting on it.
+        </p>
+      </div>
     </div>
+    <p class="copyright">© {!businessName} / ABN {!businessABN} / ACL {!businessACL}</p>
+  </apex:outputPanel>
+  <apex:outputPanel layout="block" rendered="{!NOT(isPartnerUser)}" styleClass="container">
+    <div class="">
+      <div class="col-md-12 disclaimer">
+        <p>&nbsp;</p>
+        <p>
+          <strong>Quantum Savvy Pty Ltd, is recognized by the Australian Securities and Investments Commission (ASIC) as an Authorised Representative
+            of both Eric Insurance Ltd ABN 18 009 129 793 AFSL 2387279, Suncorp Metway Insurance Pty Ltd ABN 80 000 886 680 AFSL
+            229869, Davantage Group Pty Ltd ABN 35 161 967 166 AFSL 438157 &amp; LFI Group Pty Ltd ABN 31 138 903 581 AFSL 413 613.</strong>
+        </p>
+        <p>
+          This information may be regarded as general advice. That is, your personal objectives, needs or financial situations were
+          not taken into account when preparing this information. Accordingly, you should consider the appropriateness of any general
+          advice we have given you, having regard to your own objectives, financial situation and needs before acting on it.
+        </p>
+      </div>
+    </div>
+    <p class="copyright">© Quantum Savvy Pty Ltd / ABN 12 134 138 686 / ACL 414426 / Savvy is a trade mark of Quantum Savvy Pty Ltd.</p>
+  </apex:outputPanel>
 </footer>
 <div class="modal fade" id="vdPlayer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">

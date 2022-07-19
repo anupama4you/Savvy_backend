@@ -1285,6 +1285,8 @@ public class TestGlassServiceEstimatorExtension {
         dto.assetStandardFeautersData = new List<Glass_Factory_Option__c>();
         dto.totalPriceOptions = null;
         dto.getNewPriceValue();
+
+        ctr.getAccountVar();
     }
 
     public static testMethod void testPPSRCertificate() { 

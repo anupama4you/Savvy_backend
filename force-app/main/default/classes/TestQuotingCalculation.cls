@@ -234,7 +234,8 @@ private class TestQuotingCalculation {
     param.loanTypeDetail = '832 - 1200';
     QuotingCalculation.getAzora(param);
     QuotingCalculation.calculate(param);
-
+	param = getGenericParam(WestpacExtension.LENDER_QUOTING);
+    QuotingCalculation.calculate(param);
 	  param = new QuotingCalculation.CalcParam('RateSetter');
     param.customerProfile = 'Property Owner';
     param.clientTier = 'Tier 1';
@@ -249,6 +250,8 @@ private class TestQuotingCalculation {
     param.vehicleYear = '2021';
 	param.brokeragePer = 5;
 	QuotingCalculation.getBaseRate(param);
+	param = getGenericParam('APF');
+	QuotingCalculation.calculate(param);
     // New cal calculators
     List<String> lenderList = new List<String>{
       'BOQCommercial',
@@ -916,7 +919,8 @@ private class TestQuotingCalculation {
 
     // Affordable
 		param = new QuotingCalculation.CalcParam('Affordable');
-		param.clientTier = 'Premium';
+		//param.clientTier = 'Premium';
+		param.creditScore = '500+';
     y = Date.today().year();
     loanDetails = new List<String>();
     loanDetails.add(String.valueOf(y));
@@ -972,12 +976,28 @@ private class TestQuotingCalculation {
 
     // Grow Asset Car
     param = new QuotingCalculation.CalcParam('Grow Asset');
-    param.assetType = 'Cars/Vans/Utes';
-    param.abnLength = '> 36 months';
+    param.assetType = 'Tier 1 - Cars';
+    param.abnLength = '> 12 months';
     param.assetAge = '1';
     param.customerProfile = 'Y';
-    QuotingCalculation.getBaseRate(param);
-
+	param.companyScore = '< 500';
+	param.directorSoleTraderScore = '< 600';
+	param.privateSales = 'Y';
+	param.term = 72;
+	param.paidDefault = 'Oth Default <$5K';
+	param.brokeragePer = 6;
+	QuotingCalculation.getBaseRate(param);
+	param.term = 12;
+	param.assetAge = '8';
+	param.customerProfile = 'N';
+	QuotingCalculation.getBaseRate(param);
+	param.assetType = 'Tier 2 - Trucks yellow goods';
+	param.assetAge = '16';
+	QuotingCalculation.getBaseRate(param);
+	param.assetType = 'Tier 3 - Specialised';
+	param.condition = 'Used';
+	QuotingCalculation.getBaseRate(param);
+/*
     param.abnLength = '> 24 months';
     param.assetAge = '5';
     param.customerProfile = 'N';
@@ -996,7 +1016,7 @@ private class TestQuotingCalculation {
     param.equifaxScore = 400;
     param.abnLength = '> 12 months';
     QuotingCalculation.getBaseRate(param);
-
+*/
     //Grow Business Loan
     param = new QuotingCalculation.CalcParam('Grow Business Loan');
     QuotingCalculation.getBaseRate(param);

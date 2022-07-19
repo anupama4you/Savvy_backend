@@ -16,11 +16,15 @@ public class FinanceOneUtils {
         if(typeOfAsset.equals('Caravan')){
             loanPurpose = 'caravan'; 
         }
-        /*
-if(typeOfAsset.equals('Equipment')){
-loanPurpose = 'camper_trailer'; 
-}
-*/
+
+        if (typeOfAsset.equals('Equipment')) {
+          loanPurpose = 'plant_and_equipment';
+        }
+
+        if (typeOfAsset.equals('Truck')) {
+          loanPurpose = 'truck';
+        }
+
         return loanPurpose;
     }
     
@@ -212,6 +216,10 @@ residencyStatus = 'visa';
             
             if(loanFacilityType.equals('Bronze')){
                 productTypeId = 'COM.S.BRO';  
+            }
+
+            if(loanFacilityType.equals('Platinum')){
+                productTypeId = 'COM.S.PLAT';  
             }
         }
         

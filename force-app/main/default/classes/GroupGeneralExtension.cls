@@ -769,12 +769,12 @@ public class GroupGeneralExtension {
             r = false;
         }*/
         // validation before calculation
-        /*if (clientRate == null || clientRate <= 0.0) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Client Rate cannot be Zero.'));
+        if (clientRate == null || clientRate <= 0.0) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Client Rate should be greater than zero'));
             r = false;
-        }*/
-        if (baseRate == null || baseRate == 0.0) {
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Base Rate cannot be Zero.'));
+        }
+        if (baseRate <= 0.0) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Base Rate should be greater than zero'));
             r = false;
         }
         if (term == null || term == 0) {

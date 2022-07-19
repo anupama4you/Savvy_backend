@@ -77,6 +77,7 @@ public class PlentiCommercialExtension extends QuotingExtension {
     
     public Boolean isValidationOk() {
         Boolean r = true;
+        Boolean maxNaf = false;
         // Checking for join apps
         if (this.Opp.Application__c != null && this.Opp.Application__r.No_of_People__c != null && 2 == this.Opp.Application__r.No_of_People__c) {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Joined applications are not allowed by Plenti'));
@@ -86,8 +87,10 @@ public class PlentiCommercialExtension extends QuotingExtension {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Minimum loan amount should be $10,000'));
             r = false;
         }
-        if(this.realtimeNaf > 100000){
-          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Warning maximum car price $100K'));
+        if(this.realtimeNaf > 125000){
+          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,
+            'Warning Max loan amount is $125K'));
+            maxNaf = true;
             //ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Max Lend should be equal or less than $100.000'));
             //r = false;
         }
@@ -139,6 +142,7 @@ public class PlentiCommercialExtension extends QuotingExtension {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Please select a Client Tier option.'));
             r = false;
         } else {
+          /*
           if ('> 5 yrs / >3 yrs'.equals(abn)) {
             if (realtimeNaf > 100000) {
               ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Warning: Max NAF $100K'));
@@ -176,6 +180,36 @@ public class PlentiCommercialExtension extends QuotingExtension {
             
             if (!'Tier 3'.equals(clientTier)) {
               ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Warning: This should be Tier 3'));
+            }
+          }
+          */
+          if ('> 2 years'.equals(abn)) {
+            if (!'Tier 1'.equals(clientTier)) {
+              ApexPages.addMessage(new ApexPages.Message(
+                ApexPages.Severity.WARNING,
+                  'Warning: ABN length should be Tier 1'));
+            }
+          }
+          
+          if ('> 2 yrs / >1 year'.equals(abn)) {
+            if (realtimeNaf > 100000 && !maxNaf) {
+              ApexPages.addMessage(new ApexPages.Message(
+                ApexPages.Severity.WARNING,'Warning: Max NAF $100K'));
+              maxNaf = true;
+            }
+            
+            if (!'Tier 2'.equals(clientTier)) {
+              ApexPages.addMessage(new ApexPages.Message(
+                ApexPages.Severity.WARNING,
+                  'Warning: ABN length should be Tier 2'));
+            }
+          }
+          
+          if ('> 1 yr / Unreg > 1 yr'.equals(abn)) {
+            if (!'Tier 3'.equals(clientTier)) {
+              ApexPages.addMessage(new ApexPages.Message(
+                ApexPages.Severity.WARNING,
+                  'Warning: ABN length should be Tier 3'));
             }
           }
         }
@@ -259,17 +293,36 @@ public class PlentiCommercialExtension extends QuotingExtension {
         if ('Property Owner'.equals(this.customerProfile)) {
           ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Warning: LVR Dealer 150%, Private 130%, Tier 3 130%'));
         }
-        
+        /*
         if ('Non Property Owner'.equals(this.customerProfile)) {
           ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Warning: LVR max 90% for non property owner'));
         }
-        
+        */
         if ('Tier 3'.equals(clientTier) && term == 84) {
           ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Warning: 7 years not available for Tier 3'));
         }
 
         if (manualRate > 0 && manualRate < baseRate) {
           ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Manual rate is below of base rate: ' + this.baseRate + '%'));
+        }
+
+        if ('Non Property Owner'.equals(customerProfile)) {
+          if ('> 2 yrs / >1 year'.equals(abn) && realtimeNaf > 40000 && !maxNaf) {
+            ApexPages.addMessage(new ApexPages.Message(
+              ApexPages.Severity.WARNING,'Warning: Max NAF $40K'));
+          } else if ('> 1 yr / Unreg > 1 yr'.equals(abn) && realtimeNaf > 30000 
+            && !maxNaf) {
+            ApexPages.addMessage(new ApexPages.Message(
+              ApexPages.Severity.WARNING,'Warning: Max NAF $30K'));
+          }
+
+          if ('Y'.equals(privateSales)) {
+            ApexPages.addMessage(new ApexPages.Message(
+              ApexPages.Severity.WARNING,'90% LVR private'));
+          } else if (getNetDepositVal() < carPrice * 0.20) {
+            ApexPages.addMessage(new ApexPages.Message(
+              ApexPages.Severity.WARNING,'Non property require 20% for dealer'));
+          }
         }
         return r;
     }
@@ -652,7 +705,7 @@ public class PlentiCommercialExtension extends QuotingExtension {
 
         param.brokeragePer = brokeragePercentage;
         param.amountBasePmt = this.getBaseAmountPmtInclBrokerageCalc(quotingType);
-
+        System.debug('@@calculating:' + JSON.serializePretty(param));
         Application_Quoting_Result__c r = QuotingCalculation.calculate(param);
         if (r != null) {
           estimatedCommission = r.Estimated_Commission__c;
@@ -739,6 +792,7 @@ public class PlentiCommercialExtension extends QuotingExtension {
         param.condition = this.assetCondition;
         param.greenCar = this.greenCar;
         param.brokeragePer = brokeragePercentage;
+        param.term = this.term;
         System.debug('params => ' + param.clientTier + '|' + param.vehicleYear + '|' + param.customerProfile + '|' + param.condition);
         
         

@@ -68,6 +68,7 @@ public class TestSOQLSingletonQueries {
     Contact c = SOQLSingletonQueries.recs().myContact;
     Id accId = SOQLSingletonQueries.recs().myAccountId;
     bl = SOQLSingletonQueries.recs().isFranchised;
+    Account acc = SOQLSingletonQueries.recs().myAccount;
     
     List<User> fu = SOQLSingletonQueries.recs().franchisedCounsultantList;
 
@@ -139,6 +140,15 @@ public class TestSOQLSingletonQueries {
     SOQLSingletonQueries.getMostRecentOpportunityByEmail(null);
 
     SOQLSingletonQueries.getPartnerDefaultOwner(acc.Id);
+
+    Set<Id> ids = null;
+    SOQLSingletonQueries.getPartnerOwnerAccounts(ids);
+    ids = new Set<Id>();
+    SOQLSingletonQueries.getPartnerOwnerAccounts(ids);
+    ids.add(acc.Id);
+    SOQLSingletonQueries.getPartnerOwnerAccounts(ids);
+
+    SOQLSingletonQueries.getPartnerAccount(UserInfo.getUserId());
 
     Test.stopTest();
   }

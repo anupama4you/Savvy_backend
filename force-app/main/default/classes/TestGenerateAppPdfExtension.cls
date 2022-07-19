@@ -47,7 +47,8 @@ public class TestGenerateAppPdfExtension {
     ctr.getHasOtherLoans();
     ctr.getIncomesApp1();
     ctr.getIncomesApp2();
-    
+    ctr.getNumberForFinanceDetailLiabilities();
+    ctr.getAccountVar();
     Test.stopTest();
   }
 

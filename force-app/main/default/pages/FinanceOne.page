@@ -704,7 +704,7 @@
                 <h1>Rate Table Finance One</h1>
             </div>
             <apex:pageBlock >
-                <apex:pageBlockTable value="{!financeOneRates}" var="r">
+                <apex:pageBlockTable value="{!financeOneRatesConsumer}" var="r">
                     <apex:facet name="header">Finance One Rates</apex:facet>
                     <apex:column value="{!r.Category__c}" />
                     <apex:column value="{!r.Product_Base_Rate__c}" />

@@ -1,0 +1,160 @@
+<template>
+    <lightning-record-view-form record-id={recordId} object-api-name="Custom_Opportunity__c">
+
+
+        <lightning-card title="Money Place">
+
+            <template if:true={isBusy}>
+                <!-- spinner when loading -->
+                <div>
+                    <lightning-spinner alternative-text="Processing..." size="medium"></lightning-spinner>
+                </div>
+            </template>
+            <lightning-button label="Calculate" slot="actions" onclick={handleCalculate}></lightning-button>
+            <lightning-button label="Reset" slot="actions" onclick={handleReset}></lightning-button>
+            <lightning-button label="Save Quoting" slot="actions"></lightning-button>
+            <lightning-button label="Save Pre-approval" slot="actions"></lightning-button>
+            <lightning-button label="Save Amendment" slot="actions"></lightning-button>
+            <lightning-button label="Save Formal Approval" slot="actions"></lightning-button>
+            <lightning-button label="Send Quote" slot="actions"></lightning-button>
+            <img src={logoUrl} class="c-lender-logo" slot="actions" title="Money Place">
+            <template if:true={isErrorDisplay}>
+                <c-quote-messages result={errorMessageList}></c-quote-messages>
+            </template>
+            <div class="slds-grid slds-gutters">
+                <!-- start left column -->
+                <div class="slds-col slds-size_4-of-12">
+                    <!-- ======== Finance Details ======== -->
+                    <div class="slds-grid slds-wrap slds-gutters c-details slds-p-left_small">
+                        <div class="slds-col slds-size_4-of-12 slds-p-around_small"><span
+                                class="c-detail-subtitle">Finance
+                                Details</span></div>
+                        <div class="slds-col slds-size_8-of-12"></div>
+                        <!-- Loan Type -->
+                        <div class="slds-col slds-size_4-of-12"><span class="c-label">Loan Type</span></div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <lightning-combobox name="loanType" label="Loan Type" data-id="loanType-field"
+                                value={quoteForm.loanType} placeholder="Select a value" options={loanTypeOptions}
+                                onchange={handleFieldChange} class="slds-form__item" variant="label-hidden" required>
+                            </lightning-combobox>
+                        </div>
+                        <!-- Loan Product -->
+                        <div class="slds-col slds-size_4-of-12"><span class="c-label">Loan Product</span></div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <lightning-combobox name="loanProduct" label="Loan Product" data-id="loanProduct-field"
+                                value={quoteForm.loanProduct} placeholder="Select a value" options={loanProductOptions}
+                                onchange={handleFieldChange} class="slds-form__item" variant="label-hidden">
+                            </lightning-combobox>
+                        </div>
+                        <!-- Loan Amount -->
+                        <div class="slds-col slds-size_4-of-12"><span class="c-label">Loan Amount</span></div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <lightning-input type="number" formatter="currency" step="0.01" name="price"
+                                data-id="price-field" value={quoteForm.price} label="Price" placeholder="$"
+                                class="slds-form__item" variant="label-hidden" onchange={handleFieldChange} required>
+                            </lightning-input>
+                        </div>
+                        <!-- Application Fee -->
+                        <div class="slds-col slds-size_4-of-12"><span class="c-label">Application Fee</span></div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <lightning-input type="number" formatter="currency" step="0.01" name="applicationFee"
+                                data-id="applicationFee-field" value={quoteForm.applicationFee} label="Application Fee"
+                                placeholder="$" class="slds-form__item field-x-small-width" variant="label-hidden"
+                                onchange={handleFieldChange} required>
+                            </lightning-input>
+                        </div>
+                        <!-- DOF -->
+                        <div class="slds-col slds-size_4-of-12"><span class="c-label">DOF</span></div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <lightning-input type="number" formatter="currency" step="0.01" name="dof"
+                                data-id="dof-field" value={quoteForm.dof} label="DOF" placeholder="$"
+                                class="slds-form__item field-x-small-width" variant="label-hidden"
+                                onchange={handleFieldChange} required>
+                            </lightning-input>
+                            <span class="c-max-details">
+                                Max.
+                                <lightning-formatted-number value={quoteForm.maxDof} format-style="currency"
+                                    currency-code="AUD" class="c-read-only-field"></lightning-formatted-number>
+                            </span>
+                        </div>
+                        <!-- Residual -->
+                        <div class="slds-col slds-size_4-of-12"><span class="c-label">Residual Value</span></div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <lightning-input type="number" formatter="currency" step="0.01" name="residual"
+                                data-id="residual-field" value={quoteForm.residual} label="Residual" placeholder="$"
+                                class="slds-form__item" variant="label-hidden" onchange={handleFieldChange} required>
+                            </lightning-input>
+                        </div>
+                        <!-- Monthly Fee -->
+                        <div class="slds-col slds-size_4-of-12"><span class="c-label">Monthly Fee</span></div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <lightning-input type="number" formatter="currency" step="0.01" name="monthlyFee"
+                                data-id="monthlyFee-field" value={quoteForm.monthlyFee} label="Monthly Fee"
+                                placeholder="$" class="slds-form__item field-x-small-width" variant="label-hidden"
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                        </div>
+
+                        <!-- ========== Loan Details Title ========== -->
+                        <div class="slds-col slds-size_4-of-12 slds-p-around_small"><span class="c-detail-subtitle">Loan
+                                Details</span></div>
+                        <div class="slds-col slds-size_8-of-12"></div>
+                        <!-- Term -->
+                        <div class="slds-col slds-size_4-of-12"><span class="c-label">Term (months)</span></div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <lightning-combobox name="term" label="Term (months)" data-id="term-field"
+                                value={quoteForm.term} placeholder="Select a value" options={termOptions}
+                                onchange={handleFieldChange} class="slds-form__item" variant="label-hidden" required>
+                            </lightning-combobox>
+                        </div>
+                        <!-- Payment Type -->
+                        <div class="slds-col slds-size_4-of-12"><span class="c-label">Payment</span></div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <lightning-combobox name="paymentType" label="Payment" data-id="paymentType-field"
+                                value={quoteForm.paymentType} placeholder="Select a value" options={paymentTypeOptions}
+                                onchange={handleFieldChange} class="slds-form__item" variant="label-hidden" required>
+                            </lightning-combobox>
+
+                        </div>
+                        <!-- Client Rate -->
+                        <div class="slds-col slds-size_4-of-12"><span class="c-label">Client Rate</span></div>
+                        <div class="slds-col slds-size_8-of-12">
+                            <lightning-input type="number" formatter="percent-fixed" step="0.01" name="clientRate"
+                                data-id="clientRate-field" value={quoteForm.clientRate} label="Client Rate"
+                                placeholder="0.00%" class="slds-form__item field-x-small-width" variant="label-hidden"
+                                onchange={handleFieldChange} required></lightning-input>
+                        </div>
+                        <!-- NAF -->
+                        <div class="slds-col slds-size_4-of-12"><span class="c-label">NAF</span></div>
+                        <div class="slds-col slds-size_8-of-12 c-naf-division">
+                            <lightning-formatted-number value={netRealtimeNaf} format-style="currency"
+                                currency-code="AUD" class="c-read-only-field c-naf-field"></lightning-formatted-number>
+                        </div>
+                    </div>
+                </div>
+                <!-- end left column -->
+                <!-- start right column -->
+                <div class="slds-col slds-medium-size_8-of-12">
+                    <c-quote-results results={quoteForm.commissions}></c-quote-results>
+                    <div class="slds-p-around_small">
+                        <div class="slds-m-bottom_x-small"><span class="c-detail-subtitle">Loan Purpose</span></div>
+                        <lightning-textarea name="loanPurpose" label="Loan Purpose" variant="label-hidden"
+                            placeholder="type the purpose of the loan here..." required></lightning-textarea>
+                    </div>
+                    <!-- <c-quote-insurance-form></c-quote-insurance-form> -->
+                </div>
+                <!-- end right column -->
+            </div>
+            <div class="slds-m-around_small">
+                <!-- put child component here -->
+                <div>data table here</div>
+            </div>
+            <!-- Footer -->
+            <!-- use the footer to child component -->
+            <!-- <footer class="slds-card__footer">
+               <slot name="footer" onslotchange={handleSlotFooterChange}></slot>
+            </footer> -->
+
+        </lightning-card>
+    </lightning-record-view-form>
+</template>

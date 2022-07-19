@@ -1043,6 +1043,8 @@ public class GeneralCalculatorExtension {
             if (LENDER_QUOTING.equals(d.Name)) {
                 //Specific values                
                 dto.brokeragePercentage = d.Brokerage__c;
+                dto.baseRate = d.Base_Rate__c > 0.00 ? d.Base_Rate__c.setScale(2) : dto.baseRate;
+                
                 
                 //Loan Details
                 dto.paymentType = d.Payment__c;

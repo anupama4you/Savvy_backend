@@ -78,6 +78,10 @@ public class CalculaterHomePageController {
         wrap.Finance_One = !wrap.IsBrokerPartnerUser
           ? Page.FinanceOne.getUrl() + '?id=' + opportunityId
           : '/partner/s/sales-tools/quoting-tools/finance-1?recordId='+opportunityId+'&oppName='+opp.Name;
+        
+        wrap.Finance_One_Comm = !wrap.IsBrokerPartnerUser
+          ? Page.FinanceOneComm.getUrl() + '?id=' + opportunityId
+          : '/partner/s/sales-tools/quoting-tools/finance-1-comm?recordId='+opportunityId+'&oppName='+opp.Name;
        
         wrap.Money3 = !wrap.IsBrokerPartnerUser
           ? Page.Money3Calculator.getUrl() + '?id=' + opportunityId
@@ -206,7 +210,26 @@ public class CalculaterHomePageController {
         wrap.CommercialEG = !wrap.IsBrokerPartnerUser
           ? Page.CommercialEquityGroup.getUrl() + '?id=' + opportunityId
           : '/partner/s/sales-tools/quoting-tools/comm-equity-group?recordId='+opportunityId+'&oppName='+opp.Name;
+        
+        wrap.ume = !wrap.IsBrokerPartnerUser
+          ? Page.UMELoans.getUrl() + '?id=' + opportunityId
+          : '/partner/s/sales-tools/quoting-tools/ume-loans?recordId='+opportunityId+'&oppName='+opp.Name;
+        
+        wrap.societyOne = !wrap.IsBrokerPartnerUser
+          ? Page.SocietyOne.getUrl() + '?id=' + opportunityId
+          : '/partner/s/sales-tools/quoting-tools/society-one?recordId='+opportunityId+'&oppName='+opp.Name;
+
+        wrap.westpac = !wrap.IsBrokerPartnerUser
+          ? Page.Westpac.getUrl() + '?id=' + opportunityId
+          : '/partner/s/sales-tools/quoting-tools/westpac?recordId='+opportunityId+'&oppName='+opp.Name;
+
+        wrap.apf = !wrap.IsBrokerPartnerUser
+          ? Page.APF.getUrl() + '?id=' + opportunityId
+          : '/partner/s/sales-tools/quoting-tools/apf?recordId='+opportunityId+'&oppName='+opp.Name;
+        
         wrap.oppName = opp.Name;
+
+
         return wrap;
     }
     
@@ -242,6 +265,7 @@ public class CalculaterHomePageController {
         @AuraEnabled public string Liberty_Leisure;
         @AuraEnabled public string Liberty_Comm;
         @AuraEnabled public string Finance_One;
+        @AuraEnabled public string Finance_One_Comm;
         @AuraEnabled public string Finance_One_PL;
         @AuraEnabled public string Money3;
         @AuraEnabled public string Yamaha_Marine;
@@ -281,6 +305,11 @@ public class CalculaterHomePageController {
         @AuraEnabled public string FleetPartners;
         @AuraEnabled public string GroupGeneral;
         @AuraEnabled public string CommercialEG;
+
+        @AuraEnabled public string ume;
+        @AuraEnabled public string societyOne;
+        @AuraEnabled public string westpac;
+        @AuraEnabled public string apf;
     }
     
 

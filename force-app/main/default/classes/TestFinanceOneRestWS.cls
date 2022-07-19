@@ -13,7 +13,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{true, true, true, true, true, true, true, true, true, true};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Full Time', 'Full Time', 'AUS', true, true, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Full Time', 'Full Time', 'AUS', true, true, true);
         
@@ -22,7 +24,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, true, true, true, true, true, true, true, true, true};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
         FinanceOneEmployment.street2(null, 's', 'a', 'st');
         FinanceOneEmployment.street2(null, null, 'a', 'st');
@@ -31,6 +35,7 @@ public class TestFinanceOneRestWS {
         FinanceOneResidential.street2(null, null, 'a', 'st');
         FinanceOneResidential.street2(null, 's', 'a', null);
         FinanceOneResidential.street2(null, null, 'a', null);
+        FinanceOneUtils.loanPurposes('Truck');
     }
     
     public static void FinanceOneRestWSTestService(String endpoint, Integer json){
@@ -268,7 +273,7 @@ public class TestFinanceOneRestWS {
         update a;
     }
     
-    public static void FinanceOneRestWSTestResidential(Application__c a, String countryResidential, String currentResidenceStatus, Boolean[] previousAddress, String asset){
+    public static void FinanceOneRestWSTestResidential(Id oppId, Application__c a, String countryResidential, String currentResidenceStatus, Boolean[] previousAddress, String asset){
         a.Unit_Number__c = '1';
         a.Street_Number__c = '1';
         a.Street_Address__c = 'a';
@@ -421,6 +426,7 @@ public class TestFinanceOneRestWS {
         q.Trade_In__c =  1;
         q.Goods_sub_type__c = 'hatch';
         q.Vehicle_Price__c = 1;
+        q.Opportunity__c = oppId;
         insert q;
         
         Application_Extra_Data__c extra = new Application_Extra_Data__c();
@@ -504,7 +510,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'No');
         Boolean[] previousAddress = new Boolean[]{true, true, true, true, true, true, true, true, true, true};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Boarding', 
+            previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Full Time', 'Full Time', 'OVS', true, true, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Full Time', 'Full Time', 'OVS', true, true, true);
         
@@ -513,7 +521,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, true, true, true, true, true, true, true, true, true};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Boarding', 
+            previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -530,7 +540,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{false, true, false, false, false, false, true, false, false, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)', 
+            previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Unemployed', 'Unemployed', 'AUS', true, true, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Unemployed', 'Unemployed', 'AUS', true, true, true);
         
@@ -539,7 +551,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{false, true, false, false, false, false, true, false, false, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -556,7 +570,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{false, true, false, false, false, false, true, false, false, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Unemployed', 'Unemployed', 'OVS', true, true, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Unemployed', 'Unemployed', 'OVS', true, true, true);
         
@@ -565,7 +581,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{false, true, false, false, false, false, true, false, false, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -582,7 +600,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{false, false, true, false, false, false, false, true, false, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'AUS', true, true, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'AUS', true, true, true);
         
@@ -591,7 +611,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{false, false, true, false, false, false, false, true, false, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -608,7 +630,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{false, false, true, false, false, false, false, true, false, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', true, true, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', true, true, true);
         
@@ -617,7 +641,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{false, false, true, false, false, false, false, true, false, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -634,7 +660,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{false, false, false, true, false, false, false, false, true, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Unemployed', 'Full Time', 'AUS', true, false, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Unemployed', 'Full Time', 'AUS', true, false, true);
         TestFinanceOneRestWS.insurance(Test_DataGeneratorHelper.tstOpportunity);
@@ -643,7 +671,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{false, false, false, true, false, false, false, false, true, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -660,7 +690,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{false, false, false, true, false, false, false, false, true, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Unemployed', 'Full Time', 'OVS', true, false, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Unemployed', 'Full Time', 'OVS', true, false, true);
         TestFinanceOneRestWS.insurance(Test_DataGeneratorHelper.tstOpportunity);
@@ -669,7 +701,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{false, false, false, true, false, false, false, false, true, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -686,7 +720,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{false, false, false, false, true, false, false, false, false, true};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Full Time', 'Unemployed', 'AUS', true, false, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Full Time', 'Unemployed', 'AUS', true, false, true);
         TestFinanceOneRestWS.insurance(Test_DataGeneratorHelper.tstOpportunity);
@@ -695,7 +731,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{false, false, false, false, true, false, false, false, false, true};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -712,7 +750,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{false, false, false, false, true, false, false, false, false, true};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Full Time', 'Unemployed', 'OVS', true, false, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Full Time', 'Unemployed', 'OVS', true, false, true);
         //TestFinanceOneRestWS.asset('Equipment', Test_DataGeneratorHelper.tstOpportunity);
@@ -722,7 +762,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{false, false, false, false, true, false, false, false, false, true};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -739,7 +781,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{true, false, true, false, false, true, false, true, false, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Full Time', 'Centrelink - Family Tax Benefits/Other', 'AUS', true, false, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Full Time', 'Centrelink - Family Tax Benefits/Other', 'AUS', true, false, true);
         //TestFinanceOneRestWS.asset('Boat', Test_DataGeneratorHelper.tstOpportunity);
@@ -749,7 +793,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, false, true, false, false, true, false, true, false, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -766,7 +812,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{true, false, true, false, false, true, false, true, false, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Full Time', 'Centrelink - Family Tax Benefits/Other', 'OVS', true, false, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Full Time', 'Centrelink - Family Tax Benefits/Other', 'OVS', true, false, true);
         //TestFinanceOneRestWS.asset('Boat', Test_DataGeneratorHelper.tstOpportunity);
@@ -789,7 +837,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{true, false, true, false, false, true, false, true, false, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Caravan');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Caravan');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Full Time', 'Centrelink - Family Tax Benefits/Other', 'OVS', true, false, false);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Full Time', 'Centrelink - Family Tax Benefits/Other', 'OVS', true, false, false);
         TestFinanceOneRestWS.asset('Caravan', Test_DataGeneratorHelper.tstOpportunity);
@@ -798,7 +848,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, false, true, false, false, true, false, true, false, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Caravan');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Caravan');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -815,7 +867,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{true, false, false, true, false, true, false, false, true, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Motorbike');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Motorbike');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Full Time', 'Full Time', 'AUS', false, false, false);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Full Time', 'Full Time', 'AUS', false, false, false);
         TestFinanceOneRestWS.asset('Motorbike', Test_DataGeneratorHelper.tstOpportunity);
@@ -824,7 +878,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, false, false, true, false, true, false, false, true, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Motorbike');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Motorbike');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -844,7 +900,9 @@ public class TestFinanceOneRestWS {
         a.Payment_Frequency_2__c = 'Yearly';
         
         Boolean[] previousAddress = new Boolean[]{true, false, false, true, false, true, false, false, true, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Full Time', 'Full Time', 'AUS', false, false, false);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Full Time', 'Full Time', 'AUS', false, false, false);
         TestFinanceOneRestWS.asset('Car', Test_DataGeneratorHelper.tstOpportunity);
@@ -909,7 +967,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, false, false, true, false, true, false, false, true, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Renting(Agent)'
+            , previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -976,7 +1036,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'No');
         Boolean[] previousAddress = new Boolean[]{true, false, false, false, true, true, false, false, false, true};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Boarding', 
+            previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Unemployed', 'Unemployed', 'OVS', false, false, false);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Unemployed', 'Unemployed', 'OVS', false, false, false);
         TestFinanceOneRestWS.insurance(Test_DataGeneratorHelper.tstOpportunity);
@@ -985,7 +1047,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, false, false, false, true, true, false, false, false, true};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Boarding', 
+            previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -1002,7 +1066,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'No');
         Boolean[] previousAddress = new Boolean[]{true, false, false, false, true, true, false, false, false, true};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Boarding', 
+            previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Unemployed', 'Unemployed', 'OVS', false, false, false);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Unemployed', 'Unemployed', 'OVS', false, false, false);
         TestFinanceOneRestWS.insurance(Test_DataGeneratorHelper.tstOpportunity);
@@ -1011,7 +1077,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, false, false, false, true, true, false, false, false, true};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Boarding', 
+            previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -1028,7 +1096,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'No');
         Boolean[] previousAddress = new Boolean[]{true, true, false, true, false, true, true, false, true, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Boarding', 
+            previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         TestFinanceOneRestWS.insurance(Test_DataGeneratorHelper.tstOpportunity);
@@ -1037,7 +1107,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, true, false, true, false, true, true, false, true, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Boarding', 
+            previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -1054,7 +1126,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'No');
         Boolean[] previousAddress = new Boolean[]{true, true, false, true, false, true, true, false, true, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Boarding', 
+            previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         //TestFinanceOneRestWS.asset('Equipment', Test_DataGeneratorHelper.tstOpportunity);
@@ -1064,7 +1138,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, true, false, true, false, true, true, false, true, false};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Boarding', 
+            previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -1081,7 +1157,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'No');
         Boolean[] previousAddress = new Boolean[]{true, true, false, false, true, true, true, false, false, true};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Boarding', 
+            previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         //TestFinanceOneRestWS.asset('Boat', Test_DataGeneratorHelper.tstOpportunity);
@@ -1092,7 +1170,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, true, false, false, true, true, true, false, false, true};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Boarding', 
+            previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -1301,7 +1381,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'No');
         Boolean[] previousAddress = new Boolean[]{true, true, false, false, true, true, true, false, false, true};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Boarding', 
+            previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         //TestFinanceOneRestWS.asset('Boat', Test_DataGeneratorHelper.tstOpportunity);
@@ -1312,7 +1394,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, true, false, false, true, true, true, false, false, true};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Boarding', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Boarding', 
+            previousAddress, 'Car');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -1329,7 +1413,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'No');
         Boolean[] previousAddress = new Boolean[]{true, true, true, false, true, true, true, true, false, true};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Boarding', previousAddress, 'Equipment');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Boarding', 
+            previousAddress, 'Equipment');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         TestFinanceOneRestWS.asset('Equipment', Test_DataGeneratorHelper.tstOpportunity);
@@ -1340,7 +1426,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, true, true, false, true, true, true, true, false, true};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Boarding', previousAddress, 'Equipment');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Boarding', 
+            previousAddress, 'Truck');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
     }
     
@@ -1357,7 +1445,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'No');
         Boolean[] previousAddress = new Boolean[]{true, true, true, false, true, true, true, true, false, true};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Boarding', previousAddress, 'Boat');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Boarding', 
+            previousAddress, 'Boat');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'OVS', false, false, false);
         TestFinanceOneRestWS.asset('Boat', Test_DataGeneratorHelper.tstOpportunity);
@@ -1368,7 +1458,9 @@ public class TestFinanceOneRestWS {
         Test.stopTest();
         a.Applicant_2_living_in_the_same_address__c = 'No';
         previousAddress = new Boolean[]{true, true, true, false, true, true, true, true, false, true};
-        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AFG', 'Boarding', previousAddress, 'Boat');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AFG', 'Boarding', 
+            previousAddress, 'Boat');
         FinanceOneResidential.residentialApp2(a, Test_DataGeneratorHelper.tstOpportunity);
         FinanceOneUtils.sex('Others');
         FinanceOneUtils.residencyStatus('Working VISA');
@@ -1396,6 +1488,7 @@ public class TestFinanceOneRestWS {
         FinanceOneUtils.productTypeId('l', 'Gold');
         FinanceOneUtils.productTypeId('l', 'Silver');
         FinanceOneUtils.productTypeId('l', 'Bronze');
+        FinanceOneUtils.productTypeId('l', 'Platinum');
         FinanceOneUtils.entityType('Individual or Sole Trader');
         FinanceOneUtils.entityType('Partnership');
         FinanceOneUtils.entityType('Trust');
@@ -1469,7 +1562,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{false, false, false, true, false, false, false, false, true, false};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'AUS', true, false, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Centrelink - Family Tax Benefits/Other', 'Centrelink - Family Tax Benefits/Other', 'AUS', true, false, true);
         TestFinanceOneRestWS.insurance(Test_DataGeneratorHelper.tstOpportunity);
@@ -1492,7 +1587,9 @@ public class TestFinanceOneRestWS {
         update Test_DataGeneratorHelper.tstOpportunity;
         TestFinanceOneRestWS.FinanceOneRestWSTestApp(a, 'Yes');
         Boolean[] previousAddress = new Boolean[]{true, true, true, true, true, true, true, true, true, true};
-            TestFinanceOneRestWS.FinanceOneRestWSTestResidential(a, 'AUS', 'Renting(Agent)', previousAddress, 'Car');
+        TestFinanceOneRestWS.FinanceOneRestWSTestResidential(
+          Test_DataGeneratorHelper.tstOpportunity.Id, a, 'AUS', 'Renting(Agent)'
+            , previousAddress, 'Car');
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '1', 'Unemployed', 'Centrelink - Family Tax Benefits/Other', 'AUS', true, false, true);
         TestFinanceOneRestWS.FinanceOneRestWSTestEmployment(a, '2', 'Unemployed', 'Centrelink - Family Tax Benefits/Other', 'AUS', true, false, true);
         TestFinanceOneRestWS.insurance(Test_DataGeneratorHelper.tstOpportunity);

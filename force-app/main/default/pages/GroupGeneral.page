@@ -763,13 +763,13 @@
                                 <apex:outputLabel styleClass="calcLabel" value="Base Rate" for="baseRate" />
                                 </td>
                                 <td class="financeColumn">
-                                    <apex:input type="number" html-step="0.01" label="Base Rate" value="{!baseRate}" html-placeholder="%" id="baseRate" styleClass="calcInput" />
+                                    <apex:input type="number" html-step="0.01" label="Base Rate" value="{!baseRate}" html-placeholder="%" id="baseRate" styleClass="calcInput" onchange="baseRateRefresh();"/>
                                     <!--<apex:outputText label="Base Rate" value="{0, number, ##,###,##0.00%}" id="baseRate" >
                                         <apex:param value="{!baseRate/100}" />
                                     </apex:outputText>-->
                                 </td>
                             </tr>
-                            <!--<tr>
+                            <tr>
                                 <td class="financeColumn">
                                 <apex:outputLabel styleClass="calcLabel" value="Client Rate" for="clientRate" />
                                 </td>
@@ -778,7 +778,7 @@
                                         <apex:param value="{!clientRate/100}" />
                                     </apex:outputText>
                                 </td>
-                            </tr>-->
+                            </tr>
                             <tr>
                                 <td class="financeColumn">
                                 <apex:outputLabel styleClass="calcLabel" value="NAF" for="realtimeNaf" />

@@ -163,7 +163,7 @@ private class TestFinanceOneCommCalc {
         ctr.calculate();
         System.debug('clientRate >> ' + ctr.clientRate);
         System.debug('baseRate >> ' + ctr.baseRate);
-        
+        ctr.productGoodsSubType = 's';
         ctr.savePreApproval();
         ctr.saveAmendment();
         //ctr.saveFormalApproval();
@@ -485,6 +485,7 @@ private class TestFinanceOneCommCalc {
         ctr.term = 60;
         ctr.baseRateCalc();
         ctr.clientRate = ctr.baseRate + 1;
+        ctr.productGoodsSubType = 's';
         ctr.calculate();
         System.debug('rental: ' + ctr.rental);
         System.assert(ctr.rental > 0);

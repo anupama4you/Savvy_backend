@@ -1,4 +1,4 @@
-public with sharing class OppApplicationExtension {
+public without sharing class OppApplicationExtension {
     public Custom_Opportunity__c Opp;
     // The boolean to control the page to stay on quotingTool div
     public boolean quotingTool {get;set;}
@@ -3457,10 +3457,10 @@ r = false;
                 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Applicant 1: Year First Licensed is required'));
                 r = false;
             }
-            if ((isNewApplication && app0.Time_Last_Fault_1__c == null) || (!isNewApplication && this.Opp.Application__r.Time_Last_Fault_1__c == null)) {
-                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Applicant 1: How long since you had an at fault accident/claim (including theft, hail, fire) is required'));
-                r = false;
-            }
+            // if ((isNewApplication && app0.Time_Last_Fault_1__c == null) || (!isNewApplication && this.Opp.Application__r.Time_Last_Fault_1__c == null)) {
+            //     ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Applicant 1: How long since you had an at fault accident/claim (including theft, hail, fire) is required'));
+            //     r = false;
+            // }
         }
         //Marital Status
         if ((isNewApplication && String.isBlank(maritalStatus1)) || (!isNewApplication && String.isBlank(Opp.Application__r.Marital_Status_1__c))) {
@@ -4217,6 +4217,7 @@ r = false;
                 r = false;
             }
         }
+
         return r;
     }
     
@@ -4237,6 +4238,10 @@ r = false;
                 Opp.Application__r.Status__c = 'F';
             }
         }
+        System.debug(Opp.Application__r.Trust_Name__c);
+System.debug(trustName);
+System.debug(Opp.Application__r.No_of_Directors__c);
+System.debug(noDirectors);
         return saveApplicationData();
     }
     public PageReference saveApplicationData() {
@@ -4284,12 +4289,15 @@ r = false;
             }
             newApp.Application_Type__c = applicationType;
             newApp.Business_ABN__c = this.abnCode;
+            newApp.Business_ABN_2__c = app0.Business_ABN_2__c;
             newApp.Business_ACN__c = acn;
             newApp.Business_Structure__c = app0.Business_Structure__c;
+            newApp.Business_Structure_2__c = app0.Business_Structure_2__c;
             newApp.Trading_Name__c = tradingName;
             newApp.Trust_Name__c = trustName;
             newApp.Trading_Address__c = tradingAddress;
             newApp.Nature_of_Business__c = natureBusiness;
+            newApp.Nature_of_Business_2__c = app0.Nature_of_Business_2__c;
             if (noDirectors != null) {
                 newApp.No_of_Directors__c = noDirectors;
             } else {
@@ -23108,5 +23116,20 @@ prevEmplMap.put(applicant, lstPrevEmployment);
     public void modeServicing() {
       this.servicingCalc = true;
       loadServicingCalculatorData(); //Servicing re-calculate
+    }
+
+    public Boolean getShowPepperCommercial() {
+        System.debug(Opp.Application__r.Trust_Name__c);
+        System.debug(trustName);
+        System.debug(Opp.Application__r.No_of_Directors__c);
+        System.debug(noDirectors);
+        System.debug(noDirectors != null && noDirectors > 0);
+      if ((String.isNotBlank(Opp.Application__r.Trust_Name__c) || String.isNotBlank(trustName)) && ((Opp.Application__r.No_of_Directors__c != null && Opp.Application__r.No_of_Directors__c > 0) || (noDirectors != null && noDirectors > 0))) {
+        System.debug(noDirectors != null && noDirectors > 0);
+        System.debug(Opp.Application__r.No_of_Directors__c != null && Opp.Application__r.No_of_Directors__c > 0);
+        return true;
+      }
+      System.debug(Opp.Application__r.Trust_Name__c);
+      return false;
     }
 }

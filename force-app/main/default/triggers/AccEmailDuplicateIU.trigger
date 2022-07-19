@@ -1,5 +1,4 @@
 trigger AccEmailDuplicateIU on Account (before insert, before update) {
-    System.debug('testing');
 /*
     Map<String, Account> AccMap = new Map<String, Account>();
     Set<Id> accOwnerIds = new Set<Id>();

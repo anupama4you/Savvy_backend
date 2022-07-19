@@ -359,11 +359,11 @@ if(oppty.Application__r.No_of_People__c.intValue() == 2){*/
         List<Cloud_Documents__c> savvyConsentDocs = [
             Select Id From Cloud_Documents__c 
             Where Custom_Opportunity__c = :opp.id 
-            And Document_Type__c like '%Savvy Consent%'];
+            And Document_Type__c like '%Consent%'];
         
         if(!savvyConsentDocs.isEmpty()){
             if(savvyConsentDocs.size() < opp.Application__r.No_of_People__c){
-            	vedalWrapper.warningList.add('There are two applicants in this deal, but there is only one Savvy Consent in Cloud Documents section. Please be sure that all applicants have signed a consent before proceeding with a credit file assessment.');    
+            	vedalWrapper.warningList.add('There are two applicants in this deal, but there is only one Consent in Cloud Documents section. Please be sure that all applicants have signed a consent before proceeding with a credit file assessment.');    
             }
             return true;
         }

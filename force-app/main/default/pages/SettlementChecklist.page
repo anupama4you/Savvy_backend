@@ -117,9 +117,19 @@
                   
                     <apex:pageBlockSection title="Dealer Details:" columns="4">
                  
-                        <apex:inputField value="{!o.Preferred_Lender__c }"/>
+                        <!-- <apex:inputField value="{!o.Preferred_Lender__c }"/> -->
+
+                        <apex:pageBlockSectionItem >
+                          <apex:outputLabel value="{!$ObjectType.Custom_Opportunity__c.Fields.Preferred_Lender__c.label}" />
+                          <apex:outputPanel >
+                            <apex:inputField value="{!o.Preferred_Lender__c}" />
+                            <strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {!$ObjectType.Product__c.Fields.Loan_Type_Detail__c.label}:&nbsp;&nbsp;
+                              <apex:outputText value="{!o.Loan_Product__r.Loan_Type_Detail__c}"/>
+                            </strong>
+                          </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
                         <apex:inputCheckbox value="{!oppPreferredLender}" />
-                       
+
                         <apex:inputField value="{!o.Purchase_Type__c }"/>
                         <apex:inputCheckbox value="{!oppPurchaseType}"/> 
                         

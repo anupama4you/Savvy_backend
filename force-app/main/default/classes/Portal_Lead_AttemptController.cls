@@ -36,7 +36,7 @@ public class Portal_Lead_AttemptController {
   }
   public Account getAccountVar() {
     Id accountId = SOQLSingletonQueries.recs().myAccountId;
-    List<Account> accountList = null;
+    List<Account> accountList = new List<Account>();
     if (accountId != null) {
       accountList = [
         SELECT

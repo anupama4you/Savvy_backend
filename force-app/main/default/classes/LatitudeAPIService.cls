@@ -687,6 +687,7 @@ public class LatitudeAPIService extends APIServiceManager {
             objReq.setHeader('Authorization', 'Basic ' + EncodingUtil.base64Encode(Blob.valueOf(clientIdParam + ':' + secrectParam)));
             objReq.setHeader('Content-Type', 'application/x-www-form-urlencoded');
             objReq.setBody('grant_type=client_credentials'); 
+            objReq.setTimeout(60000);
             Http objHttp = new Http();
             HTTPResponse objRes;
             try{

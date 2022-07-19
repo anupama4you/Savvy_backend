@@ -99,14 +99,15 @@ public class ACLCalculatorExtension extends QuotingExtension {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Please check interest rate - out of the range'));
         }
         System.debug('Max: ' + this.maxRate + ' | Min: ' + this.baseRate + ' | Current: ' +  this.clientRate);
-        if (String.isBlank(this.clientTier)) {
+        /*if (String.isBlank(this.clientTier)) {
           ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Please select a Client Tier.'));
           r = false;
-        }
-        if(String.isBlank(this.creditScore) || !this.creditScore.isNumeric()){
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Please include an appropriated value for Credit Score.'));
+        }*/
+        if(String.isBlank(this.creditScore)){
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Please select an option for Credit Score.'));
         	r = false;
-        } else if (String.isNotBlank(this.clientTier)) {
+        }
+        /*} else if (String.isNotBlank(this.clientTier)) {
           Integer cs = Integer.valueOf(this.creditScore);
           if ('Premium'.equals(this.clientTier) && cs < 600) {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Credit Score should be +600 for Premium.'));
@@ -116,7 +117,7 @@ public class ACLCalculatorExtension extends QuotingExtension {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Credit Score should be +500 for Classic.'));
         	  r = false;
           }
-        }
+        }*/
         if(String.isBlank(this.year)){
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Please select an appropriated value for Year.'));
         	// r = false;
@@ -170,7 +171,7 @@ public class ACLCalculatorExtension extends QuotingExtension {
       
         this.loanType = 'Purchase';
         this.productLoanType = 'Consumer Loan';    
-        this.clientTier = '';
+        //this.clientTier = '';
         this.creditScore = null;
         this.repayment = null;
         this.commType = 'Calculated';
@@ -202,7 +203,7 @@ public class ACLCalculatorExtension extends QuotingExtension {
             calcPdf.getParameters().put('riskFee', this.riskFee.format());
         }
         calcPdf.getParameters().put('calcBonus', String.valueOf(this.calcBonus));
-        calcPdf.getParameters().put('clientTier', this.clientTier);
+        //calcPdf.getParameters().put('clientTier', this.clientTier);
         calcPdf.getParameters().put('commissionType', this.commType);
         
         savePdfInCloud(calcPdf, prefixName);
@@ -251,7 +252,7 @@ public class ACLCalculatorExtension extends QuotingExtension {
         
         updateProduct.Loan_Type__c = this.loanType;
         updateProduct.Loan_Product__c = this.productLoanType;
-        updateProduct.Loan_Type_Detail__c = 'Client Tier ' + this.clientTier;
+        //updateProduct.Loan_Type_Detail__c = 'Client Tier ' + this.clientTier;
         updateProduct.Loan_Term__c = this.term > 0? this.term : 0;
         updateProduct.Balloon_Residual_Requested__c = this.residualValue > 0? this.residualValue : 0.00;
         updateProduct.Client_Rate__c = this.clientRate > 0? this.clientRate : 0.00;
@@ -337,7 +338,7 @@ public class ACLCalculatorExtension extends QuotingExtension {
               this.loadQuotingInsuranceData();
               this.loadQuotingData();
                 this.paymentType = d.Payment__c;
-                this.clientTier = d.Client_Tier__c;
+                //this.clientTier = d.Client_Tier__c;
                 this.riskFee = d.Risk_Fee__c;
                 if (d.Client_Rate__c != null) {
                     this.clientRate = d.Client_Rate__c.setScale(2);
@@ -388,7 +389,7 @@ public class ACLCalculatorExtension extends QuotingExtension {
         //Loan Details
         
         d.Commission_Type__c = this.commType;
-        d.Client_Tier__c = this.clientTier;
+        //d.Client_Tier__c = this.clientTier;
         d.Credit_Score__c = this.creditScore;
         d.Vehicle_Age__c = this.year;       
         d.Bonus_Commission__c = this.calcBonus;
@@ -656,7 +657,7 @@ public class ACLCalculatorExtension extends QuotingExtension {
         this.commPayable = null;
       }
     }
-    
+/*    
     public List<SelectOption> getClientTierOptions() {
       List<SelectOption> r = new List<SelectOption>();
       r.add(new SelectOption('','--None--'));
@@ -665,11 +666,12 @@ public class ACLCalculatorExtension extends QuotingExtension {
       }
       return r;
     }
-
+*/
     public void baseRateCalc() {
       QuotingCalculation.CalcParam param = new QuotingCalculation.CalcParam(LENDER_QUOTING);
-      param.clientTier = this.clientTier;
+      //param.clientTier = this.clientTier;
       param.vehicleYear = this.year;
+      param.creditScore = this.creditScore;
       this.baseRate = QuotingCalculation.getBaseRate(param);
       this.maxRate = QuotingCalculation.getMaximunBaseRate(param);
     }

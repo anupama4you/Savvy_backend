@@ -179,8 +179,24 @@ public class CalculatorPdfExtension {
     public String abn {set; get;}
     public String interestType {set; get;}
     public String propertyOwner {set; get;}
+    public String assetType {set; get;}
+    public String companyScore {set; get;}
+    public String directorSoleTraderScore {set; get;}
+    public String paidDefault {set; get;}
+    public String condition {set; get;}
+    public String abnLength {set; get;}
+    public String gstLength {set; get;}
+    public String assetAge {set; get;}
     
+    public Custom_Opportunity__c opp;
+
     public CalculatorPdfExtension (ApexPages.StandardController controller) {
+        Set<String> fields = new Set<String>{
+          'OwnerId'
+        };
+        if (!Test.isRunningTest()) controller.addFields(new List<String>(fields));
+        this.opp = (Custom_Opportunity__c)controller.getRecord ();
+
         isLiberty = false;
         lender = System.currentPageReference().getParameters().get('lender');
         // vehicles details
@@ -583,6 +599,14 @@ public class CalculatorPdfExtension {
         abn = System.currentPageReference().getParameters().get('abn');
         interestType = System.currentPageReference().getParameters().get('interestType');
         propertyOwner = System.currentPageReference().getParameters().get('propertyOwner');
+        assetType = System.currentPageReference().getParameters().get('assetType');
+        companyScore = System.currentPageReference().getParameters().get('companyScore');
+        directorSoleTraderScore = System.currentPageReference().getParameters().get('directorSoleTraderScore');
+        paidDefault = System.currentPageReference().getParameters().get('paidDefault');
+        condition = System.currentPageReference().getParameters().get('condition');
+        abnLength = System.currentPageReference().getParameters().get('abnLength');
+        gstLength = System.currentPageReference().getParameters().get('gstLength');
+        assetAge = System.currentPageReference().getParameters().get('assetAge');
     } // finish the constructor
     
     
@@ -621,6 +645,14 @@ public class CalculatorPdfExtension {
     public Boolean getIsMoney3() {
         Boolean r = false;
         if (!String.isBlank(lender) && lender.containsIgnoreCase('MONEY3')) {
+            r = true;
+        }
+        return r;
+    }
+
+    public Boolean getIsAPF() {
+        Boolean r = false;
+        if (!String.isBlank(lender) && lender.containsIgnoreCase('APF')) {
             r = true;
         }
         return r;
@@ -920,4 +952,16 @@ public class CalculatorPdfExtension {
       }
       return false;
     }
+
+    public Boolean getIsGrowAssetCar() {
+        Boolean r = false;
+        if (!String.isBlank(lender) && lender.containsIgnoreCase('GROW')) {
+            r = true;
+        }
+        return r;
+    }
+    
+  public Account getAccountVar() {
+    return SOQLSingletonQueries.getPartnerAccount(this.opp.OwnerId);
+  } 
 }

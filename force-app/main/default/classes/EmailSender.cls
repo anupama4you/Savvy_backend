@@ -339,11 +339,11 @@ public class EmailSender {
     }
 
     private static EmailTemplate getEmailTemplate(String name) {
-        EmailTemplate r = [
-                                SELECT Id, DeveloperName, HtmlValue, Subject, Markup
-                                FROM EmailTemplate
-                                WHERE DeveloperName = :name limit 1];
-        return r;
+      List<EmailTemplate> r = [
+                              SELECT Id, DeveloperName, HtmlValue, Subject, Markup
+                              FROM EmailTemplate
+                              WHERE DeveloperName = :name limit 1];
+      return r.isEmpty()? null: r[0];
     }
 
     //Lelo          2017-02-23
@@ -383,18 +383,36 @@ public class EmailSender {
 
     // Lelo             2019-12-23
     public static void sendCustomerInsurancePresentation(Custom_Opportunity__c opp, String pCode, Set<String> docs) {
+        Boolean isPartnerUser = SOQLSingletonQueries.recs().isBrokerPartnerUser;
         // Define the Email
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-        
-        EmailTemplate emailTmpl = getEmailTemplate('Customer_Insurance_Product_Presentation'); // replaced on 24th Dec 2019
-        if (docs != null && !docs.isEmpty()) {
-            emailTmpl = getEmailTemplate('Customer_Insurance_Presentation_v3');        
+        String tmplName = 'Customer_Insurance_Product_Presentation';
+        // EmailTemplate emailTmpl = getEmailTemplate('Customer_Insurance_Product_Presentation'); // replaced on 24th Dec 2019
+        if (isPartnerUser) {
+          tmplName = 'Partners_Customer_Insurance_Presentation';
+        } else {
+          if (docs != null && !docs.isEmpty()) {
+            // emailTmpl = getEmailTemplate('Customer_Insurance_Presentation_v3');        
+            tmplName = 'Customer_Insurance_Presentation_v3';
+          }
         }
+        
+        String subject = '';
+        String emailBody = '';
+        EmailTemplate emailTmpl = getEmailTemplate(tmplName);
+        if (isPartnerUser) {
+          Messaging.SingleEmailMessage message = Messaging.renderStoredEmailTemplate(
+            emailTmpl.Id, opp.Ownerid, opp.Id
+          );
+          subject = message.getSubject();
+          emailBody = message.getHtmlBody();
+        } else {
+          subject = emailTmpl.Subject;
+          emailBody = emailTmpl.HtmlValue;
+        }
+
         //email.setTemplateId(emailTmpl.Id);
         //email.setTargetObjectId(UserInfo.getUserId());
-
-        String subject = emailTmpl.Subject;
-        String emailBody = emailTmpl.HtmlValue;
 
         String title = opp.Application__r.Title_1__c;
         if (String.isBlank(title)) {
@@ -426,16 +444,24 @@ public class EmailSender {
         }
 
         //Params
-        emailBody = emailBody.replace('{!Custom_Opportunity__c.Application__r.Title_1__c}', title);
-        emailBody = emailBody.replace('{!Custom_Opportunity__c.Application__r.First_Name__c}', fname);
-        emailBody = emailBody.replace('{!Custom_Opportunity__c.Application__r.Last_Name__c}', lname);
-        emailBody = emailBody.replace('{!PCODE}', pCode);
-        emailBody = emailBody.replace('{!Custom_Opportunity__c.Owner_Name__c}', oname);
-        emailBody = emailBody.replace('{!Custom_Opportunity__c.Owner_Phone__c}', ophone);
-        emailBody = emailBody.replace('{!Custom_Opportunity__c.Owner_Mobile__c}', omobile);
-        emailBody = emailBody.replace('{!Custom_Opportunity__c.Owner_Email__c}', oemail);        
-        emailBody = emailBody.replace('<![CDATA[', '');
-        emailBody = emailBody.replace(']]>', '');
+        if (isPartnerUser) {
+          emailBody = emailBody.replace('{!relatedTo.Application__r.Title_1__c}', title);
+          emailBody = emailBody.replace('{!relatedTo.Application__r.First_Name__c}', fname);
+          emailBody = emailBody.replace('{!relatedTo.Application__r.Last_Name__c}', lname);
+          emailBody = emailBody.replace('{PCODE}', pCode);
+        } else {
+          emailBody = emailBody.replace('{!Custom_Opportunity__c.Application__r.Title_1__c}', title);
+          emailBody = emailBody.replace('{!Custom_Opportunity__c.Application__r.First_Name__c}', fname);
+          emailBody = emailBody.replace('{!Custom_Opportunity__c.Application__r.Last_Name__c}', lname);
+          emailBody = emailBody.replace('{!PCODE}', pCode);
+
+          emailBody = emailBody.replace('{!Custom_Opportunity__c.Owner_Name__c}', oname);
+          emailBody = emailBody.replace('{!Custom_Opportunity__c.Owner_Phone__c}', ophone);
+          emailBody = emailBody.replace('{!Custom_Opportunity__c.Owner_Mobile__c}', omobile);
+          emailBody = emailBody.replace('{!Custom_Opportunity__c.Owner_Email__c}', oemail);        
+          emailBody = emailBody.replace('<![CDATA[', '');
+          emailBody = emailBody.replace(']]>', '');
+        }
         System.debug(emailBody);
 
         //Opp Id
@@ -829,6 +855,15 @@ public class EmailSender {
         
     }
 
+    public static OrgWideEmailAddress getNoReplyEmail() {
+      List<OrgWideEmailAddress> d = [
+        SELECT Id, Address, DisplayName 
+        FROM OrgWideEmailAddress 
+        WHERE DisplayName='Do-Not-Reply'
+      ];
+      return !d.isEmpty()? d.get(0) : null;
+    }
+
     @future(callout=true)
     public static void sendEmailOpportunityPreApproved(Id oppId) {
       Custom_Opportunity__c opp =[
@@ -836,7 +871,8 @@ public class EmailSender {
             Name, Owner_Name__c, Owner_Phone__c, 
             Owner_Mobile__c, Owner_Email__c, 
             First_Name__c, Email_Address__c,
-            OwnerId, Pre_Approved_Date__c, Date_Pre_Approved__c
+            OwnerId, Pre_Approved_Date__c, Date_Pre_Approved__c,
+            Partner_Is_External__c
           FROM Custom_Opportunity__c where Id =: oppId
       ];
       sendEmailOpportunityPreApproved(opp);
@@ -847,38 +883,62 @@ public class EmailSender {
       System.debug(JSON.serializePretty(o));
       Parameters_Service__c param =  Parameters_Service__c.getInstance('OppPreApprovedCustomerEmail');
       
-      if (param == null || !'ON'.equals(param.value__c)) {
+      if (o == null || param == null || !'ON'.equals(param.value__c) || o.Partner_Is_External__c) {
         System.debug('Opportunity Pre Approved is not active, check parameter: OppPreApprovedCustomerEmail');
         return;
       }
-        // Send email to notify the VD settlement team with attachments of Driver's License and VD worksheet
-        // Define the Email
-        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-        
-        EmailTemplate emailTmpl = getEmailTemplate('Opp_Pre_Approved_Customer_Notification');
-        List<String> toAddresses = new List<String>();
-        String subject = emailTmpl.Subject.replace('{!Custom_Opportunity__c.Name}',o.Name);
-        
-        String ownerName = o.Owner_Name__c != null?o.Owner_Name__c:'';
+
+      String tmplName = 'Opp_Pre_Approved_Customer_Notification';
+      if (o.Partner_Is_External__c) {
+        tmplName = 'Partner_Pre_Approved_Customer_Email';
+      }
+      System.debug('@@tmplName: ' + tmplName);
+      // Send email to notify the VD settlement team with attachments of Driver's License and VD worksheet
+      // Define the Email
+      Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+      
+      String subject = '';
+      String emailBody = '';
+      String oppFName = String.isNotBlank(o.First_Name__c)?o.First_Name__c:'';
+      String ownerName = o.Owner_Name__c != null?o.Owner_Name__c:'';
+      EmailTemplate emailTmpl = getEmailTemplate(tmplName);
+      if (o.Partner_Is_External__c) {
+        System.debug('@@ loading external templae...');
+        Messaging.SingleEmailMessage message = Messaging.renderStoredEmailTemplate(
+          emailTmpl.Id, o.Ownerid, o.Id
+        );
+        subject = message.getSubject();
+        emailBody = message.getHtmlBody();
+
+        emailBody = emailBody.replace('{!relatedTo.First_Name__c}',oppFName);
+      } else {
+        System.debug('@@ loading external templae...');
         String ownerPhone = o.Owner_Phone__c != null?o.Owner_Phone__c:'';
         String ownerMobile = o.Owner_Mobile__c != null?o.Owner_Mobile__c:'';
         String ownerEmail = o.Owner_Email__c != null?o.Owner_Email__c:'';
 
-        String oppFName = String.isNotBlank(o.First_Name__c)?o.First_Name__c:'';
-        String emailBody = emailTmpl.HtmlValue.replace('{!Custom_Opportunity__c.First_Name__c}',oppFName);
-
+        subject = emailTmpl.Subject;
+        emailBody = emailTmpl.HtmlValue;
+        
+        emailBody = emailBody.replace('{!Custom_Opportunity__c.First_Name__c}',oppFName);
         emailBody = emailBody.replace('{!Custom_Opportunity__c.OwnerFullName}',ownerName);
         emailBody = emailBody.replace('{!Custom_Opportunity__c.OwnerPhone}',ownerPhone);
         emailBody = emailBody.replace('{!Custom_Opportunity__c.Owner_Mobile__c}',ownerMobile);
         emailBody = emailBody.replace('{!Custom_Opportunity__c.Owner_Email__c}',ownerEmail);
         emailBody = emailBody.replace('<![CDATA[', '');
         emailBody = emailBody.replace(']]>', '');
+
+      }
+
+      List<String> toAddresses = new List<String>();
+        
         //Opp Id
         email.setWhatId(o.Id);
         //Set parameters of the Email
         email.setSubject(subject);
         toAddresses.add(o.Email_Address__c);
         //toAddresses.add('leandro.l@savvy.com.au');
+        // email.setSenderDisplayName(ownerName);
         email.setToAddresses(toAddresses);
         email.setHtmlBody(emailBody);
         // send the Email
@@ -886,7 +946,11 @@ public class EmailSender {
         // Messaging.SendEmailResult [] r = Messaging.sendEmail(new Messaging.SingleEmailMessage [] {email});     //original line
         Messaging.SendEmailResult [] r = null;
         try {
-            r = Messaging.sendEmail(new Messaging.SingleEmailMessage [] {email});
+          OrgWideEmailAddress owea = getNoReplyEmail();
+          if (owea != null) {
+            email.setOrgWideEmailAddressId(owea.Id);
+          }
+          r = Messaging.sendEmail(new Messaging.SingleEmailMessage [] {email});
         } catch (EmailException e) {
             System.debug('Error: ' + e.getMessage());
         }
@@ -898,7 +962,10 @@ public class EmailSender {
     public static void sendEmailOpportunityPreApprovedLiberty(Id oppId) {
       
       Custom_Opportunity__c opp =[
-          SELECT Name, Owner_Name__c, Owner_Phone__c, Owner_Mobile__c, Owner_Email__c 
+          SELECT 
+            Name, Owner_Name__c, Owner_Phone__c, 
+            Owner_Mobile__c, Owner_Email__c,
+            Partner_Is_External__c 
           FROM Custom_Opportunity__c where Id =: oppId
       ];
       sendEmailOpportunityPreApprovedLiberty(opp);
@@ -907,7 +974,7 @@ public class EmailSender {
     public static void sendEmailOpportunityPreApprovedLiberty(Custom_Opportunity__c o) {    
       Parameters_Service__c param =  Parameters_Service__c.getInstance('OppPreApprovedLenderEmail');
 
-      if (param == null || !'ON'.equals(param.value__c)) {
+      if (o == null || param == null || !'ON'.equals(param.value__c) || o.Partner_Is_External__c) {
         System.debug('Opportunity Pre Approved is not active, check parameter: OppPreApprovedLenderEmail');
         return;
       }
@@ -932,6 +999,7 @@ public class EmailSender {
         emailBody = emailBody.replace(']]>', '');
         //Opp Id
         email.setWhatId(o.Id);
+        // email.setSenderDisplayName(ownerName);
         //Set parameters of the Email
         
         //toAddresses.add(o.Owner_Email__c);
@@ -983,7 +1051,11 @@ public class EmailSender {
         // Messaging.SendEmailResult [] r = Messaging.sendEmail(new Messaging.SingleEmailMessage [] {email});     //original line
         Messaging.SendEmailResult [] r = null;
         try {
-            r = Messaging.sendEmail(new Messaging.SingleEmailMessage [] {email});
+          OrgWideEmailAddress owea = getNoReplyEmail();
+          if (owea != null) {
+            email.setOrgWideEmailAddressId(owea.Id);
+          }
+          r = Messaging.sendEmail(new Messaging.SingleEmailMessage [] {email});
         } catch (EmailException e) {
             System.debug('Error: ' + e.getMessage());
         }
@@ -1089,13 +1161,13 @@ public class EmailSender {
         User user = SOQLSingletonQueries.getUserById(opp.CreatedById);
         toAddress.add(user.Email);
         EmailTemplate emailTmpl = getEmailTemplate('AppNotificationUnfinished');
-
-        String subject = emailTmpl.Subject.replace('{!Custom_Opportunity__c.Name}',opp.Name );
-        String emailBody = emailTmpl.HtmlValue.replace('{!Custom_Opportunity__c.Name}',opp.Name )
+        try{
+          String subject = emailTmpl.Subject.replace('{!Custom_Opportunity__c.Name}',opp.Name );
+          String emailBody = emailTmpl.HtmlValue.replace('{!Custom_Opportunity__c.Name}',opp.Name )
                                               .replace('{!Custom_Opportunity__c.Id}',opp.Id )
             								  .replace('{!Custom_Opportunity__c.Owner_Name__c}', user.Name);
         
-        try{
+        
             sendEmailNotification(opp.Id, subject, emailBody, toAddress, 'sendEmailAppNotificationUnfinishedError');
         }catch (Exception ex){
             System.debug('sendEmailAppNotificationUnfinishedError error description: ' + ex.getMessage());
@@ -1166,4 +1238,54 @@ public class EmailSender {
         //-
         
     }
+  
+  public static void sendRequiredDocNotification(Set<Id> oppIds) {
+    System.debug('sendRequiredDocNotification...');
+    if (oppIds != null && !oppIds.isEmpty()) {
+      String tmplName = 'Required_Document_Notification';
+      EmailTemplate tmpl = getEmailTemplate(tmplName);
+      if (tmpl == null) {
+        System.debug('@@ CRITIAL ERROR: email template not found [' + tmplName + '] EmailSender.sendRequiredDocNotification');
+        return;
+      }
+
+      // Get Owner emails/Ids
+      List<Custom_Opportunity__c> opps = [
+        SELECT Ownerid, Owner_Email__c, OwnerType__c 
+        FROM Custom_Opportunity__c
+        WHERE Id in :oppIds
+      ];
+
+      Map<Id, Custom_Opportunity__c> oppMap = new Map<Id, Custom_Opportunity__c>();
+      for (Custom_Opportunity__c o: opps) {
+        oppMap.put(o.Id, o);
+      }
+
+
+      List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
+      for (Id idx : oppIds) {
+        try {
+          Custom_Opportunity__c o = oppMap.get(idx);
+          Id whoId = 'User'.equals(o.OwnerType__c)? o.Ownerid : UserInfo.getUserId();
+          Messaging.SingleEmailMessage message = Messaging.renderStoredEmailTemplate(
+            tmpl.Id, whoId, idx
+          );
+          message.saveAsActivity = false;
+          emails.add(message);
+        } catch (Exception e) {
+          System.debug('@@Error: ' + e.getMessage());
+        }
+      }
+
+      if (!emails.isEmpty()) {
+        try {
+          Messaging.sendEmail(emails);
+          System.debug('@@Email sent!');
+        } catch (EmailException e) {
+          System.debug('Error: ' + e.getMessage());
+        }
+      }
+    }
+  }
+
 }

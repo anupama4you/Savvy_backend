@@ -154,7 +154,8 @@ public class TestFeefoCallout {
       Test.setMock(HttpCalloutMock.class, fakeResponse);
       
       FeefoCallout.distributeReview();
-      FeefoCallout.createSMS(opp);
+      FeefoCallout.createSMS(opp, 'Google');
+      FeefoCallout.createTaskNotification(opp, 'Feefo');
       
       Test.stopTest();
         

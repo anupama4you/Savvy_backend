@@ -546,6 +546,7 @@
                             </td>
                             <td class="financeColumn">
                                 <apex:selectList value="{!term}" multiselect="false" size="1" styleClass="selectList" id="term">
+                                  <apex:actionSupport event="onchange" action="{!baseRateCalc}" reRender="baseRate, maxRate" status="stsBR" />
                                   <apex:selectOption itemLabel="36" itemValue="36"/>
                                   <apex:selectOption itemLabel="60" itemValue="60"/>
                                   <apex:selectOption itemLabel="84" itemValue="84"/>
@@ -640,10 +641,12 @@
                             </td>
                             <td class="financeColumn">
                                 <apex:selectList value="{!abn}" multiselect="false" size="1" styleClass="selectList" id="abn">
-                                  <apex:selectOption itemLabel="> 5 yrs / >3 yrs" itemValue="> 5 yrs / >3 yrs"/>
-                                  <apex:selectOption itemLabel="> 2 yrs / >1 year" itemValue="> 2 yrs / >1 year"/>
-                                  <apex:selectOption itemLabel="> 1 year / 1 day" itemValue="> 1 year / 1 day"/>
-                                  <apex:selectOption itemLabel="> 1 year / Unreg" itemValue="> 1 year / Unreg"/>
+                                  <!--<apex:selectOption itemLabel="> 5 yrs / >3 yrs" itemValue="> 5 yrs / >3 yrs"/>-->
+                                  <apex:selectOption itemLabel="ABN/GST > 2 years" itemValue="> 2 years"/>
+                                  <apex:selectOption itemLabel="ABN >2 yrs />1 year" itemValue="> 2 yrs / >1 year"/>
+                                  <apex:selectOption itemLabel="ABN >1 yr/Unreg >1 yr" itemValue="> 1 yr / Unreg > 1 yr"/>
+                                  <!--<apex:selectOption itemLabel="> 1 year / 1 day" itemValue="> 1 year / 1 day"/>
+                                  <apex:selectOption itemLabel="> 1 year / Unreg" itemValue="> 1 year / Unreg"/>-->
                                 </apex:selectList>
                             </td>
                         </tr>

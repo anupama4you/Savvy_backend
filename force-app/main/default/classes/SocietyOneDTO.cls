@@ -46,7 +46,6 @@ public class SocietyOneDTO {
   
     // finance calculator output
     public Decimal estimatedCommission { get; set; }
-    public Decimal docFees { get; set; }
   
     public Decimal nafCalculated { get; set; }
     public Decimal rental { get; set; }
@@ -85,7 +84,6 @@ public class SocietyOneDTO {
   
     public void init() {
       estimatedCommission = 0.0;
-      docFees = 0.0;
       nafCalculated = 0.0;
       rental = 0.0;
       deposit = 0;
@@ -145,8 +143,6 @@ public class SocietyOneDTO {
       Decimal r = 0.0;
       if (estimatedCommission != null)
         r += estimatedCommission;
-      if (docFees != null)
-        r += docFees;
       r += getInsuranceIncome();
       r += getDofResult();
       return r.setScale(2);

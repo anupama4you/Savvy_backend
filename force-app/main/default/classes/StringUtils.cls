@@ -98,4 +98,17 @@ public class StringUtils {
         : value
     );
   }
+
+  public static String convertToString(List<String> values) {
+    if (values == null) return null;
+    String r = '';
+    for (String v: values) {
+      String x = v.trim();
+      if (String.isNotBlank(x)) {
+        if (String.isNotBlank(r)) r += ',';
+        r += x;
+      }
+    }
+    return r;
+  }
 }

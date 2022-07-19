@@ -28,6 +28,7 @@ public class PepperApplicationRequestDTO extends ObjectJsonSerialize {
     public String acn { get; set; }
 	  public String industry { get; set; }
 	  public String mainBusinessActivity { get; set; }
+    public AuthorisedSignatoryDetails authorisedSignatoryDetails { get; set; }
   }
 
   public class AdditionalApplicant extends GeneralApplicant {
@@ -322,5 +323,12 @@ public class PepperApplicationRequestDTO extends ObjectJsonSerialize {
     public String abn { get; set; }
     public String industry { get; set; }
 	  public String acn { get; set; }
+    public AuthorisedSignatoryDetails authorisedSignatoryDetails { get; set; }
+  }
+
+  public class AuthorisedSignatoryDetails {
+    public String title { get; set; }
+    public String firstName { get; set; }
+    public String lastName { get; set; }
   }
 }

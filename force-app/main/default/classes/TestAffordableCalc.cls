@@ -54,7 +54,7 @@ public class TestAffordableCalc {
         ctr.calculate();
         ctr.reset();
         ctr.clientTier = 'Premium';
-        ctr.creditScore = '750';
+        ctr.creditScore = '500+';
         ctr.year = ctr.getYearsSelect().get(1).getValue();
         ctr.carPrice = 15000;
         ctr.applicationFee = ctr.maxApplicationFee;

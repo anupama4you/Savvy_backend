@@ -76,12 +76,13 @@ public class SocietyOneTest {
     // test for baseRateCalc() and calculateValidation()
     ctr.reset();
     ctr.dto.purposeType = ctr.getPurposeTypeOptions().get(4).getValue();
-    ctr.dto.carPrice = 12000.00;
+    ctr.dto.carPrice = 120000.00;
     ctr.dto.applicationFee = 500;
     ctr.dto.term = 60;
     //ctr.dto.loanTypeDetail = 'Unsecured';
     ctr.dto.clientRate = 10;
     ctr.dto.tier = 'Tier 1';
+    ctr.dto.riskFee = 1;
     ctr.calculate();
     System.assert(ctr.dto.rental > 0);
 
@@ -98,6 +99,7 @@ public class SocietyOneTest {
     ctr.sendCustomerEmail2();
 
     ctr.dto.nwcAcceptance = 'A';
+    ctr.dto.loanTypeDetail = 'Unsecured';
     ctr.saveQuoting();
     ctr.saveAmendment();
     ctr.saveFormalApproval();
@@ -105,7 +107,10 @@ public class SocietyOneTest {
     ctr.dto.getRealtimeNaf();
 
     ctr.getIsBrokerPartnerUser();
-
+    ctr.dto.applicationFee = 600;
+    ctr.dto.dof = 950;
+    ctr.dto.term = 72;
+    ctr.isValidationOk();
     // Calculator PDF
     PageReference calcPdf = Page.UniversalCalculatorPdf;
     calcPdf.getParameters()
@@ -141,6 +146,7 @@ public class SocietyOneTest {
     //ctr.dto.loanTypeDetail = 'Unsecured';
     ctr.dto.clientRate = 10;
     ctr.dto.tier = 'Tier 1';
+    ctr.dto.riskFee = 1;
     ctr.calculate();
     System.debug('rental: ' + ctr.dto.rental);
     System.assert(ctr.dto.rental > 0);

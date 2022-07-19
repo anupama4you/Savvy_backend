@@ -45,8 +45,8 @@ private class TestAFSCalc {
     ctr.assetCondition = 'Used';
     ctr.carPrice = 20000.00;
     ctr.term = 60;
-    ctr.carAge = '0-3 years';
     ctr.residency = 'Renting';
+    ctr.carAge = ctr.getAssetAgeOptions().get(2).getValue();
     ctr.lvr = 100;
     ctr.bankrupt = 'N';
     ctr.payDayEnquiries = 'Over 6 months ago';
@@ -64,7 +64,6 @@ private class TestAFSCalc {
     ctr.productLoanType = 'Consumer Loan';
     ctr.carPrice = 20000.00;
     ctr.term = 72;
-    ctr.carAge = '5';
     ctr.residency = 'Renting';
     ctr.bankrupt = 'N';
     ctr.baseRateCalc();
@@ -111,7 +110,8 @@ private class TestAFSCalc {
     ctr.residency = 'Non-Property Owner';
     ctr.getAssetAgeOptions();
     ctr.productLoanType = 'Consumer Loan';
-    ctr.carAge = '0-3 years';
+    // ctr.carAge = '0-3 years';
+    ctr.carAge = ctr.getAssetAgeOptions().get(2).getValue();
     ctr.casual = 'N';
     ctr.bankrupt = 'N';
     ctr.hasImports = 'N';
@@ -362,8 +362,9 @@ private class TestAFSCalc {
     ctr.term = 60;
     // ctr.clientTier = 'Gold Club';
     // ctr.riskGrade = 'GC-3';
-    ctr.carAge = '0-3 years';
     ctr.residency = 'Renting';
+    ctr.carAge = ctr.getAssetAgeOptions().get(2).getValue();
+    System.debug('@@ctr.carAge: ' + ctr.carAge);
     ctr.lvr = 100;
     ctr.bankrupt = 'N';
     ctr.payDayEnquiries = 'Over 6 months ago';
@@ -490,7 +491,7 @@ private class TestAFSCalc {
     //ctr.productLoanType = 'Passenger and Commercial Vehicles';
     ctr.carPrice = 60000.00;
     ctr.term = 60;
-    ctr.clientRate = 8;
+    ctr.clientRate = 10;
     ctr.residency = 'Property Owner';
     ctr.quoting.GST__c = 'Registered';
     ctr.calculate();

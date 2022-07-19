@@ -2,7 +2,7 @@
 public class TestPepperAPI extends TestAPILenders {
     private static String endPointApplication = PepperAPIManager.getParameterService(PepperAPIManager.PEPPER_SERVICE_ENDPOINT);
     public static Custom_Opportunity__c opp;
-    
+
     public static testMethod void testGeneral() {
         opp = loadData();
         Application__c add = opp.Application__r;
@@ -37,7 +37,8 @@ public class TestPepperAPI extends TestAPILenders {
         add.Business_Structure__c = 'Individual or Sole Trader';
         update add;
         testAPIPepper();
-        add.Business_Structure__c = 'Partnership';
+        add.Trust_Name__c = 't';
+        add.No_of_Directors__c = 0;
         update add;
         testAPIPepper();
         Test.stopTest();
@@ -52,7 +53,7 @@ public class TestPepperAPI extends TestAPILenders {
         String resJson = JSON.serialize(res);
         p.parseCreateApplicationResponse(resJson);
     }
-    
+
     private static void testAPIPepper(){
         
         PepperApplicationService ppAppService = new PepperApplicationService();
@@ -474,6 +475,13 @@ public class TestPepperAPI extends TestAPILenders {
         r.lastResponseApplication = '';
         r.application = new PepperApplicationResponseDTO.Application();
         r.application.applicationNo = '';
+        r.reasonsForSubmissionFailure = null;
+        PepperApplicationResponseDTO.ReasonsForSubmissionFailure 
+          reasonsForSubmissionFailure = new 
+            PepperApplicationResponseDTO.ReasonsForSubmissionFailure();
+        reasonsForSubmissionFailure.applicationSection = '';
+        reasonsForSubmissionFailure.errorMessage = '';
+        reasonsForSubmissionFailure.errorContext = '';
     }
 
     private static void testPepperTypeValues(){
@@ -543,19 +551,37 @@ public class TestPepperAPI extends TestAPILenders {
       update quoting;
       Application__c add = opp.Application__r;
       add.Application_Type__c = 'Business';		
-	    add.Trust_Name__c = 't';
-      add.No_of_Directors__c = 1;
+	    add.Business_ABN_2__c = '11111111111';
+      add.Current_Residence_Status_2__c = 'Own Outright';
+      add.No_of_People__c = 2;
+      add.Business_Structure__c = 'Partnership';
       add.Business_ABN__c = '11111111111';
       add.Business_ACN__c = '111111111';
+      add.Applicant_2_living_in_the_same_address__c = 'Yes';
       update add;
+      testAPIPepper();
+      Application_Other_Asset__c a = makeOtherAsset(
+        ApplicationService.PROPERTY_ASSET_TYPE);
+      a.Application__c = add.Id;
+      a.Category__c = 'Current Address Both Applicants';
+      insert a;
       Application_Employment__c e = new Application_Employment__c();
       e.Unit_Number__c = '1';
       e.Application__c = add.Id;
       e.Address_Type__c = Utilities.ADDRESS_TYPE_FINANCE;
       insert e;
       testAPIPepper();
-      add.No_of_Directors__c = 0;
-      add.Applicant_2_living_in_the_same_address__c = 'Yes';
+      add.Applicant_2_living_in_the_same_address__c = 'No';
+      testAPIPepper();
+      a = makeOtherAsset(ApplicationService.PROPERTY_ASSET_TYPE);
+      a.Application__c = add.Id;
+      a.Category__c = 'Current Address Applicant 2';
+      insert a;
+      add.Trust_Name__c = 't';
+      add.No_of_Directors__c = 1;
+      update add;
+      testAPIPepper();
+      add.Business_Structure_2__c = 'Partnership';
       update add;
       testAPIPepper();
       Test.stopTest();
@@ -635,7 +661,7 @@ public class TestPepperAPI extends TestAPILenders {
       a.Driver_Licence_State_Issue_1__c = 'SA';
       
       // Client Current Address
-      a.Date_Moved_in_1__c = '14/03/2020';
+      a.Date_Moved_in_1__c = System.today().format();
       a.Unit_Number__c = '1';
       a.Street_Number__c = '145';
       a.Street_Address__c = 'Hutt';
@@ -776,7 +802,7 @@ public class TestPepperAPI extends TestAPILenders {
       // a.Driver_Licence_State_Issue_2__c = 'SA';
       
       // Client Current Address
-      a.Date_Moved_in_2__c = '14/03/2020';
+      a.Date_Moved_in_2__c = System.today().format();
       a.Unit_Number_2__c = '1';
       a.Street_Number_2__c = '145';
       a.Street_Address_2__c = 'Hutt';
@@ -906,7 +932,8 @@ public class TestPepperAPI extends TestAPILenders {
       a.Childcare_Child_Maintenance_Per_Month__c = '400';
       a.Insurance_Expenses_per_Month__c = '500';
       a.Other_Expenses_per_Month__c = '600';
-      a.Income_Type_Expenses__c = 'Other expenses';      
+      a.Income_Type_Expenses__c = 'Other expenses';
+      a.Applicant_2_living_in_the_same_address__c = 'Yes';      
 
       insert a;
 

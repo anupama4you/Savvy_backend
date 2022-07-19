@@ -1,4 +1,4 @@
-<apex:page docType="html-5.0" standardController="Custom_Opportunity__c" extensions="APFExtension" sidebar="false" showHeader="true" id="Money3Calc">
+<apex:page docType="html-5.0" standardController="Custom_Opportunity__c" extensions="APFExtension" sidebar="false" showHeader="true" id="APF">
     <apex:variable value="{!Custom_Opportunity__c}" var="o" />
     <!-- Partner Portal Styles -->
     <apex:outputPanel rendered="{!isBrokerPartnerUser}">
@@ -385,12 +385,7 @@
             <apex:actionFunction action="{!sendCustomerEmail2}" name="sendCustomerEmail2" status="stsSend2" reRender="pageMessage"/>
             <!-- End -->
             <apex:actionFunction name="nafRefresh" reRender="realtimeNaf,netDeposit,pnlInsProd" />
-            <apex:actionFunction action="{!applicationFeeCalc}" name="applicationFeeCalc" reRender="applicationFee,dof" oncomplete="nafRefresh()" />
 
-            <!-- <apex:actionFunction action="{!profileOnChangeAction}" name="profileOnChangeJS" oncomplete="buttonsEnabled(true);"
-                                 reRender="applicationFee,dof,monthlyFee,term,baseRate,clientRate,loanTypeDe,realtimeNaf" /> -->
-            <apex:actionFunction action="{!save}" name="save" oncomplete="sendApplication();" status="stsprocess"/>
-            <apex:actionFunction action="{!sendApplication}" name="sendApplication" reRender="calcFormData" status="stsprocess"/>
             <div class="titleDiv">
                 <h1>APF for {!Custom_Opportunity__c.Name}</h1>
                 <div class="buttonPanel">
@@ -400,9 +395,6 @@
                                 <apex:actionStatus startText="(Processing...)" id="stsprocess" />
                                 <apex:actionStatus startText="(Saving...)" id="stsSend1" />
                                 <apex:actionStatus startText="(Sending...)" id="stsSend2" />&nbsp;&nbsp;&nbsp;
-                                <!--Money3 Application-->
-                                <apex:commandButton styleClass="calculateButtons" value="Money3 Application" onclick="save();return false;" rendered="{!AND(NOT(isBrokerPartnerUser),ISBLANK(money3API_BrokerReferenceId))}" status="stsprocess" reRender="calcFormData"/>
-                                <!--<apex:commandButton styleClass="calculateButtons" value="Send Files" action="{!sendFiles}" status="stsprocess" reRender="calcFormData"/>-->
                                 <!--Jesus Mora 2020-08-21 start-->
                                 <apex:commandButton styleClass="calculateButtons" value="Calculate" action="{!calculate}" status="stsprocess" reRender="calcFormData" />
                                 <apex:commandButton styleClass="calculateButtons" value="Reset" action="{!reset}" status="stsprocess" reRender="calcFormData"/>
@@ -416,7 +408,7 @@
                                 
                             </td>
                             <td>
-                                <apex:image url="{!$Resource.Money3Logo}" height="40" />
+                                <apex:image url="{!$Resource.APFLogo}" height="40" />
                             </td>
                         </tr>
                     </table>
@@ -445,9 +437,7 @@
                             </td>
                             <td class="financeColumn">
                             <apex:selectList label="Loan Type" value="{!productLoanType}" multiselect="false" size="1" styleClass="selectList" id="productLoanType">
-                                <apex:selectOption itemLabel="Centrelink only" itemValue="Centrelink only" />
-                                <apex:selectOption itemLabel="Standard PAYG" itemValue="Standard PAYG" />    
-                                <!-- <apex:selectOptions value="{!qh.loanProductOptions}" /> -->
+                                <apex:selectOption itemLabel="Consumer Loan" itemValue="Consumer Loan" />
                             </apex:selectList>
                             </td>
                         </tr>
@@ -456,33 +446,34 @@
                             <apex:outputLabel styleClass="calcLabel" value="Profile" for="profile" />
                             </td>
                             <td class="financeColumn">
-                            <apex:selectList label="Loan Type" value="{!profile}" multiselect="false" size="1" styleClass="selectList" id="profile" onclick="buttonsEnabled(false);" onblur="buttonsEnabled(true);">
-                                <!-- <apex:selectOption itemLabel="Loan Centre" itemValue="Loan Centre" />
-                                <apex:selectOption itemLabel="Micro" itemValue="Micro" /> -->
-                                <apex:selectOption itemLabel="--None--" itemValue="" />
+                            <apex:selectList label="Loan Type" value="{!profile}" multiselect="false" size="1" styleClass="selectList" id="profile">
                                 <apex:selectOption itemLabel="Asset Finance" itemValue="Asset Finance" />
-                                <apex:actionSupport event="onchange" action="{!profileOnChangeAction}" oncomplete="buttonsEnabled(true);"
-                                        reRender="applicationFee,dof,monthlyFee,term,baseRate,clientRate,loanTypeDe,realtimeNaf,grading,loanPurpose"
-                                        status="stsprocess"/>
                             </apex:selectList>
                             </td>
                         </tr>
                         <tr>
                             <td class="financeColumn">
+                              <apex:outputLabel styleClass="calcLabel" value="Loan Type Detail" for="loanTypeDetail" />
+                            </td>
+                            <td class="financeColumn">
+                              <apex:selectList label="Loan Type Detail" value="{!loanTypeDetail}" multiselect="false" size="1" styleClass="selectList" id="loanTypeDetail">
+                                <apex:selectOption itemLabel="Centrelink only" itemValue="Centrelink only" />
+                                <apex:selectOption itemLabel="Standard PAYG" itemValue="Standard PAYG" />
+                              </apex:selectList>
+                            </td>
+                          </tr>
+                        <tr>
+                            <td class="financeColumn">
                             <apex:outputLabel styleClass="calcLabel" value="Customer Grading" for="grading" />
                             </td>
                             <td class="financeColumn">
-                            <apex:selectList label="Loan Type" value="{!grading}" multiselect="false" size="1" styleClass="selectList" id="grading" onclick="buttonsEnabled(false);" onblur="buttonsEnabled(true);">
+                            <apex:selectList label="Loan Type" value="{!grading}" multiselect="false" size="1" styleClass="selectList" id="grading">
                                 <apex:selectOption itemLabel="--None--" itemValue="" />    
-                                <apex:selectOption itemLabel="Platinum" itemValue="Platinum" rendered="{!profile!=null}" />
-                                <apex:selectOption itemLabel="Gold" itemValue="Gold" rendered="{!profile!=null}" />
-                                <apex:selectOption itemLabel="Silver" itemValue="Silver" rendered="{!profile!=null}" />
-                                <apex:selectOption itemLabel="Bronze" itemValue="Bronze" rendered="{!profile!=null}" />
-                                <apex:selectOption itemLabel="Micro Motor" itemValue="Micro Motor" rendered="{!profile=='Asset Finance'}" />
-                                <apex:selectOption itemLabel="Mini PL" itemValue="Mini PL" rendered="{!profile=='Personal Finance'}" />
-                                <apex:actionSupport event="onchange" action="{!profileOnChangeAction}" oncomplete="buttonsEnabled(true);"
-                                        reRender="applicationFee,dof,monthlyFee,term,baseRate,clientRate,loanTypeDe,realtimeNaf"
-                                        status="stsprocess"/>
+                                <apex:selectOption itemLabel="Platinum" itemValue="Platinum"/>
+                                <apex:selectOption itemLabel="Gold" itemValue="Gold"/>
+                                <apex:selectOption itemLabel="Silver" itemValue="Silver"/>
+                                <apex:selectOption itemLabel="Bronze" itemValue="Bronze"/>
+                                <apex:selectOption itemLabel="Micro Motor" itemValue="Micro Motor"/>
                             </apex:selectList>
                             </td>
                         </tr>
@@ -493,7 +484,7 @@
                             <td class="financeColumn">
                             <apex:input type="number" html-step="0.01" value="{!carPrice}" html-placeholder="$" 
                                         id="carPrice" styleClass="calcInput">
-                                <apex:actionSupport event="onchange" action="{!applicationFeeCalc}" reRender="applicationFee,dof,riskFee" oncomplete="nafRefresh()" status="stsAppFeeCalc"/>
+                                <apex:actionSupport event="onchange" action="{!quotingFeesCalc}" reRender="applicationFee,dof" oncomplete="nafRefresh()" status="stsAppFeeCalc"/>
                             </apex:input>
                             </td>
                         </tr>
@@ -503,7 +494,7 @@
                             </td>
                             <td class="financeColumn">
                                 <apex:input type="number" html-step="0.01" label="Deposit" value="{!deposit}" html-placeholder="$" id="deposit" styleClass="calcInput">
-                                    <apex:actionSupport event="onchange" action="{!applicationFeeCalc}" reRender="applicationFee,dof,riskFee" oncomplete="nafRefresh()" status="stsAppFeeCalc"/>
+                                    <apex:actionSupport event="onchange" action="{!quotingFeesCalc}" reRender="applicationFee,dof" oncomplete="nafRefresh()" status="stsAppFeeCalc"/>
                                 </apex:input>
                             </td>
                         </tr>
@@ -513,7 +504,7 @@
                             </td>
                             <td class="financeColumn">
                                 <apex:input type="number" html-step="0.01" label="Trade In" value="{!tradeIn}" html-placeholder="$" id="tradeIn" styleClass="calcInput">
-                                    <apex:actionSupport event="onchange" action="{!applicationFeeCalc}" reRender="applicationFee,dof,riskFee" oncomplete="nafRefresh()" status="stsAppFeeCalc"/>
+                                    <apex:actionSupport event="onchange" action="{!quotingFeesCalc}" reRender="applicationFee,dof" oncomplete="nafRefresh()" status="stsAppFeeCalc"/>
                                 </apex:input>
                             </td>
                         </tr>
@@ -523,7 +514,7 @@
                             </td>
                             <td class="financeColumn">
                                 <apex:input type="number" html-step="0.01" label="Payout On" value="{!payoutOn}" html-placeholder="$" id="payoutOn" styleClass="calcInput">
-                                    <apex:actionSupport event="onchange" action="{!applicationFeeCalc}" reRender="applicationFee,dof,riskFee" oncomplete="nafRefresh()" status="stsAppFeeCalc"/>
+                                    <apex:actionSupport event="onchange" action="{!quotingFeesCalc}" reRender="applicationFee,dof" oncomplete="nafRefresh()" status="stsAppFeeCalc"/>
                                 </apex:input>
                             </td>
                         </tr>
@@ -566,20 +557,6 @@
                                 <apex:actionStatus startText="(calculating...)" id="stsAppFeeCalc" />
                             </td>
                         </tr>
-                        <!--<tr>
-                            <td class="financeColumn">
-                            <apex:outputLabel styleClass="calcLabel" value="Risk Fee" for="riskFee" />
-                            </td>
-                            <td class="financeColumn">
-                                <apex:outputPanel id="riskFee" layout="block">
-                                    <apex:input type="number" value="{!riskFee}" html-placeholder="$" styleClass="calcInput2"/>                                        
-                                    &nbsp;&nbsp;&nbsp;
-                                    <apex:outputText value="Calc. {0, number, $##,###,##0.00}">
-                                        <apex:param value="{!riskFeeTotal}"/>
-                                    </apex:outputText>
-                                </apex:outputPanel>
-                            </td>
-                        </tr>-->
                         <tr>
                             <td class="financeColumn">
                             <apex:outputLabel styleClass="calcLabel" value="PPSR" for="ppsr" />
@@ -614,15 +591,9 @@
                             </td>
                             <td class="financeColumn">
                                 <apex:selectList label="Loan Type" value="{!term}" multiselect="false" size="1" styleClass="selectList" id="term">
-                                    <!--<apex:selectOption itemLabel="12" itemValue="12" rendered="{!grading=='Mini PL'}"/>
-                                    <apex:selectOption itemLabel="24" itemValue="24" rendered="{!OR(grading=='Mini PL',grading=='Micro Motor',profile='Personal Finance')}"/>
-                                    <apex:selectOption itemLabel="36" itemValue="36" rendered="{!NOT(grading=='Mini PL')}"/>
-                                    <apex:selectOption itemLabel="48" itemValue="48" rendered="{!NOT(OR(grading=='Mini PL',grading=='Micro Motor',profile='Personal Finance'))}"/>
-                                    <apex:selectOption itemLabel="60" itemValue="60" rendered="{!NOT(OR(grading=='Mini PL',grading=='Micro Motor',profile='Personal Finance'))}"/>-->
                                     <apex:selectOption itemLabel="48" itemValue="48"/>
                                     <apex:selectOption itemLabel="54" itemValue="54"/>
                                     <apex:selectOption itemLabel="60" itemValue="60"/>
-                                    <!-- <apex:actionSupport event="onchange" action="{!adjustBaseRateCalc}" reRender="clientTier, vehicleYear, baseRate, clientRate"/> -->
                                 </apex:selectList>
                             </td>
                         </tr>
@@ -636,16 +607,6 @@
                             </apex:selectList>
                             </td>
                         </tr>
-                        <tr>
-                                <td class="financeColumn">
-                                    <apex:outputLabel styleClass="calcLabel" value="Standard rate" for="baseRate" />
-                                </td>
-                                <td class="financeColumn">
-                                    <apex:outputText label="NAF" value="{0, number, ##0.00}%" id="baseRate" >
-                                        <apex:param value="{!baseRate}" />
-                                    </apex:outputText>
-                                </td>
-                            </tr>
                         <tr>
                             <td class="financeColumn">
                                 <apex:outputLabel styleClass="calcLabel" value="Client Rate" for="clientRate" />
@@ -676,78 +637,10 @@
                 </div>
                 <div id="rightTables">
                   <c:QuotingCommissionResults qext="{!quotingExt}" />
-                    
-                    <!-- Money3 API Details Start -->
-                    <div class="titleTableTab"><h3>Money3 API Details</h3></div>
-                    <table class="tableDetails api-details">
-                        <tr>
-                            <td class="financeColumn">
-                            <apex:outputLabel styleClass="calcLabel" value="Money3 API user" for="apiUser" />
-                            </td>
-                            <td class="resultValue" colspan="3">
-                                <apex:selectList label="Users" value="{!apiUser}" multiselect="false" size="1" styleClass="selectList" id="apiUser" >
-                                    <apex:selectOptions value="{!usersAPIOptions}" />
-                                </apex:selectList>
-                            </td>
-                         </tr>
-                        <tr style="display: {!IF(hasLenderApp, '','none')}">
-                            <td class="financeColumn">
-                                <apex:outputLabel style="display:inline-block;" value="Loan Id" />
-                            </td>
-                            <td class="resultValue">
-                                <apex:outputText value="{!money3API_LoanId}" />
-                            </td>
-                            <td class="financeColumn">
-                              <apex:outputLabel style="display:inline-block;" value="Submission Status" />
-                            </td>
-                            <td class="resultValue">
-                              <apex:outputText value="{!lenderApp.submissionStatus}" />
-                            </td>
-                        </tr>
-                        <tr style="display: {!IF(hasLenderApp, '','none')}">
-                            <td class="financeColumn">
-                                <apex:outputLabel style="display:inline-block;" value="Broker Reference Loan Id" />
-                            </td>
-                            <td class="resultValue resultNormalValue">
-                                <apex:outputText value="{!money3API_BrokerReferenceId}" />
-                            </td>
-                            <td class="financeColumn">
-                              <apex:outputLabel value="Last response" />
-                            </td>
-                            <td class="resultValue resultNormalValue">
-                              <apex:outputText value="{!money3API_lastResponseApp}" />
-                            </td>
-                        </tr>
-                        <tr style="display: {!IF(hasLenderApp, '','none')}">
-                            <td class="financeColumn">
-                              <apex:outputLabel value="Note"/>
-                            </td>
-                            <td class="resultValue resultNormalValue" colspan="3">
-                              <apex:outputText value="{!lenderApp.note}" />
-                            </td>
-                        </tr>
-                        <tr style="display: {!IF(AND(hasLenderApp,lenderApp.hasMoreDetails), '','none')}">
-                          <td class="financeColumn">
-                            <apex:outputLabel styleClass="calcLabel" value="Additional Details" />
-                          </td>
-                          <td colspan="3">
-                            <table width="100%">
-                              <apex:repeat value="{!lenderApp.additionalDetails}" var="row">
-                                <tr>
-                                  <td class="resultValue"><strong>{!row.field}</strong></td>
-                                  <td><strong>:</strong></td>
-                                  <td class="resultNormalValue">{!row.message}</td>
-                                </tr>
-                              </apex:repeat>
-                            </table>
-                          </td>
-                        </tr>
-                    </table>
-                    <!-- Money3 API Details End -->
                   <c:InsuranceProductForm qext="{!quotingExt}" formId="calcFormData" id="pnlInsProd" />
                   <br/>
                   <c:ProtectionQuestions lead="{!o.Lead__r}"/>
-                  <apex:outputPanel layout="block" style="display: {!IF(profile=='Personal Finance', '','none')}" id="loanPurpose">
+                  <apex:outputPanel layout="block" id="loanPurpose">
                       <h4>Loan Purpose</h4>
                       <apex:inputTextarea value="{!loanPurpose}" style="margin: 0px; width: 94%;" rows="3"/>
                   </apex:outputPanel>
@@ -756,111 +649,6 @@
                   <p>&nbsp;</p>
                   <!-- end Insurance Implementation -->
                 </div>
-            </div>
-        </apex:form>
-        <apex:form id="referenceForm" >
-            <div class="referenceTable">
-                <div class="referenceTitle">
-                    <h1>Money 3: Asset and Personal Loans</h1>
-                </div>
-                <table border="1" cellpadding="2" cellspacing="0">
-                    <caption><strong>Customer Grading Rates</strong></caption>
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td width="14%" align="center" class="headerTable"><strong>Platinum</strong></td>
-                        <td width="14%" align="center" class="headerTable"><strong>Gold</strong></td>
-                        <td width="14%" align="center" class="headerTable"><strong>Silver</strong></td>
-                        <td width="14%" align="center" class="headerTable"><strong>Bronze</strong></td>
-                        <td width="16%" align="center" class="headerTable"><strong>Micro Motor</strong></td>
-                        <td width="16%" align="center" class="headerTable"><strong>Mini PL</strong></td>
-                    </tr>
-                    <tr>
-                        <td>Rate</td>
-                        <td align="center">19.95%</td>
-                        <td align="center">22%</td>
-                        <td align="center">25%</td>
-                        <td align="center">28%</td>
-                        <td align="center">24.95%</td>
-                        <td align="center">28%</td>
-                    </tr>
-                    <tr>
-                        <td>Credit Score</td>
-                        <td align="center">650+</td>
-                        <td align="center">601+</td>
-                        <td align="center">501-600</td>
-                        <td align="center">200-500</td>
-                        <td align="center">N/A</td>
-                        <td align="center">N/A</td>
-                    </tr>
-                </table>
-                <br/>
-                <table border="1" cellpadding="2" cellspacing="0">
-                    <tr>
-                        <td width="12%" align="center" class="headerTable"><strong>Prod Type</strong></td>
-                        <td width="22%" align="center" class="headerTable"><strong>Asset Finance</strong></td>
-                        <td width="22%" align="center" class="headerTable"><strong>Micro Motor</strong></td>
-                        <td width="22%" align="center" class="headerTable"><strong>Personal Finance</strong></td>
-                        <td width="22%" align="center" class="headerTable"><strong>Mini PL</strong></td>
-                    </tr>
-                    <tr>
-                        <td valign="top">Loan Amount</td>
-                        <td valign="top" align="center">$8,001 to $50,000</td>
-                        <td valign="top" align="center">$2,000 to $8,000</td>
-                        <td valign="top" align="center">$5,001 to $12,000</td>
-                        <td valign="top" align="center">$2,001 to $5,000</td>
-                    </tr>
-                    <tr>
-                        <td valign="top">Loan Term</td>
-                        <td valign="top" align="center">36 to 60 months</td>
-                        <td valign="top" align="center">24 to 36 months</td>
-                        <td valign="top" align="center">24 to 36 months</td>
-                        <td valign="top" align="center">12 to 24 months</td>
-                    </tr>
-                    <tr>
-                        <td valign="top">DOF</td>
-                        <td valign="top" align="center">
-                            $8,000 to $8,999 - $770 GST inc <br/>
-                            $9,000 to $9,999 - $880 GST inc <br/>
-                            $10,000 to $10,999 - $990 GST inc <br/>
-                            $11,000 to $11,999 - $1,100 GST inc <br/>
-                            $12,000 to $15,999 - $1,210 GST inc <br/>
-                            $16,000 plus - $1,320 GST inc
-                        </td>
-                        <td valign="top" align="center">
-                            $2,000 to $2,999 - $220 GST inc <br/>
-                            $3,000 to $4,999 - $330 GST inc <br/>
-                            $5,000 to $5,999 - $440 GST inc <br/>
-                            $6,000 to $6,999 - $550 GST inc <br/>
-                            $7,000 to $8,000 - $660 GST inc
-                        </td>
-                        <td valign="top" align="center">
-                            $5,000 to $5,999 - $440 GST inc <br/>
-                            $6,000 to $6,999 - $550 GST inc <br/>
-                            $7,000 to $8,000 - $660 GST inc <br/>
-                            $8,001 to $8,999 - $770 GST inc <br/>
-                            $9,000 to $9,999 - $880 GST inc <br/>
-                            $10,000 to $10,999 - $990 GST inc <br/>
-                            $11,000 to $11,999 - $1,100 GST inc <br/>
-                            $12,000  - $1,210 GST inc
-                        </td>
-                        <td valign="top" align="center">
-                            $2,000 to $2,999 - $220 GST inc <br/>
-                            $3,000 to $4,999 - $330 GST inc <br/>
-                            $5,000 - $440 GST inc
-                        </td>
-                    </tr>
-                    <tr>
-                        <td valign="top">Commission</td>
-                        <td valign="top" align="center">
-                            4% of loan amt > $10,000 for Platinum <br/>
-                            3% of loan amt > $10,000 for Gold <br/>
-                            2% of loan amt > $10,000 for silver
-                        </td>
-                        <td valign="top" align="center">N/A</td>
-                        <td valign="top" align="center">N/A</td>
-                        <td valign="top" align="center">N/A</td>
-                    </tr>
-                </table>
             </div>
         </apex:form>
     </div>

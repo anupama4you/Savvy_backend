@@ -10,8 +10,10 @@ public class TestEmailSender {
     static User VDSettle = new User ();
     static List <Application__c> appForOpp = new List <Application__c> ();
     public static Map < String,	id > RecordTypes;
+    public static List<User> consultants = null;
+
     public static void init(){
-        List <User> consultants = [SELECT user.id, user.Email, user.FirstName, user.LastName, user.profile.name FROM User, user.profile WHERE profile.name = 'Sales Consultant'];
+        consultants = [SELECT user.id, user.Email, user.FirstName, user.LastName, user.profile.name FROM User, user.profile WHERE profile.name = 'Sales Consultant'];
         //List <User> consultants = [SELECT user.id, user.Email, user.FirstName, user.LastName, user.profile.name FROM User, user.profile WHERE profile.name = 'Asset Finance - Sales Consultant'];
         List <User> VDSales = [SELECT user.id, user.Email, user.FirstName, user.LastName, user.profile.name FROM User, user.profile WHERE profile.name = 'Vehicles Direct - Sales'];
         List <User> VDSettles = [SELECT user.id, user.Email, user.FirstName, user.LastName, user.profile.name FROM User, user.profile WHERE profile.name = 'Vehicles Direct - Settlements'];
@@ -129,6 +131,7 @@ public class TestEmailSender {
         Test.startTest();
         List<String> toemails = new List<String>();
         toemails.add('lelo@l.com');
+        System.debug('@@VDOpp1: ' + JSON.serializePretty(VDOpp1));
         EmailSender.sendEmailAppNotificationUnfinished(VDOpp1, toemails);
         //PPSR
         EmailSender.sendEmailPPSRNotificationError(VDOpp1, 'Subject here!', 'Body text here!', toemails);
@@ -247,7 +250,7 @@ public class TestEmailSender {
             Name, Owner_Name__c, Owner_Phone__c, 
             Owner_Mobile__c, Owner_Email__c, 
             First_Name__c, Email_Address__c,
-            OwnerId 
+            OwnerId, Partner_Is_External__c 
           FROM Custom_Opportunity__c where Id =: o.Id
         ];
 
@@ -275,5 +278,24 @@ public class TestEmailSender {
         update param;
         EmailSender.sendEmailOpportunityPreApproved(opp);
         EmailSender.sendEmailOpportunityPreApprovedLiberty(opp.Id);
+    }
+
+    @isTest static void testSendReqDocsNotification() {
+      Custom_Opportunity__c o = Test_DataGeneratorHelper.buildOpp(true);
+      Test.startTest();
+      Set<Id> oppIds = new Set<Id>();
+      oppIds.add(o.Id);
+      EmailSender.sendRequiredDocNotification(oppIds);
+    }
+
+    @isTest static void testSendLeadFlowNotification() {
+      Test_DataGeneratorHelper.createLead();
+      lead__c lead = Test_DataGeneratorHelper.tstLead;
+      lead.Name = 'Random Lead';
+      consultants = [SELECT user.id, user.Email, user.FirstName, user.LastName, user.profile.name FROM User, user.profile WHERE profile.name = 'Sales Consultant'];
+      User u = consultants.get(0);
+      Test.startTest();
+      EmailSender.leadFlowNotification(lead, u);
+      Test.stopTest();
     }
 }

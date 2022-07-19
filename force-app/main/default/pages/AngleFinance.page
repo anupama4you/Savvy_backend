@@ -568,14 +568,14 @@
                                 </apex:outputText>
                                 </td>
                             </tr>-->
-                            <tr>
+                            <!--<tr>
                                 <td class="financeColumn">
                                 <apex:outputLabel styleClass="calcLabel" value="Origination Fee" for="originationFee" />
                                 </td>
                                 <td class="financeColumn">
                                 <apex:input type="number" html-step="0.01" label="Origination Fee" value="{!originationFee}" html-placeholder="$" id="originationFee" styleClass="calcInput" onchange="baseRateRefresh();nafRefresh();" />
                                 </td>
-                            </tr>
+                            </tr>-->
                             <tr>
                                 <td class="financeColumn">
                                 <apex:outputLabel styleClass="calcLabel" value="Application Fee" for="applicationFee" />
@@ -584,14 +584,14 @@
                                 <apex:input type="number" html-step="0.01" label="Application Fee" value="{!applicationFee}" html-placeholder="$" id="applicationFee" styleClass="calcInput" onchange="baseRateRefresh();nafRefresh();" />
                                 </td>
                             </tr>
-                            <!--<tr>
+                            <tr>
                                 <td class="financeColumn">
                                 <apex:outputLabel styleClass="calcLabel" value="DOF" for="dof" />
                                 </td>
                                 <td class="financeColumn">
                                 <apex:input type="number" html-step="0.01" label="DOF" value="{!dof}" html-placeholder="$" id="dof" styleClass="calcInput" onchange="nafRefresh();" />
                                 </td>
-                            </tr>-->
+                            </tr>
                             <tr>
                                 <td class="financeColumn">
                                 <apex:outputLabel styleClass="calcLabel" value="PPSR" for="ppsr" />

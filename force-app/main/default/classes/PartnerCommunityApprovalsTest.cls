@@ -26,7 +26,6 @@ public with sharing class PartnerCommunityApprovalsTest {
     );
     // Submission
     o.Status__c = 'Application Forms Received';
-    o.All_Documents_Attached__c = true;
     update o;
     PartnerCommunityApprovals.submitApproval(
       o.Id,
@@ -50,7 +49,6 @@ public with sharing class PartnerCommunityApprovalsTest {
     Application__c app = Test_DataGeneratorHelper.buildCarApp(true);
     Custom_Opportunity__c o = Test_DataGeneratorHelper.tstOpportunity;
     o.Status__c = 'Pre-Approved';
-    o.All_Documents_Attached__c = true;
     update o;
     Test.startTest();
     // Formal Approval
@@ -62,7 +60,6 @@ public with sharing class PartnerCommunityApprovalsTest {
     );
     // Settlement
     o.Status__c = 'Formal Approved';
-    o.All_Documents_Attached__c = true;
     update o;
     PartnerCommunityApprovals.submitApproval(
       o.Id,

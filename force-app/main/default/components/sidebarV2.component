@@ -5,6 +5,7 @@
   <apex:attribute name="showFlowHelp" type="Boolean" description="Flow Help" default="false" />
   <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
   <apex:stylesheet value="{! $Resource.SidebarCompCSS}" />
+  <apex:includeLightning />
   <div id="sidebarV2">
     <div class="heading">
       <strong>Sales Tools</strong>
@@ -90,5 +91,36 @@
           reRender="pnlFlowHelp" immediate="true" status="stsFlow" />
       </apex:outputPanel>
     </apex:form>
+    <br/>
+    <div class="lwc-approval">
+      <div id="lwcApprovalOption"></div>
+    </div>
+    
+    <p>Opp Name: {!oppName}</p>
+    <p>Status: {!oppStatus}</p>
+    <p>Partner External? {!isPartnerExternal}</p>
+    <br/>
+    <!-- <div id="MCMessageText"></div> -->
   </div>
+  <script>
+    const reloadPage = () => {
+      location.reload();
+    }
+    $Lightning.use("c:ApprovalOptionOutApp", function () {
+      $Lightning.createComponent("c:partnerApprovalOptions",
+        {
+          "recordId": "{!oppId}",
+          "oppManualName": "{!oppName}",
+          "oppManualStatus": "{!oppStatus}",
+          "oppPartnerExternal": {!isPartnerExternal},
+          "hideSettledOption": true,
+          "callBackAction": reloadPage
+        },
+        "lwcApprovalOption",
+        function (cmp) {
+          console.log('LWC Componenet added in VF page');
+        });
+    });
+  </script>
+  
 </apex:component>

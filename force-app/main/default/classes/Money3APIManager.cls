@@ -197,7 +197,8 @@ public class Money3APIManager extends APIServiceManager {
                         o.ApplicationYTD__r.Income_Monthly_1_1__c,o.ApplicationYTD__r.Income_Monthly_1_2__c,
                         o.ApplicationYTD__r.Income_Monthly_2_1__c,o.ApplicationYTD__r.Income_Monthly_2_2__c,o.ApplicationYTD__r.Monthly_Amount_Servicing_1__c,
                         o.Contract_Number__c,o.Dealer_Address__c,o.Dealer_Contact_Name__c,o.Dealer_Name__c,o.Dealer_Phone_Number__c,o.Dealer_Postcode__c,o.Dealer_State__c,o.Dealer_Street_Number__c,o.Dealer_Street_Type__c,o.Dealer_Suburb__c,o.Dealer_Unit_Number__c,
-                        o.New_Used__c,o.Purchase_Type__c, o.Owner_Email__c, o.Application__r.Status__c 
+                        o.New_Used__c,o.Purchase_Type__c, o.Owner_Email__c, o.Application__r.Status__c, o.Owner_Name__c,
+                        o.Partner_Owner__c, o.Franchise_Owner__c, o.Partner_Owner__r.Name 
                         from Custom_Opportunity__c  as o where id =: oppId];
         }
         if (r != null && !r.isEmpty()) {

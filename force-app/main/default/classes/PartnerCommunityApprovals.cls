@@ -127,6 +127,7 @@ public class PartnerCommunityApprovals {
           if (String.isBlank(opp.Partner_BS_Service__c)) {
             opp.Partner_BS_Service__c = 'Y';
           }
+          opp.All_Documents_Attached__c = true;
           update opp;
 
           // Submission
@@ -214,8 +215,18 @@ public class PartnerCommunityApprovals {
             update opp;
             r.status = '0';
           } catch (Exception e) {
-            r.errors.add('Error processing yuor request [' + e.getMessage() + ']');
+            r.errors.add('Error processing your request [' + e.getMessage() + ']');
           }
+
+          // Generate documents
+          //-------------------
+          if (PRE_APPROVAL_TYPE.equals(approvalType)) {
+            // Preliminary Assestment
+            ApprovalTools.generatePreliminaryAssessmet(oppId);
+            // Application Form for Pre-approval
+            ApprovalTools.generateApplicationFormDocument(oppId);
+          }
+
         } else {
           r.errors.add('There is not any status to apply in this approval process [' + approvalType + ']');
         }

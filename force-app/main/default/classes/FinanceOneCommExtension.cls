@@ -28,8 +28,16 @@ public class FinanceOneCommExtension extends QuotingExtension {
     public String apiUser {get;set;}
     public List <SelectOption> usersAPIOptions {get;set;}
     public Decimal brokeragePercentage {get;set;}
+
+    private static Set<String> extraFields = new Set<String>(
+      new List<String>{
+        'Application_AssetDetail__c',
+        'Application_AssetDetail__r.Year__c'
+      }
+    );
+
     public FinanceOneCommExtension (ApexPages.StandardController controller) {
-        super(controller);
+        super(controller, extraFields);
         usersAPIOptions = getusersAPIOptions();
         //existingAttach = [Select id,name,description from attachment where parentID =: Opp.Id and Name like '%Finance_One%'];
         application();
@@ -37,7 +45,6 @@ public class FinanceOneCommExtension extends QuotingExtension {
         financeOneRatesMap = FinanceOneRates__c.getAll();
         System.debug('The map value: ' + financeOneRatesMap);
         financeOneRates = financeOneRatesMap.values();
-        financeOneRates.sort();
 
         financeOneRatesCommercial = new List <FinanceOneRates__c>();
         for(FinanceOneRates__c f: financeOneRates){
@@ -392,8 +399,11 @@ public class FinanceOneCommExtension extends QuotingExtension {
           */
         // }
         
-        if(String.isBlank(productGoodsSubType)){
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING, 'Please select Goods SubType'));
+        if(String.isBlank(productGoodsSubType) && 
+          getProductGoodsSubTypes().size() > 1){
+            ApexPages.addMessage(new ApexPages.Message(
+              ApexPages.Severity.ERROR, 'Please select Goods SubType'));
+          r = false;
         }
         
         return r;
@@ -914,9 +924,11 @@ System.debug(param.dof);
           ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,e.getMessage()));
         }
       } else {
+        /*
         if(!String.isNotBlank(productGoodsSubType)){
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, 'Please select Goods SubType')); 
         }
+        */
         isValidationOk();
         if (rental == null || rental == 0) {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Please calculate before sending to approval.'));
@@ -929,7 +941,8 @@ System.debug(param.dof);
     
     public void save(){
         submitRequest = false;
-        if(String.isNotBlank(productGoodsSubType) && isValidationOk() && String.isNotBlank(apiUser)){
+        //if(String.isNotBlank(productGoodsSubType) && isValidationOk() && String.isNotBlank(apiUser)){
+        if(isValidationOk() && String.isNotBlank(apiUser)){
                         //Jesus Mora 2020-10-01 start
             
             calculate();
@@ -984,8 +997,13 @@ System.debug(param.dof);
         FinanceOneApp__c f;
         LenderAPIResponse__c l;
         
-        List<FinanceOneApp__c> r = [SELECT Account_ID__c, CreatedDate FROM FinanceOneApp__c WHERE Opportunity__c =: Opp.Id AND Account_ID__c != null ORDER BY CreatedDate DESC];
-        List<LenderAPIResponse__c> r2 = [SELECT Application_ID__c, CreatedDate FROM LenderAPIResponse__c WHERE Opportunity__c =: Opp.Id AND Application_ID__c != null AND Provider__c = 'Finance One' ORDER BY CreatedDate DESC];
+        List<FinanceOneApp__c> r = [SELECT Account_ID__c, CreatedDate FROM 
+          FinanceOneApp__c WHERE Opportunity__c =: Opp.Id AND Account_ID__c != 
+            null ORDER BY CreatedDate DESC];
+        List<LenderAPIResponse__c> r2 = [SELECT Application_ID__c, CreatedDate 
+          FROM LenderAPIResponse__c WHERE Opportunity__c =: Opp.Id AND 
+            Application_ID__c != null AND Quoting_Source__c =: 
+              LENDER_QUOTING ORDER BY CreatedDate DESC];
         
 		if(!r.isEmpty() && r2.isEmpty()){
           f = r.get(0);
@@ -1039,7 +1057,8 @@ System.debug(param.dof);
     }
 
   public Decimal getCommission() {
-    return brokeragePercentage / 100 * getNafCommission(QuotingCalculation.CALC_QUOTING);
+    return brokeragePercentage / 100 * getNafCommission(
+      QuotingCalculation.CALC_QUOTING) * 1.1;
   }
 
   // Abstract methods implementation

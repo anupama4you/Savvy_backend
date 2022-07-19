@@ -1,4 +1,4 @@
-public class VehiclesComponentCtrl {
+public without sharing class VehiclesComponentCtrl {
     public static String VD_TYPE_PROCESS = 'Fleet Referral';
     
     @AuraEnabled
@@ -70,7 +70,7 @@ public class VehiclesComponentCtrl {
                 User VDOwner = [SELECT ID, Phone, Email, MobilePhone, Name, profileid FROM User Where id =:Opp.VD_Owner__c];
                 List<String> toAddresses = new List<String> ();
                 toAddresses.add(VDOwner.Email);       //ORIGINAL
-                toAddresses.add('leandro.l@savvy.com.au');
+                // toAddresses.add('leandro.l@savvy.com.au');
                 List<Attachment> attachments = new List<Attachment>();
                 if (!Test.IsRunningTest()){
                     EmailSender.sendEmailToVDSent_v2(attachments, toAddresses, Opp);

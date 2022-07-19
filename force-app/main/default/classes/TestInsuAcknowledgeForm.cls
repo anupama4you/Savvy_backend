@@ -123,6 +123,18 @@ private class TestInsuAcknowledgeForm {
     ctr.getIntegrityQ4Res();
     ctr.getIntegrityQ5Res();
 
+    // Partner user methods
+    ctr.getIsPartnerUser();
+    ctr.getBusinessLogo();
+    ctr.getBusinessABN();
+    ctr.getBusinessACL();
+    ctr.getBusinessACN();
+    ctr.getBusinessName();
+    ctr.getBusinessPhone();
+    ctr.getBusinessFax();
+    ctr.getBusinessAddress();
+    ctr.getCustomeFullname();
+    
   }
 
   @isTest

@@ -8,7 +8,7 @@ private class TestUniversalCalculator {
     PageReference calcPdf = Page.UniversalCalculatorPdf;
     calcPdf.getParameters()
       .put('id', Test_DataGeneratorHelper.tstOpportunity.Id);
-    calcPdf.getParameters().put('lender', 'GENERAL CALCULATION');
+    //calcPdf.getParameters().put('lender', 'GENERAL CALCULATION');
     calcPdf.getParameters().put('state', 'SA');
     calcPdf.getParameters().put('vehicleGroup', 'A');
     calcPdf.getParameters().put('awd', 'A');
@@ -299,6 +299,10 @@ private class TestUniversalCalculator {
     System.assert(ctr.getIsWestpac());
     ctr.lender = 'SOCIETY ONE CALCULATION';
     System.assert(ctr.getIsSocietyOne());
+    ctr.lender = 'APF CALCULATION';
+    System.assert(ctr.getIsAPF());
+    ctr.lender = 'GROW ASSET CAR CALCULATION';
+    System.assert(ctr.getIsGrowAssetCar());
 
     ctr.extraLabel1 = 'extraLabel1';
     ctr.extraLabel2 = 'extraLabel2';
@@ -318,6 +322,8 @@ private class TestUniversalCalculator {
     ctr.getAdditionalDetails();
 
     ctr.getIsIntegrityProd();
+
+    ctr.getAccountVar();
 
     test.stopTest();
   }

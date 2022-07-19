@@ -1,4 +1,4 @@
-public class CloudDocumentController {
+public without sharing class CloudDocumentController {
     //Get the cloud document on upload aura comoponent
    @AuraEnabled
     public static List<Cloud_Documents__c> getRecords(String oppId) {

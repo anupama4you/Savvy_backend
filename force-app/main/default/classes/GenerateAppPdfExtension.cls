@@ -39,6 +39,10 @@ public class GenerateAppPdfExtension {
         isSecondJobApplic2 = false;
         String preapp = System.currentPageReference().getParameters().get('IS_PREAPPROVAL');
         //controller.addFields(new List<String>{'Application__c'});
+        Set<String> fields = new Set<String>{
+          'OwnerId'
+        };
+        if (!Test.isRunningTest()) controller.addFields(new List<String>(fields));
         this.Opp = (Custom_Opportunity__c)controller.getRecord ();
         isPreApproval = false;
         idxSection = 1;
@@ -273,4 +277,9 @@ public class GenerateAppPdfExtension {
         }
         this.totalCreditCards = this.totalCreditCards.setScale(2);
     }
+
+  public Account getAccountVar() {
+    return SOQLSingletonQueries.getPartnerAccount(this.Opp.OwnerId);
+  } 
+   
 }

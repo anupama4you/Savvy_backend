@@ -3,44 +3,80 @@
 	<apex:stylesheet value="{!$Resource.InsuranceAcknowledgementForm}"/>
 	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
 	<apex:variable value="{!Custom_Opportunity__c}" var="o" />
-	<apex:variable value="{!Custom_Opportunity__c.Application__r}" var="app" />
     <div class="header">
-        <table width="100%">
-            <tr width="100%">
-            	<td width="25%" align="left">
-            		<div class="top-note">
-    					Only accept insurance policy<br/>
-    					you purchased through us
-	            	</div>
-            	</td>
-                <td width="50%" align="center">
-                    <span class="main-title">INSURANCE ACKNOWLEDGEMENT FORM</span>
-                </td>
-                <td width="25%" align="right">
-                    <apex:image url="{!$Resource.SavvyLogo2017}" alt="Logo" height="42" />
-                </td>
-            </tr>
-        </table>
+      <table width="100%">
+        <tr width="100%">
+          <td width="25%" align="left">
+            <div class="top-note">
+              Only accept insurance policy<br/>
+              you purchased through us
+            </div>
+          </td>
+          <td width="50%" align="center">
+            <span class="main-title">INSURANCE ACKNOWLEDGEMENT FORM</span>
+          </td>
+          <td width="25%" align="right">
+            <apex:image url="{!$Resource.SavvyLogo2017}" alt="Logo" height="42" rendered="{!NOT(isPartnerUser)}" />
+            <apex:image url="{!businessLogo}" alt="Logo" height="42" rendered="{!isPartnerUser}" />
+          </td>
+        </tr>
+      </table>
     </div>
     <div class="footer">
-        <div class="footerContent">
-        	<p>
-	        	<strong>Quantum Savvy Pty Ltd ACL Licence No 414426 ABN 12 134 138 686</strong> acts as an agent for Eric &amp; Suncorp not as your agent. Any information provided to you does not take into consideration your objectives, financial situation or needs, which you should consider before deciding to accept a product. You should also read and consider the PDS before deciding whether to acquire any product mentioned.
-	        </p>
-	        <p align="center">
-				<strong>Savvy Finance Phone: 1300 974 066 Fax: 1300 978 066 Address: Level 1, 145 The Parade Norwood SA 5067</strong>
-			</p>
-        </div>
+      <apex:outputPanel layout="block" rendered="{!NOT(isPartnerUser)}" styleClass="footerContent">
+        <p>
+          <strong>Quantum Savvy Pty Ltd ACL Licence No 414426 ABN 12 134 138 686</strong> 
+          acts as an agent for Eric &amp; Suncorp not as your agent. Any information provided to you 
+          does not take into consideration your objectives, financial situation or needs, which you 
+          should consider before deciding to accept a product. You should also read and consider the 
+          PDS before deciding whether to acquire any product mentioned.
+        </p>
+        <p align="center">
+          <strong>Savvy Finance Phone: 1300 974 066 Fax: 1300 978 066 Address: Level 1, 145 The Parade Norwood SA 5067</strong>
+        </p>
+      </apex:outputPanel>
+      <apex:outputPanel layout="block" rendered="{!isPartnerUser}" styleClass="footerContent">
+        <p>
+          <strong>{!businessName} ACL Licence No {!businessACL} ABN {!businessABN}</strong> acts as an agent 
+          for Eric &amp; Suncorp not as your agent. Any information provided to you does not take 
+          into consideration your objectives, financial situation or needs, which you should consider 
+          before deciding to accept a product. You should also read and consider the PDS before 
+          deciding whether to acquire any product mentioned.
+        </p>
+        <p align="center">
+          <strong>{!businessName}
+            <apex:outputPanel layout="inline" rendered="{!NOT(ISBLANK(businessPhone))}">
+              &nbsp; Phone: {!businessPhone}</apex:outputPanel>
+            <apex:outputPanel layout="inline" rendered="{!NOT(ISBLANK(businessFax))}">
+              &nbsp; Fax: {!businessFax}</apex:outputPanel> 
+              &nbsp; Address: {!businessAddress}
+          </strong>
+        </p>
+      </apex:outputPanel>
     </div>
     <div class="content">
+      <apex:outputPanel layout="block" rendered="{!NOT(isPartnerUser)}" styleClass="footerContent">
+        <p align="justify" class="intro">
+          <strong>Quantum Savvy Pty Ltd, is recognised by the Australian Securities and Investments 
+          Commission (ASIC) as an Authorised Representative of both Eric Insurance Ltd 
+          ABN 18 009 129 793 &amp; Suncorp Insurance Australia Pty Ltd ABN 80 000 886 680.</strong>
+        </p>
+      </apex:outputPanel>
+      <apex:outputPanel layout="block" rendered="{!isPartnerUser}" styleClass="footerContent">
+        <p align="justify" class="intro">
+          <strong>{!businessName}, is recognised by the Australian Securities and Investments 
+            Commission (ASIC) as an Authorised Representative of both Eric Insurance Ltd 
+            ABN 18 009 129 793 &amp; Suncorp Insurance Australia Pty Ltd ABN 80 000 886 680.</strong>
+        </p>
+      </apex:outputPanel>
     	<p align="justify" class="intro">
-    		<strong>Quantum Savvy Pty Ltd, is recognised by the Australian Securities and Investments Commission (ASIC) as an Authorised Representative of both Eric Insurance Ltd ABN 18 009 129 793 &amp; Suncorp Insurance Australia Pty Ltd ABN 80 000 886 680.</strong>
-    	</p>
-    	<p align="justify" class="intro">
-			Under our credit licence we are obligated to assist you in deciding whether to use any of the financial services we provide and to give you general information to help you decide, but cannot advise you on whether the terms are specifically appropriate for your individual objectives, financial situation or needs.
-		</p>
-		<p align="justify" class="intro">
-			We are to provide you with a verbal <strong>General Advice Warning</strong>, and a <strong>Product Disclosure Statement</strong> for any financial product we may recommend, arrange or issue to you. In addition, we are to make available our <strong>Credit Guide</strong> if we provide you with any financial services.
+        Under our credit licence we are obligated to assist you in deciding whether to use any of 
+        the financial services we provide and to give you general information to help you decide, 
+        but cannot advise you on whether the terms are specifically appropriate for your individual 
+        objectives, financial situation or needs.
+      </p>
+      <p align="justify" class="intro">
+        We are to provide you with a verbal <strong>General Advice Warning</strong>, and a <strong>Product Disclosure Statement</strong> for any financial product we may recommend, arrange or issue to you. In addition, we are to make available our <strong>Credit Guide</strong> if we provide you with any financial services.
     	</p>
     	<br/>
     	<p align="center">
@@ -136,8 +172,7 @@
 		    		<td>
 		    			Completed by:&nbsp;
 	    				<strong>
-	    					<apex:outputField value="{!app.First_Name__c}"/>&nbsp;
-	    					<apex:outputField value="{!app.Last_Name__c}"/>
+	    					<apex:outputText value="{!customeFullname}"/>
 	    				</strong>
 	    			</td>
 		    		<td>&nbsp;</td>
@@ -456,8 +491,7 @@
 		    		<td>
 		    			Completed by:&nbsp;
 	    				<strong>
-	    					<apex:outputField value="{!app.First_Name__c}"/>&nbsp;
-	    					<apex:outputField value="{!app.Last_Name__c}"/>
+                <apex:outputText value="{!customeFullname}" />
 	    				</strong>
 	    			</td>
 		    		<td>&nbsp;</td>

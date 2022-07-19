@@ -148,11 +148,14 @@ System.debug(response.getBody());
         if('/applications/companyTrust?'.equals(endpoint)){
             financeOneApp.Service__c = 'companyTrust';
         }
-        
+        Application_Quoting__c d = QuotingToolHelper.getApplicationQuoting(o.Id, o.Application__c);
+        System.debug(o.Id);
+        System.debug(o.Application__c);
+        System.debug(d);
         financeOneApp.Provider__c = 'Finance One';
         financeOneApp.Request__c = body2;
         financeOneApp.Response__c = response.getBody();
-        financeOneApp.Quoting_Source__c = FinanceOneExtension.LENDER_QUOTING;
+        financeOneApp.Quoting_Source__c = d.Name;
         if (String.isNotBlank(financeOneApp.Request__c) && financeOneApp.Request__c.length() > 131072) {
             financeOneApp.Request__c = financeOneApp.Request__c.substring(0,131072);
         }

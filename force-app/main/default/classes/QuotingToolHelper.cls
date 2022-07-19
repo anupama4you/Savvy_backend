@@ -398,43 +398,27 @@ public class QuotingToolHelper {
         return r;
     }
     
-    @AuraEnabled
     public static Application_Quoting__c getApplicationQuoting(Id objId) {
         return getApplicationQuoting(null, objId);
     }
-
-        
-    @AuraEnabled
-    public static Application_Quoting__c getApplicationQuotingTest(String oppId, String appId) {
-        System.debug('triggering... ');
-        return null;
-    }
     
-    @AuraEnabled
     public static Application_Quoting__c getApplicationQuoting(Id oppId, Id appId) {
-        try {
-            List<Application_Quoting__c> r = null;
-            String wh = null;
-            if (appId != null && oppId == null) {
-                wh = 'WHERE Application__c = :appId ';
-            } else if (oppId != null) {
-                wh = 'WHERE Opportunity__c = :oppId ';
-            }
-            
-            if (String.isNotBlank(wh)) {
-                r = Database.query(APP_QUOTING_SOQL + wh + 'ORDER BY LastModifiedDate DESC');
-            }
-
-            system.debug('quoting helper function::'+ r);
-            
-            if (r != null && !r.isEmpty()) {
-                return r.get(0);
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            system.debug('application Quoting::'+e);
-            throw new AuraHandledException(e.getMessage());
+        List<Application_Quoting__c> r = null;
+        String wh = null;
+        if (appId != null && oppId == null) {
+            wh = 'WHERE Application__c = :appId ';
+        } else if (oppId != null) {
+            wh = 'WHERE Opportunity__c = :oppId ';
+        }
+        
+        if (String.isNotBlank(wh)) {
+            r = Database.query(APP_QUOTING_SOQL + wh + 'ORDER BY LastModifiedDate DESC');
+        }
+        
+        if (r != null && !r.isEmpty()) {
+            return r.get(0);
+        } else {
+            return null;
         }
     }
     
@@ -712,7 +696,7 @@ public class QuotingToolHelper {
         }
         return r;
     }
-
+    
     public static void updateLTV(Id oppId, String ltv) {
         if (String.isNotBlank(ltv)) {
             List<Application_Quoting__c> d = [SELECT Id, LTV__c FROM Application_Quoting__c 

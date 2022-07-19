@@ -710,12 +710,16 @@
                       status="processAppForm"
                     />
                     <apex:commandButton value="Save" action="{!saveRecord}" styleClass="commandButtons" 
-                      reRender="msgAppForm, AppFormXXX, ytdcalc, servicingcalc, secondJob, secondJobApplicant2"
+                      reRender="msgAppForm, AppFormXXX, ytdcalc, servicingcalc, secondJob, secondJobApplicant2, pepper"
                       status="processAppForm"
                     />
                     <apex:commandButton value="Generate Pdf" action="{!AppPdf}" styleClass="commandButtons" reRender="msgAppForm, AppFormXXX, ytdcalc, servicingcalc, secondJob, secondJobApplicant2"
                                         status="processAppForm" rendered="false" />
-                    <apex:commandButton styleClass="commandButtons" value="Generate Pdf" onClick="window.open('/apex/GenerateAppPdf?id={!Custom_Opportunity__c.Id}');"
+                    <apex:commandButton styleClass="commandButtons" value="Generate Pdf" onClick="window.open('{!$Page.GenerateAppPdf}?id={!Custom_Opportunity__c.Id}');"
+                                        rendered="true" />
+                    <!-- <apex:commandButton styleClass="commandButtons" value="Insurance Acknowledgement" onClick="window.open('{!$Page.InsuranceAcknowledgementForm}?id={!Custom_Opportunity__c.Id}');"
+                                        rendered="true" /> -->
+                    <apex:commandButton styleClass="commandButtons" value="DOF Invoice" onClick="window.open('{!$Page.dofInvoice}?id={!Custom_Opportunity__c.Id}');"
                                         rendered="true" />
                     <apex:commandButton value="Pre-Approval Submission Document" action="{!AppPdfPreApproval}" styleClass="commandButtons" reRender="msgAppForm, AppFormXXX, ytdcalc, servicingcalc, pnlSideBar"
                                         status="processAppForm" rendered="false" />
@@ -905,12 +909,12 @@
                                     <!--<apex:inputField styleClass="dataInput" value="{!o.Application__r.Application_Type__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}"/>-->
                                     <apex:selectList value="{!o.Application__r.Application_Type__c}" multiselect="false" size="1" styleClass="selectList" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}">
                                         <apex:selectOptions value="{!applicationTypes}" />
-                                        <apex:actionSupport event="onchange" reRender="pnlLoanDetails" status="processAppForm" oncomplete="initAutocompleteu();"
+                                        <apex:actionSupport event="onchange" reRender="pnlLoanDetails, pnlClientDetails" status="processAppForm" oncomplete="initAutocompleteu();"
                                                             />
                                     </apex:selectList>
                                     <apex:selectList value="{!applicationType}" multiselect="false" size="1" styleClass="selectList" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}">
                                         <apex:selectOptions value="{!applicationTypes}" />
-                                        <apex:actionSupport event="onchange" reRender="pnlLoanDetails" status="processAppForm" oncomplete="initAutocompleteu();"
+                                        <apex:actionSupport event="onchange" reRender="pnlLoanDetails, pnlClientDetails" status="processAppForm" oncomplete="initAutocompleteu();"
                                                             />
                                     </apex:selectList>
                                 </td>
@@ -1618,7 +1622,8 @@
                                     <apex:inputField styleClass="dataInput" value="{!app0.Year_First_Licensed_1__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
                                                      />
                                 </td>
-                                <td class="labelColumn">How long since you had an at fault accident/claim (including theft, hail, fire)</td>
+                                <td colspan="2">&nbsp;</td>
+                                <!-- <td class="labelColumn">How long since you had an at fault accident/claim (including theft, hail, fire)</td>
                                 <td class="dataColumn">
                                     <apex:outputPanel styleClass="requiredInput" rendered="{!haveDriverLicence1 == 'Yes' || o.Application__r.Do_you_have_drivers_licence_1__c == 'Yes'}">
                                         <apex:outputPanel styleClass="requiredBlock"></apex:outputPanel>
@@ -1627,7 +1632,7 @@
                                                      />
                                     <apex:inputField value="{!app0.Time_Last_Fault_1__c}" styleClass="selectList" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
                                                      />
-                                </td>
+                                </td> -->
                             </tr>
                             <tr>
                                 <td class="labelColumn">Marital Status</td>
@@ -1713,6 +1718,30 @@
                                 </td>
                                 <td colspan="2">&nbsp;</td>
                             </tr>
+                            <apex:outputPanel layout="none" rendered="{!OR(o.Application__r.Application_Type__c=='Business',applicationType=='Business')}">
+                            <tr>
+                              <td colspan="2"><strong>Trustee Entity Details</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="labelColumn">ABN</td>
+                                <td class="dataColumn">
+                                  <apex:inputField styleClass="dataInput" value="{!o.Application__r.Business_ABN_2__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}"/>
+                                  <apex:inputField styleClass="dataInput" value="{!app0.Business_ABN_2__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"/>
+                                </td>
+                                <td class="labelColumn">Nature of Business</td>
+                                <td class="dataColumn">
+                                  <apex:inputField styleClass="dataInput" value="{!o.Application__r.Nature_of_Business_2__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}"/>
+                                  <apex:inputField styleClass="dataInput" value="{!app0.Nature_of_Business_2__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="labelColumn">Business Structure</td>
+                                <td class="dataColumn">
+                                  <apex:inputField styleClass="dataInput" value="{!o.Application__r.Business_Structure_2__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}"/>
+                                  <apex:inputField styleClass="dataInput" value="{!app0.Business_Structure_2__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"/>
+                                </td>
+                            </tr>
+                            </apex:outputPanel>
                         </table>
                         <apex:outputPanel styleClass="subSectionTab">
                             <h3>Applicant 1 - Current Residential Address</h3>
@@ -3468,7 +3497,8 @@
                                     <apex:inputField styleClass="dataInput" value="{!app0.Year_First_Licensed_2__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
                                                      />
                                 </td>
-                                <td class="labelColumn">How long since you had an at fault accident/claim (including theft, hail, fire)</td>
+                                <td colspan="2">&nbsp;</td>
+                                <!-- <td class="labelColumn">How long since you had an at fault accident/claim (including theft, hail, fire)</td>
                                 <td class="dataColumn">
                                     <apex:outputPanel styleClass="requiredInput" rendered="{!haveDriverLicence1 == 'Yes' || o.Application__r.Do_you_have_drivers_licence_2__c == 'Yes'}">
                                         <apex:outputPanel styleClass="requiredBlock"></apex:outputPanel>
@@ -3477,7 +3507,7 @@
                                                      />
                                     <apex:inputField value="{!app0.Time_Last_Fault_2__c}" styleClass="selectList" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
                                                      />
-                                </td>
+                                </td> -->
                             </tr>
                             <tr>
                                 <td class="labelColumn">Marital Status</td>
@@ -8592,6 +8622,7 @@ var="visiblePreviousEmployment2e" />-->
                                                     <apex:outputText rendered="{!displayVehicleLoanHeaders}">Frequency</apex:outputText>&nbsp;</td>
                                                 <td width="10%">
                                                     <apex:outputText rendered="{!displayVehicleLoanHeaders}">Is Being Payout?</apex:outputText>&nbsp;</td>
+                                                <td width="3%">Category</td>
                                                 <td width="3%">&nbsp;</td>
                                             </tr>
                                             <apex:repeat value="{!vehicleAssetList}" var="a">
@@ -8626,6 +8657,9 @@ var="visiblePreviousEmployment2e" />-->
                                                     </td>
                                                     <td>
                                                         <apex:inputField styleClass="dataInput" value="{!a.data['Is_Payout__c']}" rendered="{!a.data['Has_Loan__c']=='Y'}" />
+                                                    </td>
+                                                    <td>
+                                                        <apex:inputField styleClass="dataInput" value="{!a.data['Category__c']}"/>
                                                     </td>
                                                     <td>
                                                         <apex:commandButton value="Remove" action="{!removeVehicleAsset}" reRender="FinalcialDetailsSection" status="stsVeh">
@@ -8719,6 +8753,7 @@ var="visiblePreviousEmployment2e" />-->
                                                 <td>#</td>
                                                 <td>Description</td>
                                                 <td>Value</td>
+                                                <td>Category</td>
                                                 <td></td>
                                             </tr>
                                             <apex:repeat value="{!otherAssetList}" var="a">
@@ -8729,6 +8764,9 @@ var="visiblePreviousEmployment2e" />-->
                                                     </td>
                                                     <td>
                                                         <apex:inputField styleClass="dataInput" value="{!a.data['Value__c']}" html-placeholder="$" required="false" />
+                                                    </td>
+                                                    <td>
+                                                        <apex:inputField styleClass="dataInput" value="{!a.data['Category__c']}"/>
                                                     </td>
                                                     <td>
                                                         <apex:commandButton value="Remove" action="{!removeOtherAsset}" reRender="pnlOAssets" status="stsOAssets">
@@ -9045,9 +9083,6 @@ rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}" alt="
                             <tr>
                                 <td class="labelColumn">Full Name</td>
                                 <td class="dataColumn">
-                                    <apex:outputPanel styleClass="requiredInput">
-                                        <apex:outputPanel styleClass="requiredBlock"></apex:outputPanel>
-                                    </apex:outputPanel>
                                     <apex:inputField styleClass="dataInput" value="{!o.Application__r.Personal_Reference_1_Full_Name__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}"
                                                      />
                                     <apex:inputText styleClass="dataInput" label="Reference 1 Full Name" value="{!personalReference1Full_Name}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
@@ -9055,9 +9090,6 @@ rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}" alt="
                                 </td>
                                 <td class="labelColumn">Relationship</td>
                                 <td class="dataColumn">
-                                    <apex:outputPanel styleClass="requiredInput">
-                                        <apex:outputPanel styleClass="requiredBlock"></apex:outputPanel>
-                                    </apex:outputPanel>
                                     <apex:inputField styleClass="dataInput" value="{!o.Application__r.Personal_Reference_1_Relationship__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}"
                                                      />
                                     <apex:inputText styleClass="dataInput" label="Reference 1 Relationship" value="{!personalReference1Relationship}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
@@ -9067,9 +9099,6 @@ rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}" alt="
                             <tr>
                                 <td class="labelColumn">Address</td>
                                 <td class="dataColumn">
-                                    <!--<apex:outputPanel styleClass="requiredInput">
-                                        <apex:outputPanel styleClass="requiredBlock"></apex:outputPanel>
-                                    </apex:outputPanel>-->
                                     <apex:inputField styleClass="dataInput" value="{!o.Application__r.Personal_Reference_1_Address__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c) ,false,true)}"
                                                      id="addressLookup_43" />
                                     <apex:inputText styleClass="dataInput" label="Reference 1 Address" value="{!personalReference1Address}" id="addressLookup_44"
@@ -9102,9 +9131,6 @@ rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}" disab
                                 
                                 <td class="labelColumn">Phone</td>
                                 <td class="dataColumn">
-                                    <apex:outputPanel styleClass="requiredInput">
-                                        <apex:outputPanel styleClass="requiredBlock"></apex:outputPanel>
-                                    </apex:outputPanel>
                                     <apex:inputField styleClass="dataInput" value="{!o.Application__r.Personal_Reference_1_Phone__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}"
                                                      />
                                     <apex:inputText styleClass="dataInput" label="Reference 1 Phone" value="{!personalReference1Phone}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
@@ -9179,9 +9205,6 @@ rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
                             <tr>
                                 <td class="labelColumn">Full Name</td>
                                 <td class="dataColumn">
-                                    <apex:outputPanel styleClass="requiredInput">
-                                        <apex:outputPanel styleClass="requiredBlock"></apex:outputPanel>
-                                    </apex:outputPanel>
                                     <apex:inputField styleClass="dataInput" value="{!o.Application__r.Personal_Reference_2_Full_Name__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}"
                                                      />
                                     <apex:inputText styleClass="dataInput" label="Reference 1 Full Name" value="{!personalReference2Full_Name}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
@@ -9189,9 +9212,6 @@ rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
                                 </td>
                                 <td class="labelColumn">Relationship</td>
                                 <td class="dataColumn">
-                                    <apex:outputPanel styleClass="requiredInput">
-                                        <apex:outputPanel styleClass="requiredBlock"></apex:outputPanel>
-                                    </apex:outputPanel>
                                     <apex:inputField styleClass="dataInput" value="{!o.Application__r.Personal_Reference_2_Relationship__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}"
                                                      />
                                     <apex:inputText styleClass="dataInput" label="Reference 1 Relationship" value="{!personalReference2Relationship}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
@@ -9201,9 +9221,6 @@ rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
                             <tr>
                                 <td class="labelColumn">Address</td>
                                 <td class="dataColumn">
-                                    <!--<apex:outputPanel styleClass="requiredInput">
-                                        <apex:outputPanel styleClass="requiredBlock"></apex:outputPanel>
-                                    </apex:outputPanel>-->
                                     <apex:inputField styleClass="dataInput" value="{!o.Application__r.Personal_Reference_2_Address__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}"
                                                      id="addressLookup_45" />
                                     <apex:inputText styleClass="dataInput" label="Reference 1 Address" value="{!personalReference2Address}" id="addressLookup_46"
@@ -9218,9 +9235,6 @@ rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"
                                 </td>
                                 <td class="labelColumn">Phone</td>
                                 <td class="dataColumn">
-                                    <apex:outputPanel styleClass="requiredInput">
-                                        <apex:outputPanel styleClass="requiredBlock"></apex:outputPanel>
-                                    </apex:outputPanel>
                                     <apex:inputField styleClass="dataInput" value="{!o.Application__r.Personal_Reference_2_Phone__c}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),false,true)}"
                                                      />
                                     <apex:inputText styleClass="dataInput" label="Reference 1 Phone" value="{!personalReference2Phone}" rendered="{!IF(ISBLANK(Custom_Opportunity__c.Application__c),true,false)}"

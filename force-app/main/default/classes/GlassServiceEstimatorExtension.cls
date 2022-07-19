@@ -94,7 +94,7 @@ public class GlassServiceEstimatorExtension {
     //Jesus Mora 2019-11-07 end
     //Yohan VillaLeal               2019-01-06
     
-    public GlassServiceEstimatorExtension (ApexPages.StandardController controller) {
+    public GlassServiceEstimatorExtension(ApexPages.StandardController controller) {
         try {
             controller.addFields(new List<String>{'Application__c'});
         } catch (SObjectException e) {}
@@ -587,7 +587,7 @@ public class GlassServiceEstimatorExtension {
     private void loadSavedData() {
         System.debug('loadSavedData... ' + Opp.Application_AssetDetail__c);
         //dealerType = Opp.Dealer_Type__c;
-        // System.debug('application asset detail', Opp.Application_AssetDetail__c);
+        System.debug(Opp.Application_AssetDetail__c);
         if (Opp.Application_AssetDetail__c != null) {
             Application_Asset_Detail__c aad = Opp.Application_AssetDetail__r;
             assetType = aad.Type__c;    
@@ -1258,7 +1258,7 @@ public class GlassServiceEstimatorExtension {
     public List<SelectOption> getStreetTypeOptions() {
         List<SelectOption> stOptions = UtilitiesList.getStreetTypeOptions();
         return stOptions;
-
+        
     }
     
     public Boolean getDisplayRedbookForm() {
@@ -1346,8 +1346,8 @@ public class GlassServiceEstimatorExtension {
         
     //NWC Calculator - HJ - 12-07-2018 - F
     //Jesus Mora 2019-11-07 start
-    public Parameter setParameters(){
-        Parameter p = new Parameter();
+    public GlassServicesHelper.Parameter setParameters(){
+        GlassServicesHelper.Parameter p = new GlassServicesHelper.Parameter();
         p.year = year;
         p.make = make;
         p.family = model;

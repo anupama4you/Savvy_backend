@@ -33,16 +33,14 @@ private class WestpacTest {
     // test for baseRateCalc ()
     ctr.reset();
     ctr.productGoodsType = ctr.productGoodsTypes.get(1).getValue();
-    ctr.changeGoodsType();
     ctr.carPrice = 25000.00;
-    ctr.carAge = 1;
     ctr.privateSales = 'N';
     ctr.term = 60;
     ctr.manufactureYear = ctr.manufactureYearOptions.get(1).getValue();
     ctr.brokeragePercentage = 4;
     ctr.residualValue = 1;
+    ctr.baseRate = 1;
     ctr.baseRateCalc();
-    ctr.clientRate = 1;
     ctr.calculate();
     System.assert(ctr.rental > 0);
     ctr.saveQuoting();
@@ -58,11 +56,6 @@ private class WestpacTest {
     ctr.sendCustomerEmail1();
     ctr.sendCustomerEmail2();
 
-    ctr.privateSales = 'Y';
-    ctr.applicationFeefCalc();
-    ctr.privateSales = 'N';
-    ctr.applicationFeefCalc();
-
     //NWCCalculator HJ - I - 12-07-2018 - Car
     ctr.calculateNWC();
     ctr.checkManuallyNWCPrice();
@@ -73,7 +66,6 @@ private class WestpacTest {
     Test_DataGeneratorHelper.createQuoting();
     Test_DataGeneratorHelper.quoting.App_Insurance_Quote__c = Test_DataGeneratorHelper.quote.Id;
     update Test_DataGeneratorHelper.quoting;
-    //ctr = new PepperCalculatorMVExtension(sc);
     ctr.term = null;
     ctr.residualValue = -1;
     ctr.isValidCalculate();
@@ -152,7 +144,6 @@ private class WestpacTest {
     ctr.declineQuoteWRR();
 
     ctr.changeLoanProduct();
-    ctr.changeGoodsType();
 
     ctr.getOptions();
 
@@ -178,15 +169,13 @@ private class WestpacTest {
 
     ctr.reset();
     ctr.productGoodsType = ctr.productGoodsTypes.get(1).getValue();
-    ctr.changeGoodsType();
     ctr.carPrice = 25000.00;
-    ctr.carAge = 1;
     ctr.privateSales = 'N';
     ctr.term = 60;
     ctr.manufactureYear = ctr.manufactureYearOptions.get(1).getValue();
     ctr.brokeragePercentage = 2;
+    ctr.baseRate = 1;
     ctr.baseRateCalc();
-    ctr.clientRate = 1;
     ctr.calculate();
     System.assert(ctr.rental > 0);
 
