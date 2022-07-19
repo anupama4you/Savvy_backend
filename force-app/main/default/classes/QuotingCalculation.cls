@@ -96,6 +96,7 @@ public without sharing class QuotingCalculation {
         'Now Finance'.equals(param.lender) ||
         'RateSetter'.equals(param.lender) ||
         'RateSetter PL'.equals(param.lender) ||
+        'Plenti PL'.equals(param.lender) ||
         'Pepper PL'.equals(param.lender) ||
         'Wisr VL'.equals(param.lender) ||
         'CarStart'.equals(param.lender) ||
@@ -121,15 +122,15 @@ public without sharing class QuotingCalculation {
         'BOQ'.equals(param.lender) ||
         'Affordable'.equals(param.lender)
       ) {
-        System.debug('Testing values:::'+ param);
         r = calculateCommRate(param);
       } else if (
         'Yamaha Marine'.equals(param.lender) ||
         'Yamaha Motorcycles'.equals(param.lender) ||
-        'Yamaha Water'.equals(param.lender)
+        'Yamaha Water'.equals(param.lender) ||
+        'AMMF'.equals(param.lender)
       ) {
         r = calculateYamaha(param);
-      } else if ('Wisr'.equals(param.lender)) {
+      } else if ('Wisr'.equals(param.lender) || 'Wisr PL'.equals(param.lender)) {
         r = calculateWisr(param);
         // } else if ('Firstmac'.equals(param.lender)) {
         //   r = calculateFirstmac(param);
@@ -137,7 +138,7 @@ public without sharing class QuotingCalculation {
         r = calculateGreenLight(param);
       } else if (MoneyPlaceExtension.LENDER_QUOTING.equals(param.lender)) {
         r = calculateMoneyPlace(param);
-      } else if ('BOQCommercial'.equals(param.lender)) {
+      } else if ('BOQ Commercial'.equals(param.lender)) {
         // Girish P
         system.debug('calculating boqcommercial' + param);
         r = calculateBOQCommercial(param);
@@ -997,7 +998,7 @@ public without sharing class QuotingCalculation {
       r.Estimated_Commission__c = r.Estimated_Commission__c / 1.1;
       r.Estimated_Commission__c = r.Estimated_Commission__c.setScale(2);
     }
-    if ('RateSetter PL'.equals(param.lender)) {
+    if ('Plenti PL'.equals(param.lender) || 'RateSetter PL'.equals(param.lender)) {
       // r.Estimated_Commission__c = param.amountBaseComm * 0.01;
       r.Estimated_Commission__c = param.amountBaseComm * 0.00;
       r.Estimated_Commission__c = r.Estimated_Commission__c / 1.1;
@@ -1200,19 +1201,19 @@ public without sharing class QuotingCalculation {
   private static Application_Quoting_Result__c calculateCommRate(
     CalcParam param
   ) {
-    System.debug('Testing values:::'+ param);
     Application_Quoting_Result__c r = new Application_Quoting_Result__c();
     r.Payment_Calc_Type__c = 'DF';
-    if ('Latitude'.equals(param.lender)) {
+    if (
+      String.isNotBlank(param.lender) &&
+      param.lender.contains('Latitude')
+    ) {
       r.Payment_Calc_Type__c = 'SP';
     }
     r.NAF__c = param.getNaf();
 
     // calculate the payment rate based on client rate, which is determined by consultants
     Decimal realRate = param.clientRate / 100;
-    System.debug('Rental-Testing::realRate:'+ realRate);
     Decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
-    System.debug('Rental-Testing::futureValue:'+ futureValue);
     Decimal rate = FinancialUtilities.rate(
       1000,
       12,
@@ -1222,8 +1223,6 @@ public without sharing class QuotingCalculation {
       false
     );
 
-    System.debug('Rental-Testing::rate:'+ rate);
-
     // calculate the monthly payment based on client rate
     r.Rental__c = FinancialUtilities.pmt(
       param.getNaf(),
@@ -1232,7 +1231,6 @@ public without sharing class QuotingCalculation {
       param.residualValue,
       param.getPaymentTypeBoolean()
     );
-    System.debug('Rental-Testing::Rental__c:'+ r.Rental__c);
     r.Rental__c = r.Rental__c.setScale(2);
 
     Decimal comm = param.commRate;
@@ -1491,6 +1489,10 @@ public without sharing class QuotingCalculation {
         r = getANZCommercialBaseRate(param);
       } else if ('ANZ Others'.equals(param.lender)) {
         r = getANZOthersBaseRate(param);
+      } else if ('BOQ'.equals(param.lender)) {
+        r = getBOQBaseRate(param, false);
+      } else if ('BOQ Commercial'.equals(param.lender)) {
+        r = getBOQCommBaseRate(param, false);
       } else if ('Pepper MV'.equals(param.lender)) {
         r = getPepperBaseRate(param, false);
       } else if ('Pepper Leisure'.equals(param.lender)) {
@@ -1526,10 +1528,11 @@ public without sharing class QuotingCalculation {
       } else if (
         'Yamaha Marine'.equals(param.lender) ||
         'Yamaha Motorcycles'.equals(param.lender) ||
-        'Yamaha Water'.equals(param.lender)
+        'Yamaha Water'.equals(param.lender) ||
+        'AMMF'.equals(param.lender)
       ) {
         r = getYamahaBaseRate(param, true);
-      } else if ('Wisr'.equals(param.lender)) {
+      } else if ('Wisr'.equals(param.lender) || 'Wisr PL'.equals(param.lender)) {
         r = getWisrBaseRate(param);
       } else if ('Wisr VL'.equals(param.lender)) {
         r = getWisrVLBaseRate(param, false);
@@ -1551,6 +1554,8 @@ public without sharing class QuotingCalculation {
         r = getRateLatitudePLBaseRate(param, false);
       } else if (AfsCalculatorExtension.LENDER_QUOTING.equals(param.lender)) {
         r = getAFSConsumerBaseRate(param, false);
+      } else if ('AFS Commercial'.equals(param.lender)) {
+        r = getAFSCommercialBaseRate(param, false);
       } else if (MoneyPlaceExtension.LENDER_QUOTING.equals(param.lender)) {
         r = getWisrBaseRate(param);
       } else if (
@@ -3499,6 +3504,8 @@ public without sharing class QuotingCalculation {
         //r = getANZCommercialBaseRate(param);
       } else if ('ANZ Others'.equals(param.lender)) {
         //r = getANZOthersBaseRate(param);
+      } else if ('BOQ'.equals(param.lender)) {
+        r = getBOQBaseRate(param, true);
       } else if ('Pepper MV'.equals(param.lender)) {
         //r = getPepperMVBaseRate(param, true);
         r = getPepperBaseRate(param, true);
@@ -3544,7 +3551,7 @@ public without sharing class QuotingCalculation {
       } else if ('AFS Consumer'.equals(param.lender)) {
         r = getAFSConsumerBaseRate(param, true);
       } else if ('AFS Commercial'.equals(param.lender)) {
-        r = getAfsCommercialMaxBaseRate(param);
+        r = getAfsCommercialBaseRate(param, true);
       } else if (
         LatitudePersonalCalculatorExtension.LENDER_QUOTING.equals(param.lender)
       ) {
@@ -4678,26 +4685,26 @@ public without sharing class QuotingCalculation {
     return r;
   }
 
-  public static Decimal getAfsCommercialCommission(CalcParam param) {
-    if (param == null || String.isBlank(param.clientTier))
-      return 0;
-    List<AFS_Commercial_Rates__c> fullRates = AFS_Commercial_Rates__c.getAll()
-      .values();
-    fullRates.sort();
-    //System.debug('Total rates >> ' + fullRates.size() + '|param.clientTier: ' + param.clientTier);
+  // public static Decimal getAfsCommercialCommission(CalcParam param) {
+  //   if (param == null || String.isBlank(param.clientTier))
+  //     return 0;
+  //   List<AFS_Commercial_Rates__c> fullRates = AFS_Commercial_Rates__c.getAll()
+  //     .values();
+  //   fullRates.sort();
+  //   //System.debug('Total rates >> ' + fullRates.size() + '|param.clientTier: ' + param.clientTier);
 
-    Decimal r = 0.0;
-    for (AFS_Commercial_Rates__c rate : fullRates) {
-      if (param.clientRate >= rate.Rate__c) {
-        if ('0-7 years'.equals(param.clientTier)) {
-          r = rate.Comm_07_Years__c;
-        } else if ('8 years +'.equals(param.clientTier)) {
-          r = rate.Comm_8_Years__c;
-        }
-      }
-    }
-    return r;
-  }
+  //   Decimal r = 0.0;
+  //   for (AFS_Commercial_Rates__c rate : fullRates) {
+  //     if (param.clientRate >= rate.Rate__c) {
+  //       if ('0-7 years'.equals(param.clientTier)) {
+  //         r = rate.Comm_07_Years__c;
+  //       } else if ('8 years +'.equals(param.clientTier)) {
+  //         r = rate.Comm_8_Years__c;
+  //       }
+  //     }
+  //   }
+  //   return r;
+  // }
 
   private static Decimal getRateLatitudeBaseRate(
     CalcParam param,
@@ -6230,4 +6237,112 @@ public without sharing class QuotingCalculation {
     }
     return r;
   }
+
+  // AFS Commercial rates
+  public static Decimal getAFSCommercialBaseRate(
+    CalcParam param,
+    Boolean isMaxRate
+  ) {
+    
+    Decimal minRate = 0.0;
+    Decimal maxRate = 0.0;
+
+    List<AFS_Commercial_Rates__c> rates = AFS_Commercial_Rates__c.getAll().values();
+    rates.sort();
+    
+    Integer maxIdx = rates.size()-1;
+
+    if ('Not Registered'.equals(param.gstLength)) {
+      // Used 7 years
+      minRate = rates.get(4).Rate_2__c;
+      maxRate = rates.get(maxIdx).Rate_2__c;
+    } else if ('New - 6 years old'.equals(param.assetAge)) {
+      if ('Home Buyer'.equals(param.residency)) {
+        minRate = rates.get(0).Rate__c;
+      } else {
+        minRate = rates.get(4).Rate__c;
+      }
+      maxRate = rates.get(maxIdx-3).Rate__c;
+    } else {
+      if ('Home Buyer'.equals(param.residency)) {
+        minRate = rates.get(0).Rate_2__c;
+      } else {
+        minRate = rates.get(4).Rate_2__c;
+      }
+      maxRate = rates.get(maxIdx).Rate_2__c;
+    }
+    return isMaxRate? maxRate : minRate;
+  }
+
+  // AFS Commercial rates
+  public static Decimal getAFSCommercialCommission(CalcParam param) {
+    List<AFS_Commercial_Rates__c> rates = AFS_Commercial_Rates__c.getAll().values();
+    rates.sort();
+    Decimal r = 0.00;
+    for (AFS_Commercial_Rates__c rate: rates) {
+      if ('New - 6 years old'.equals(param.assetAge)) {
+        if (rate.Rate__c > 0 && param.clientRate >= rate.Rate__c) {
+          r = rate.Comm_07_Years__c;
+        }
+      } else {
+        if (rate.Rate_2__c > 0 && param.clientRate >= rate.Rate_2__c) {
+          r = rate.Comm_8_Years__c;
+        }
+      }
+    }
+    return r;
+  }
+
+  public static Decimal getMoneyPlaceMaxDOF(CalcParam param) {
+    Decimal r = 0.00;
+    Decimal v = param.amountBasePmt;
+    Lenders__c lenderSettings = getLenderSettings(param.lender);
+    if (v < 20000) {
+      r = v * 0.1;
+      r = r > lenderSettings.Max_DOF__c? lenderSettings.Max_DOF__c : r; 
+    } else if (v < 40000) {
+      r = 1690.00;
+    } else {
+      r = 1990.00;
+    }
+    return r.setScale(2);
+  }
+
+  public static Decimal getBOQBaseRate(CalcParam param, Boolean isMaxRate ) {
+    Decimal r = 0.00;
+    List<BOQRate__c> d = [
+      SELECT CustomerInterestRate__c FROM BOQRate__c
+      WHERE ClientTier__c = :param.clientTier
+      ORDER BY CustomerInterestRate__c
+    ];
+
+    if (!d.isEmpty()) {
+      r = isMaxRate? d.get(d.size() - 1).CustomerInterestRate__c : d.get(0).CustomerInterestRate__c;
+    }
+
+    return r;
+  }
+
+  public static Decimal getBOQCommRate(CalcParam param) {
+    Decimal r = 0.00;
+    List<BOQRate__c> d = [
+      SELECT BaseCommisionRate__c FROM BOQRate__c
+      WHERE ClientTier__c = :param.clientTier
+      AND CustomerInterestRate__c >= :param.clientRate
+      ORDER BY BaseCommisionRate__c
+    ];
+
+    if (!d.isEmpty()) {
+      r = d.get(0).BaseCommisionRate__c;
+    }
+
+    return r;
+  }
+
+  public static Decimal getBOQCommBaseRate(CalcParam param, Boolean isMaxRate ) {
+    BOQCalculatorCommercialHelper boqHelper = new BOQCalculatorCommercialHelper();
+    return boqHelper.getInterestRates(param.goodsType, param.vehicleYear);
+  }
+
+
 }

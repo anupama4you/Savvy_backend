@@ -5,15 +5,13 @@ public without sharing class QuoteWisrPLCalcController {
     ) {
         QuoteController.AppQuotingWraper r = QuoteController.getQuotingData(param); 
 
-        // Lender settings
-        // Rate Settings
-        String rateObjName = param.rateSettings != null && !param.rateSettings.isEmpty() 
-        ? param.rateSettings.get(0) : 'Direct_Money_Rate__c';
-        
-        Map<String, List<Direct_Money_Rate__c>> rates = new Map<String, List<Direct_Money_Rate__c>>();
-        rates.put(rateObjName, getRates());
+        String rateObjName1 = param.rateSettings.get(0);
+        String rateObjName2 = param.rateSettings.get(1);
+        Map<String, List<sObject>> rates = new Map<String, List<sObject>>();
+        rates.put(rateObjName1, getRates());
+        rates.put(rateObjName2, getFees());
         r.rateSettings = rates;
-
+        r.settings = QuotingCalculation.getLenderSettings(WisrCalculatorExtension.LENDER_QUOTING);
         return r;
     }
 
@@ -26,6 +24,12 @@ public without sharing class QuoteWisrPLCalcController {
                 r.add(a);
             }
         }
+        return r;
+    }
+
+    public static List<Wisr_Fee_Rate__c> getFees() {
+        List<Wisr_Fee_Rate__c> r = Wisr_Fee_Rate__c.getAll().values();
+        r.sort();
         return r;
     }
 }

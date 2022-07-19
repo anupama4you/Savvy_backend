@@ -22,4 +22,5 @@ public with sharing class quoteLatitudePLCalcController {
         rates.sort();
         return rates;
     }
+
 }
