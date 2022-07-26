@@ -35,7 +35,7 @@ public with sharing class QuoteLibertyCalcController {
         
         // pass universal variables
         pdf.getParameters().put('id',quote.Opportunity__c);
-        pdf.getParameters().put('lender', quote.Name);
+        pdf.getParameters().put('lender', quote.Name.toLowercase() + 'CALCULATION');
         pdf.getParameters().put('carPrice', NumberUtils.format(quote.Vehicle_Price__c));
         pdf.getParameters().put('applicationFee', NumberUtils.format(quote.Application_Fee__c));
         pdf.getParameters().put('dof', NumberUtils.format(quote.DOF__c));
@@ -89,8 +89,10 @@ public with sharing class QuoteLibertyCalcController {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
         P.Lender__c = quote.Name;
         P.Quoting_Source__c = quote.Name;
+        p.Loan_Purpose__c = 'Personal Use';
         P.Repayment_Regularity__c = 'Monthly';
         p.Loan_Type__c = quote.Loan_Type__c;
+        p.Loan_Type_Detail__c = quote.Client_Tier__c;
         p.Loan_Product__c = quote.Loan_Product__c;
         p.Loan_Term__c = quote.Term__c;
         p.Balloon_Residual_Requested__c = quote.Residual_Value__c == null || quote.Residual_Value__c == 0 ? 0:quote.Residual_Value__c;
@@ -102,7 +104,10 @@ public with sharing class QuoteLibertyCalcController {
         p.Brokerage__c = quote.Commission_Estimation__c == null? 0 : quote.Commission_Estimation__c;
         p.Lender_App_Fee__c = quote.Application_Fee__c;
         p.Equalisation_Fee_PPSR__c = quote.PPSR__c;
-
+        p.Equalisation_Fee_PPSR__c += quote.Risk_Fee__c;
+        if (quote.Application_Fee__c > 0) {
+          p.Lender_App_Fee__c = quote.Application_Fee__c;
+        }
         return p;
     }
 }
