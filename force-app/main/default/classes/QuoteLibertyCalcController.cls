@@ -35,7 +35,7 @@ public with sharing class QuoteLibertyCalcController {
         
         // pass universal variables
         pdf.getParameters().put('id',quote.Opportunity__c);
-        pdf.getParameters().put('lender', quote.Name.toLowercase() + 'CALCULATION');
+        pdf.getParameters().put('lender', quote.Name.touppercase() + ' CALCULATION');
         pdf.getParameters().put('carPrice', NumberUtils.format(quote.Vehicle_Price__c));
         pdf.getParameters().put('applicationFee', NumberUtils.format(quote.Application_Fee__c));
         pdf.getParameters().put('dof', NumberUtils.format(quote.DOF__c));
