@@ -447,6 +447,7 @@ public class QuotingToolHelper {
     }
 
     public static void saveApplicationQuoting(Application_Quoting__c obj) {
+        System.debug('save quoting obj >>> '+ JSON.serialize(obj));
         Boolean isUpdateApp = false;
         if (obj.Id == null) {
           isUpdateApp = true;

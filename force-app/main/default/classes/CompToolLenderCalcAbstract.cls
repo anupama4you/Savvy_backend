@@ -63,6 +63,7 @@ public abstract class CompToolLenderCalcAbstract implements CompToolLenderCalc {
     if (this.quoteParam != null) {
       r += this.quoteParam.applicationFee > 0? this.quoteParam.applicationFee : 0.00;
       r += this.quoteParam.dof > 0? this.quoteParam.dof : 0.00;
+      r += this.quoteParam.riskFee > 0? this.quoteParam.riskFee : 0.00;
     }
     return r;
   }
@@ -89,6 +90,21 @@ public abstract class CompToolLenderCalcAbstract implements CompToolLenderCalc {
     } else {
       this.quoteParam.clientRate = this.quoteParam.baseRate;
     }
+
+    if ('Personal'.equals(this.param.loanType)) {
+      // Client Rate Factor
+      if (this.quoteParam.baseRate > 0.00 && this.param.clientRateFactor >= 0.00) {
+        this.quoteParam.clientRate = this.quoteParam.baseRate + this.param.clientRateFactor;
+        this.quoteParam.clientRate = this.quoteParam.clientRate < this.quoteParam.baseRate
+          ? this.quoteParam.baseRate : this.quoteParam.clientRate;
+      }
+    }
+  }
+
+  public virtual Decimal getLenderFees() {
+    Decimal r = this.quoteParam.applicationFee > 0? this.quoteParam.applicationFee : 0.00;
+    r += this.quoteParam.riskFee > 0? this.quoteParam.riskFee : 0.00;
+    return r;
   }
 
   public CompToolLenderResult calculateRepayments() {
@@ -109,10 +125,33 @@ public abstract class CompToolLenderCalcAbstract implements CompToolLenderCalc {
       Application_Quoting_Result__c q = QuotingCalculation.calculate(this.quoteParam);
       q.recalculateFormulas();
       r.quote = q;
+      r.lenderFees = this.getLenderFees();
     // } catch (Exception e) {
     //   throw new GenericException(e.getMessage());
     // }    
     return r;
+  }
+
+  public void setBrokerageValue() {
+    setBrokerageValue(false);
+  }
+
+  public void setBrokerageValue(Boolean onlyDefaultValue) {
+    this.quoteParam.brokeragePer = 0.00;
+    System.debug('@@lenderSettings: ' + JSON.serializePretty(this.lenderSettings));
+    if (this.lenderSettings != null && this.lenderSettings.Brokerage_Base__c > 0.00) {
+      this.quoteParam.brokeragePer = this.lenderSettings.Brokerage_Base__c;
+    }
+    // if (
+    //   !onlyDefaultValue &&
+    //   this.quoteParam.brokeragePer > 0.00 && 
+    //   this.param.clientRateFactor >= 0.00
+    // ) {
+    //   Decimal p = (this.param.clientRateFactor/2.00);
+    //   this.quoteParam.brokeragePer = this.quoteParam.brokeragePer * p;
+    //   this.quoteParam.brokeragePer = this.quoteParam.brokeragePer.setScale(2);
+    //   this.quoteParam.brokeragePer = this.quoteParam.brokeragePer < 0? 0.00 : this.quoteParam.brokeragePer;
+    // }
   }
 
   //Inner class
@@ -175,6 +214,9 @@ public abstract class CompToolLenderCalcAbstract implements CompToolLenderCalc {
     public Decimal customClientRate { get; set; }
     @AuraEnabled
     public Decimal customDof { get; set; }
+    @AuraEnabled
+    public Decimal clientRateFactor { get; set; }
+
     // Lelo                 2018-05-29
     // public Integer applicantAge {set;get;}
     // public Decimal annualIncome {set;get;}
@@ -225,6 +267,12 @@ public abstract class CompToolLenderCalcAbstract implements CompToolLenderCalc {
     public Integer getAssetYear() {
       return Date.today().year() - (this.assetAge > 0 ? this.assetAge : 0);
     }
+
+    public Integer getAssetYearsAfterTerm() {
+      Integer a = this.term > 0? this.term / 12 : 0;
+      return this.assetAge + a;
+    }
+
   }
 
 }

@@ -547,7 +547,7 @@
                         </tr>
                         <tr>
                             <td class="financeColumn">
-                            <apex:outputLabel styleClass="calcLabel" value="Risk Grade" for="ss" />
+                            <apex:outputLabel styleClass="calcLabel" value="Risk Grade" for="loanTypeDetail" />
                             </td>
                             <td class="financeColumn">
                             <apex:selectList label="Class" value="{!dto.loanTypeDetail}" multiselect="false" size="1" onchange="baseRateRefresh()" styleClass="selectList" id="loanTypeDetail">

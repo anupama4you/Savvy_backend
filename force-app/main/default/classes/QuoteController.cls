@@ -32,7 +32,7 @@ public without sharing class QuoteController {
   @AuraEnabled
   public static AppQuotingWraper getQuotingData(QuotingDataParam param) {
     if (param == null || String.isBlank(param.oppId) || param.fields == null || param.fields.isEmpty()) {
-      throw new GenericException('Invalid parameters');
+      throw new GenericException('Invalid parameters' + '  --- ' + param);
     }
 
     // Prepare parameters
@@ -117,7 +117,7 @@ public without sharing class QuoteController {
   //  Application_Quoting__c
    @AuraEnabled 
    public static AppQuotingWraper saveQuoting(AppQuotingWraper param){
-     try {
+    //  try {
        // - MARK: SAVING Quote to server  
        QuotingToolHelper.saveApplicationQuoting(param.data);
        // Save calculations 
@@ -126,9 +126,9 @@ public without sharing class QuoteController {
        QuotingCalculation.saveQuotingResults(param.data.Opportunity__c, resultList);
        return param;
       //  Save the record 
-     } catch (Exception e) {
-      throw new GenericException(e.getMessage());
-     }
+    //  } catch (Exception e) {
+    //   throw new GenericException(e.getMessage());
+    //  }
    }
 
   public static Custom_Opportunity__c getOpportunityById(Id oppId){

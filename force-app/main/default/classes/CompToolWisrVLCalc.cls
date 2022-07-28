@@ -38,7 +38,7 @@ public class CompToolWisrVLCalc extends CompToolLenderCalcAbstract {
 
     this.quoteParam.dof = QuotingCalculation.getWisrVLMaxDOF(param.getNetVehiclePrice());
     this.quoteParam.totalAmount = this.getTotalAmount();
-    this.applicationFee = QuotingCalculation.getWisrVLMaxAppFee(this.quoteParam.totalAmount);
+    this.quoteParam.applicationFee = QuotingCalculation.getWisrVLMaxAppFee(this.quoteParam.totalAmount);
     this.quoteParam.totalAmount = this.getTotalAmount();
 
 
@@ -48,16 +48,16 @@ public class CompToolWisrVLCalc extends CompToolLenderCalcAbstract {
     return r;
   }
   
-  public override Decimal getTotalAmount() {
-    System.debug('Calculating total amount (override)...');
-    Decimal r = 0.00;
-    if (this.param != null) {
-      r += this.param.price > 0? this.param.price : 0.00;
-      r -= this.param.deposit > 0? this.param.deposit : 0.00;
-    }
-    r += this.applicationFee > 0? this.applicationFee : 0.00;    
-    r += this.quoteParam.dof > 0? this.quoteParam.dof : 0.00;    
-    return r;
-  }
+  // public override Decimal getTotalAmount() {
+  //   System.debug('Calculating total amount (override)...');
+  //   Decimal r = 0.00;
+  //   if (this.param != null) {
+  //     r += this.param.price > 0? this.param.price : 0.00;
+  //     r -= this.param.deposit > 0? this.param.deposit : 0.00;
+  //   }
+  //   r += this.applicationFee > 0? this.applicationFee : 0.00;    
+  //   r += this.quoteParam.dof > 0? this.quoteParam.dof : 0.00;    
+  //   return r;
+  // }
 
 }
