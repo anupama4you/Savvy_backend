@@ -1,4 +1,4 @@
-public without sharing class QuoteWisrPLCalcController {
+public with sharing class QuoteAngleFinanceCalcController {
     @AuraEnabled
     public static QuoteController.AppQuotingWraper getQuotingData(
         QuoteController.QuotingDataParam param
@@ -8,29 +8,32 @@ public without sharing class QuoteWisrPLCalcController {
         String rateObjName1 = param.rateSettings.get(0);
         String rateObjName2 = param.rateSettings.get(1);
         Map<String, List<sObject>> rates = new Map<String, List<sObject>>();
-        rates.put(rateObjName1, getRates());
-        rates.put(rateObjName2, getFees());
+        rates.put(rateObjName1, getAFRate1());
+        rates.put(rateObjName2, getAFRate2());
         r.rateSettings = rates;
-        r.settings = QuotingCalculation.getLenderSettings(WisrCalculatorExtension.LENDER_QUOTING);
+        r.settings = QuotingCalculation.getLenderSettings(AngleFinanceExtension.LENDER_QUOTING);
         return r;
     }
 
-    public static List<Direct_Money_Rate__c> getRates() {
-        List<Direct_Money_Rate__c> d = Direct_Money_Rate__c.getAll().values();
-        d.sort();
-        List<Direct_Money_Rate__c> r = new List<Direct_Money_Rate__c>();
-        for (Direct_Money_Rate__c a : d) {
-            if ('>= 90'.equals(a.LVR__c)) {
-                r.add(a);
-            }
-        }
-        return r;
+    public static List <Angle_Finance_Rates__c> getAFRate1() {
+        List <Angle_Finance_Rates__c> AFRate1 = 
+        [
+            select id, Name, ABN__c, Asset_age__c, Asset_type__c, End_of_Term__c, Property_Owner__c, Non_Property_Owner__c 
+            from Angle_Finance_Rates__c 
+            where Asset_age__c !=  null 
+            order by name 
+        ];
+        return AFRate1;
     }
 
-    public static List<Wisr_Fee_Rate__c> getFees() {
-        List<Wisr_Fee_Rate__c> r = Wisr_Fee_Rate__c.getAll().values();
-        r.sort();
-        return r;
+    public static List <Angle_Finance_Rates__c> getAFRate2() {
+        List <Angle_Finance_Rates__c> AFRate2 = 
+        [
+            select id,Name,	ABN__c,	Asset_age__c,	Asset_type__c,	End_of_Term__c,	Property_Owner__c, Non_Property_Owner__c 
+            from Angle_Finance_Rates__c 
+            where End_of_Term__c != null 
+            order by name ];
+        return AFRate2;
     }
 
     @AuraEnabled
@@ -61,19 +64,26 @@ public without sharing class QuoteWisrPLCalcController {
         
         // pass universal variables
         pdf.getParameters().put('id',quote.Opportunity__c);
-        pdf.getParameters().put('lender', 'WISR CALCULATION');
+        pdf.getParameters().put('lender', 'ANGLE FINANCE CALCULATION');
 
         //Financial Details
         pdf.getParameters().put('loanType',  quote.Loan_Type__c+'');
-        pdf.getParameters().put('loanProduct', quote.Loan_Product__c+'');
+        pdf.getParameters().put('assetType', quote.Goods_type__c+'');
         pdf.getParameters().put('price', NumberUtils.format(quote.Vehicle_Price__c));
+        pdf.getParameters().put('deposit', NumberUtils.format(quote.Deposit__c));
+        pdf.getParameters().put('tradeIn', NumberUtils.format(quote.Trade_In__c));
+        pdf.getParameters().put('payoutOn', NumberUtils.format(quote.Payout_On__c));
         pdf.getParameters().put('applicationFee', NumberUtils.format(quote.Application_Fee__c));
         pdf.getParameters().put('dof', NumberUtils.format(quote.DOF__c));
+        pdf.getParameters().put('ppsr', NumberUtils.format(quote.PPSR__c));
+        pdf.getParameters().put('privateSales', quote.Private_Sales__c + '');
+        pdf.getParameters().put('vehicleAge', quote.Vehicle_Age__c + '');
         pdf.getParameters().put('residualValue', NumberUtils.format(quote.Residual_Value__c));
-        pdf.getParameters().put('monthlyFee', NumberUtils.format(quote.Monthly_Fee__c));
         pdf.getParameters().put('term', NumberUtils.format(quote.Term__c));
-        pdf.getParameters().put('creditScore', String.valueOf(quote.Credit_Score__c)+'');
         pdf.getParameters().put('paymentType', quote.Payment__c+'');
+        pdf.getParameters().put('monthlyFee', NumberUtils.format(quote.Monthly_Fee__c));
+        pdf.getParameters().put('creditScore', String.valueOf(quote.Credit_Score__c)+'');
+        
         pdf.getParameters().put('baseRate', NumberUtils.format(quote.Base_Rate__c));
         pdf.getParameters().put('clientRate', NumberUtils.format(quote.Client_Rate__c));
         
@@ -98,7 +108,7 @@ public without sharing class QuoteWisrPLCalcController {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
 
         p.Loan_Purpose__c = quote.Loan_Type__c == 'Comsumer Loan' ? 'Personal Use': 'Business Use';
-        p.Lender__c = 'Wisr';
+        p.Lender__c = 'Angle Finance';
         p.Quoting_Source__c = quote.Name;
         p.Repayment_Regularity__c = 'Monthly';
         p.Loan_Type__c = quote.Loan_Type__c;

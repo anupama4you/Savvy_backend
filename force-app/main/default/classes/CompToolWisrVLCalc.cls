@@ -21,11 +21,12 @@ public class CompToolWisrVLCalc extends CompToolLenderCalcAbstract {
       this.quoteParam.customerProfile = 'Renter, Boarder, Living at home with parents';
     }
 
-    if ('Good'.equals(param.creditHistory)) {
-      this.quoteParam.vedascore = 750;
-    } else {
-      this.quoteParam.vedascore = 399;
-    }
+    this.quoteParam.vedascore = this.param.getCreditScoreValue();
+    // if ('Good'.equals(param.creditHistory)) {
+    //   this.quoteParam.vedascore = 750;
+    // } else {
+    //   this.quoteParam.vedascore = 399;
+    // }
     this.quoteParam.term = param.term;
 
     this.quoteParam.commRate = 4.0;

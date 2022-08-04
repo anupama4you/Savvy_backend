@@ -637,7 +637,7 @@ public class YamahaMarineCalculatorExtension extends QuotingExtension {
         //GAP
         if (this.gap != null && this.gap > 0) {
             calcTypes.add(InsuranceQuoteUtils.INS_PROD_GAP);
-        }getTotalAmount
+        }
         //WARR
         if (this.warranty != null && this.warranty > 0) {
             calcTypes.add(InsuranceQuoteUtils.INS_PROD_WARR);

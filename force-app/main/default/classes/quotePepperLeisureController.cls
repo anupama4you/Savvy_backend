@@ -42,14 +42,11 @@ public without sharing class quotePepperLeisureController {
     }
 
     private static PageReference pdfHandler(Application_Quoting__c quote) {
-
         // pass parameters to the PDF page
         PageReference pdf = Page.UniversalCalculatorPdf;
-
         // pass universal variables
         pdf.getParameters().put('id', quote.Opportunity__c);
         pdf.getParameters().put('lender', quote.Name);
-
         //Financial Details
         pdf.getParameters().put('loanType', quote.Loan_Type__c + '');
         pdf.getParameters().put('productLoanType', quote.Loan_Product__c + '');
@@ -84,13 +81,11 @@ public without sharing class quotePepperLeisureController {
         pdf.getParameters().put('fortnightlyPayment', NumberUtils.format(quote.Repayment_Fortnightly__c));
         pdf.getParameters().put('weeklyPayment', NumberUtils.format(quote.Repayment_Weekly__c));
         // ---- end commissions -----
-
         return pdf;
     }
 
     private static Product__c productHandler(Application_Quoting__c quote) {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
-
         p.Loan_Purpose__c = quote.Loan_Type__c == 'Comsumer Loan' ? 'Personal Use' : 'Business Use';
         p.Lender__c = 'Pepper';
         p.Quoting_Source__c = quote.Name;
@@ -108,7 +103,6 @@ public without sharing class quotePepperLeisureController {
         p.Brokerage__c = quote.Commission_Estimation__c == null ? 0 : quote.Commission_Estimation__c;
         p.Lender_App_Fee__c = quote.Application_Fee__c;
         p.Equalisation_Fee_PPSR__c = quote.PPSR__c;
-
         return p;
     }
 

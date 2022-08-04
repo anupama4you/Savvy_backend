@@ -58,7 +58,7 @@ public with sharing class QuoteWisrVLCalcController {
         
         // pass universal variables
         pdf.getParameters().put('id',quote.Opportunity__c);
-        pdf.getParameters().put('lender', quote.Name);
+        pdf.getParameters().put('lender', 'WISR CAR LOAN CALCULATION');
 
         //Financial Details
         pdf.getParameters().put('loanType',  quote.Loan_Type__c+'');
@@ -72,7 +72,7 @@ public with sharing class QuoteWisrVLCalcController {
         pdf.getParameters().put('dof', NumberUtils.format(quote.DOF__c));
         pdf.getParameters().put('ppsr',  NumberUtils.format(quote.PPSR__c));
         pdf.getParameters().put('monthlyFee', NumberUtils.format(quote.Monthly_Fee__c));
-        pdf.getParameters().put('term', quote.Term__c+'');
+        pdf.getParameters().put('term', NumberUtils.format(quote.Term__c));
         pdf.getParameters().put('creditScore', String.valueOf(quote.Credit_Score__c)+'');
         pdf.getParameters().put('profile', quote.Customer_Profile__c+'');
         pdf.getParameters().put('vehicleYear', quote.Vehicle_Age__c+'');

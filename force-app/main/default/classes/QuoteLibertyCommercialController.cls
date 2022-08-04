@@ -56,7 +56,7 @@ public with sharing class QuoteLibertyCommercialController {
         
         // pass universal variables
         pdf.getParameters().put('id',quote.Opportunity__c);
-        pdf.getParameters().put('lender', quote.Name);
+        pdf.getParameters().put('lender', 'LIBERTY COMMERCIAL CALCULATION');
     
         //Financial Details
         pdf.getParameters().put('loanType',  quote.Loan_Type__c+'');

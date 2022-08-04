@@ -154,6 +154,27 @@ public abstract class CompToolLenderCalcAbstract implements CompToolLenderCalc {
     // }
   }
 
+  public String getBusinessAssetCategory() {
+    String r = 'P';
+    if (
+      'Equipment'.equals(this.param.assetType) ||
+      'Medical'.equals(this.param.assetType) ||
+      'Printing'.equals(this.param.assetType)
+    ) {
+      r = 'S';
+    } else if (
+      'Gym Equipment'.equals(this.param.assetType) ||
+      'Information IT'.equals(this.param.assetType) ||
+      'Office Furniture'.equals(this.param.assetType) ||
+      'Software'.equals(this.param.assetType) ||
+      'Solar'.equals(this.param.assetType) ||
+      'Telephony'.equals(this.param.assetType)
+    ) {
+      r = 'T';
+    }
+    return r;
+  }
+
   //Inner class
   public class FilterParams {
     @AuraEnabled
@@ -216,6 +237,10 @@ public abstract class CompToolLenderCalcAbstract implements CompToolLenderCalc {
     public Decimal customDof { get; set; }
     @AuraEnabled
     public Decimal clientRateFactor { get; set; }
+    @AuraEnabled
+    public String abnLength { get; set; }
+    @AuraEnabled
+    public String gstRegistered { get; set; }
 
     // Lelo                 2018-05-29
     // public Integer applicantAge {set;get;}
@@ -271,6 +296,30 @@ public abstract class CompToolLenderCalcAbstract implements CompToolLenderCalc {
     public Integer getAssetYearsAfterTerm() {
       Integer a = this.term > 0? this.term / 12 : 0;
       return this.assetAge + a;
+    }
+
+    public Integer getAbnLengthValue() {
+      Integer r = 0;
+      if (
+        String.isNotBlank(this.abnLength) &&
+        this.abnLength.isNumeric()
+      ) {
+        r = Integer.valueOf(this.abnLength);
+      }
+      return r;
+    }
+
+    public Integer getCreditScoreValue() {
+      Integer r = 0;
+      if (String.isNotBlank(this.creditScore)) {
+        if ('0 - 499'.equals(this.creditScore)) {
+          r = 499;
+        } else {
+          String[] v = this.creditScore.remove(' ').split('-');
+          r = Integer.valueOf(v[0]);
+        }
+      }
+      return r;
     }
 
   }

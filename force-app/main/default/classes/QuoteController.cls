@@ -134,7 +134,7 @@ public without sharing class QuoteController {
   public static Custom_Opportunity__c getOpportunityById(Id oppId){
     try {
       List<Custom_Opportunity__c> opp = [
-        SELECT Application__c, Loan_Product__c, Account__c, Owner_Name__c, Email_Address__c,
+        SELECT Application__c, State__c, Application__r.State__c, Loan_Product__c, Account__c, Owner_Name__c, Email_Address__c,
         Owner_Phone__c, Owner_Mobile__c, Owner_Email__c, Account__r.FirstName
         FROM Custom_Opportunity__c WHERE Id = :oppId
       ];

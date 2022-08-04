@@ -24,33 +24,23 @@ public without sharing class QuoteAffordableCLCalcController {
         return d;
     }
 
-    // public static calcRiskFee(Decimal myRate) {
-    //     Decimal riskFeeTotal = 0;
-    //     if (myRate == null || myRate == 0.0) {
-    //         myRate = this.maxRate;
-    //     }
-    //     List <ACLUpfrontLoanFees__c> aclUpfrontLoanFees = [
-    //         Select Min_Interest_Rate__c, Max_Interest_Rate__c, Establishment_Fee__c, 
-    //             Risk_Fee_Interest_Rate_Of_NAF__c, Max_Lend__c, Comm__c
-    //         From ACLUpfrontLoanFees__c
-    //         Order by Min_Interest_Rate__c DESC
-    //     ];
-    //     if (aclUpfrontLoanFees != null && !aclUpfrontLoanFees.isEmpty()) {
-    //         System.debug('Assigning fees... [' + myRate + ']');
-    //         ACLUpfrontLoanFees__c x = QuotingCalculation.getAffordableFees(myRate);
-    //         if (x != null) {
-    //             if (x.Establishment_Fee__c > 0 && x.Establishment_Fee__c != this.maxApplicationFee) {
-    //                 this.maxApplicationFee = x.Establishment_Fee__c;
-    //                 System.debug('App fee: ' + this.applicationFee);
-    //                 if (this.applicationFee == null || this.applicationFee == 0) {
-    //                 this.applicationFee = this.maxApplicationFee;
-    //                 }
-    //             }
-    //             riskFeeTotal = ((myRate/100 * x.Risk_Fee_Interest_Rate_Of_NAF__c/100) * getLoandTermInYears() * getNAF()).setScale(2);
-    //         }
-    //     }
-    // }
+    @AuraEnabled
+    public static Map<String, Decimal> getBaseRates(QuotingCalculation.CalcParam param) {
+        Decimal br = 0.00;
+        Decimal max = 0.00;
+        // try {
+        br = QuotingCalculation.getBaseRate(param);
+        if (param.hasMaxRate != null && param.hasMaxRate) {
+            max = QuotingCalculation.getMaximunBaseRate(param);
+        }
+        // } catch (Exception e) {
+        //   throw new GenericException(e.getMessage());
+        // }
 
+        return new Map<String, Decimal>{'baseRate' => br, 'maxRate' => max};
+
+    }
+    
     @AuraEnabled
     public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType){
         try {
@@ -80,11 +70,13 @@ public without sharing class QuoteAffordableCLCalcController {
         
         // pass universal variables
         pdf.getParameters().put('id',quote.Opportunity__c);
-        pdf.getParameters().put('lender', quote.Name);
+        pdf.getParameters().put('lender', 'AFFORDABLE CAR LOAN CALCULATION');
 
         //Financial Details
         pdf.getParameters().put('loanType',  quote.Loan_Type__c+'');
         pdf.getParameters().put('loanProduct', quote.Loan_Product__c+'');
+        pdf.getParameters().put('creditScore', String.valueOf(quote.Credit_Score__c)+'');
+        pdf.getParameters().put('vehicleYear', quote.Vehicle_Age__c+'');
         pdf.getParameters().put('price', NumberUtils.format(quote.Vehicle_Price__c));
         pdf.getParameters().put('deposit', NumberUtils.format(quote.Deposit__c));
         pdf.getParameters().put('tradeIn', NumberUtils.format(quote.Trade_In__c));
@@ -93,17 +85,17 @@ public without sharing class QuoteAffordableCLCalcController {
         pdf.getParameters().put('applicationFee', NumberUtils.format(quote.Application_Fee__c));
         pdf.getParameters().put('dof', NumberUtils.format(quote.DOF__c));
         pdf.getParameters().put('ppsr',  NumberUtils.format(quote.PPSR__c));
+        pdf.getParameters().put('residualValue', NumberUtils.format(quote.Residual_Value__c));
         pdf.getParameters().put('monthlyFee', NumberUtils.format(quote.Monthly_Fee__c));
-        pdf.getParameters().put('term', quote.Term__c+'');
-        pdf.getParameters().put('creditScore', String.valueOf(quote.Credit_Score__c)+'');
-        pdf.getParameters().put('profile', quote.Customer_Profile__c+'');
-        pdf.getParameters().put('vehicleYear', quote.Vehicle_Age__c+'');
-        pdf.getParameters().put('lvr', String.valueOf(quote.LTV__c)+'');
+        pdf.getParameters().put('term', NumberUtils.format(quote.Term__c));
+        pdf.getParameters().put('repayment', quote.Loan_Frequency__c);
+        
         pdf.getParameters().put('paymentType', quote.Payment__c+'');
-        pdf.getParameters().put('privateSales', quote.Private_Sales__c+'');
         pdf.getParameters().put('maxRate', NumberUtils.format(quote.Manual_Max_Rate__c));
         pdf.getParameters().put('baseRate', NumberUtils.format(quote.Base_Rate__c));
         pdf.getParameters().put('clientRate', NumberUtils.format(quote.Client_Rate__c));
+        pdf.getParameters().put('riskFee', NumberUtils.format(quote.Risk_Fee__c));
+        pdf.getParameters().put('commissionType', quote.Commission_Type__c);
         
         // ---- commissions -----
         pdf.getParameters().put('estimatedCommission', NumberUtils.format(quote.Commission_Estimation__c));
