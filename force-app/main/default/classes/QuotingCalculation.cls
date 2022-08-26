@@ -672,7 +672,7 @@ public without sharing class QuotingCalculation {
   //Lelo                2017-07-26
   private static Application_Quoting_Result__c calculateMacquarie(
     CalcParam param
-  ) {
+  ) {system.debug('calculateMacquarie ==>'+param);
     Application_Quoting_Result__c r = new Application_Quoting_Result__c();
     r.Payment_Calc_Type__c = 'DF';
     r.NAF__c = param.getNaf();
@@ -1480,7 +1480,6 @@ public without sharing class QuotingCalculation {
 
   //BaseRateCalc
   public static Decimal getBaseRate(CalcParam param) {
-    System.debug('@@getBaseRate: ' + JSON.serializePretty(param));
     Decimal r = 0.0;
     if (param != null) {
       // System.debug('param.lender' + param.lender);
@@ -1587,7 +1586,6 @@ public without sharing class QuotingCalculation {
         r = getSocietyOneBaseRate(param, false);
       }
     }
-    System.debug('@@baseRateCalculated: ' + r);
     return r;
   }
 
@@ -2815,7 +2813,7 @@ public without sharing class QuotingCalculation {
   }
 
   //Macquarie Consumer Base Rate
-  private static Decimal getMacquarieConsumerBaseRate(CalcParam param) {
+  private static Decimal getMacquarieConsumerBaseRate(CalcParam param) {system.debug('getMacquarieConsumerBaseRate ==> '+param);
     Decimal r = 0.0;
     MacquarieConsumerRatesv2__c rate = null;
 
@@ -3167,7 +3165,6 @@ public without sharing class QuotingCalculation {
     List<MetroCalculatorRates__c> rates = MetroCalculatorRates__c.getAll()
       .values();
     rates.sort();
-    System.debug('@@TotalRates: ' + rates.size());
 
     Decimal originalRate = 0.00;
     //decimal totalInsurance = nwc + gap + warranty + lti + truckGap + tai + mv + cci;
@@ -4518,6 +4515,10 @@ public without sharing class QuotingCalculation {
     public Decimal applicationFee {set; get;}
     @AuraEnabled
     public Decimal riskFee { get; set; }
+    @AuraEnabled
+    public Decimal netDeposit { get; set; }
+    @AuraEnabled
+    public String gst { get; set; }
 
     public CalcParam() {
       this.totalAmount = 0.0;
@@ -5143,7 +5144,7 @@ public without sharing class QuotingCalculation {
           r = 880.0;
         }
       } else {
-        if (param.totalAmount >= 8000.0 && param.totalAmount < 9000.0) {
+        if (param.totalAmount < 9000.0) {
           r = 770.0;
         } else if (param.totalAmount >= 9000.0 && param.totalAmount < 10000.0) {
           r = 880.0;

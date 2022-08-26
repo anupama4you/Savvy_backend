@@ -539,6 +539,7 @@ public abstract class QuotingExtensionAbstract {
       // Shortfall / GAP
       if ('A'.equals(this.gapAcceptance)) {
         r += (this.gapIncome > 0)? this.gapIncome : 0.0;
+        System.debug('this.gapIncome'+this.gapIncome);
       }
       // Warranty
       if ('A'.equals(this.warrantyAcceptance)) {
@@ -935,7 +936,7 @@ public abstract class QuotingExtensionAbstract {
       String.isNotBlank(this.Opp.Application__r.State__c)
     )? this.Opp.Application__r.State__c : null;
 
-    System.debug(JSON.serializePretty(this.nwcParam));
+    System.debug('this.nwcParam >>> ' + JSON.serializePretty(this.nwcParam));
     this.NWCPlanOptions = NWCCalc.NWCPlanOptions(
       this.nwcParam.assetType,
       this.nwcParam.type_p
@@ -995,6 +996,7 @@ public abstract class QuotingExtensionAbstract {
           this.nwc = r.retailPrice;
           this.nwcIncome = r.commission;
           this.priceCustomer = this.nwc;
+          System.debug('rrrr  >>>> ' + JSON.serialize(r));
           //NWCMessage = 'OK-' + nwcParam.nwcPriceToCustomer;
         } catch (Exception ex) {
           this.NWCMessage = ex.getMessage();

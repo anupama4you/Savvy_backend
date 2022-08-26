@@ -6,9 +6,13 @@ public without sharing class QuoteController {
     @AuraEnabled 
     public Map<String, Application_Quoting_Result__c> results {set;get;}
     @AuraEnabled 
+    public Application_InsuranceQuote__c insurance {set;get;}
+    @AuraEnabled 
     public Lenders__c settings {set;get;}
     @AuraEnabled 
     public Map<String, List<sObject>> rateSettings {set;get;}
+    @AuraEnabled
+    public List<String> additionalProcess {set;get;}
   }
 
   public class QuotingDataParam {
@@ -25,9 +29,9 @@ public without sharing class QuoteController {
   private static List<String> QUOTING_FIELDS = new List<String>{
     'id', 'name'
   };
-  private static List<String> INSURANCE_FIELDS = new List<String>{
-    'insurance_aic_type__c', '', ' '
-  };
+  // private static List<String> INSURANCE_FIELDS = new List<String>{
+  //   'insurance_aic_type__c', '', ' '
+  // };
 
   @AuraEnabled
   public static AppQuotingWraper getQuotingData(QuotingDataParam param) {
@@ -37,7 +41,7 @@ public without sharing class QuoteController {
 
     // Prepare parameters
     List<String> allFields = new List<String>(QUOTING_FIELDS);
-    allFields.addAll(INSURANCE_FIELDS);
+    // allFields.addAll(INSURANCE_FIELDS);
     allFields.addAll(param.fields);
     Set<String> uniqFields = new Set<String>(allFields);
     String sqlFields = StringUtils.convertToString(new List<String>(uniqFields));
@@ -87,6 +91,7 @@ public without sharing class QuoteController {
 
   @AuraEnabled
   public static Application_Quoting_Result__c calculateRepayments(QuotingCalculation.CalcParam param) {
+    System.debug('param new >>> ' + JSON.serialize(param));
     return QuotingCalculation.calculate(param);
   }
 
@@ -119,7 +124,12 @@ public without sharing class QuoteController {
    public static AppQuotingWraper saveQuoting(AppQuotingWraper param){
     //  try {
        // - MARK: SAVING Quote to server  
+       System.debug('param in saveQuoting ... >> '+ JSON.serialize(param));
        QuotingToolHelper.saveApplicationQuoting(param.data);
+       if(param.additionalProcess != null && param.additionalProcess.size() > 0 && param.additionalProcess[0] == 'SEND'){
+        System.debug('Send presentation Email to Customer ... ' + JSON.serialize(param));
+        QuoteInsuranceController.sendCustomerPresentation(param.insurance, param.data);
+       }
        // Save calculations 
        List<Application_Quoting_Result__c> resultList = new List<Application_Quoting_Result__c>();
        resultList.add(param.results.get('commissions'));
@@ -134,8 +144,13 @@ public without sharing class QuoteController {
   public static Custom_Opportunity__c getOpportunityById(Id oppId){
     try {
       List<Custom_Opportunity__c> opp = [
-        SELECT Application__c, State__c, Application__r.State__c, Loan_Product__c, Account__c, Owner_Name__c, Email_Address__c,
-        Owner_Phone__c, Owner_Mobile__c, Owner_Email__c, Account__r.FirstName
+        SELECT Application__c, State__c, Application__r.State__c, Loan_Product__c, Account__c, Owner_Name__c, Email_Address__c, Lead__c,
+        Owner_Phone__c, Owner_Mobile__c, Owner_Email__c, Account__r.FirstName, Account__r.RecordTypeId, Account__r.IsPersonAccount, First_Name__c, 
+        Last_Name__c, Name, OwnerId, Application_AssetDetail__r.Type__c, Application__r.Type_of_Asset__c, Application__r.Application_Type__c, 
+        Application_AssetDetail__r.Rego__c, Application_AssetDetail__r.Rego_State__c, Application_AssetDetail__r.Engine_No__c, 
+        Application_AssetDetail__r.VIN__c, Application__r.Mode_of_Employment_1__c,  Application__r.Title_1__c,
+        Application__r.No_of_Dependants_1__c,Application__r.No_of_People__c, Application__r.Status__c, Application__r.Marital_Status_1__c,
+        Application__r.Date_of_Birth_1__c, Application__r.First_Name__c, Application__r.Last_Name__c,  Application__r.Entity_Name__c
         FROM Custom_Opportunity__c WHERE Id = :oppId
       ];
       return opp[0];

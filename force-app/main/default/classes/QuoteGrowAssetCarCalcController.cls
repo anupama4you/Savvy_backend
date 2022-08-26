@@ -5,7 +5,6 @@ public with sharing class QuoteGrowAssetCarCalcController {
     ) {
         QuoteController.AppQuotingWraper r = QuoteController.getQuotingData(param); 
         r.rateSettings = getTableRates(param.rateSettings);
-        r.settings = QuotingCalculation.getLenderSettings(GrowAssetCarExtension.LENDER_QUOTING);
         return r;
     }
 
@@ -21,6 +20,17 @@ public with sharing class QuoteGrowAssetCarCalcController {
         rates.put(rateSettings.get(2), gacTier3);
         rates.put(rateSettings.get(3), gacAdd);
         return rates;
+    }
+
+    @AuraEnabled
+    public static Map<String, Decimal> getBaseRates(QuotingCalculation.CalcParam param) {
+        Decimal baseRate = 0.00;
+        Decimal clientRate = 0.00;
+        baseRate = QuotingCalculation.getBaseRate(param);
+        param.baseRate = baseRate;
+        clientRate = QuotingCalculation.getClientRateCalculation(param);
+        
+        return new Map<String, Decimal>{'baseRate' => baseRate, 'clientRate' => clientRate};
     }
 
     @AuraEnabled
@@ -66,6 +76,7 @@ public with sharing class QuoteGrowAssetCarCalcController {
         pdf.getParameters().put('privateSales', quote.Private_Sales__c + '');
         pdf.getParameters().put('vehicleAge', quote.Vehicle_Age__c + '');
         pdf.getParameters().put('residualValue', NumberUtils.format(quote.Residual_Value__c));
+        pdf.getParameters().put('brokeragePercentage', NumberUtils.format(quote.Brokerage__c));
         pdf.getParameters().put('term', NumberUtils.format(quote.Term__c));
         pdf.getParameters().put('paymentType', quote.Payment__c+'');
         pdf.getParameters().put('monthlyFee', NumberUtils.format(quote.Monthly_Fee__c));

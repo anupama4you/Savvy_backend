@@ -383,6 +383,7 @@ public class EmailSender {
 
     // Lelo             2019-12-23
     public static void sendCustomerInsurancePresentation(Custom_Opportunity__c opp, String pCode, Set<String> docs) {
+      System.debug('opp >> ' + JSON.serialize(opp) + ' ,,,  pCode >>> '+ pCode);
         Boolean isPartnerUser = SOQLSingletonQueries.recs().isBrokerPartnerUser;
         // Define the Email
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();

@@ -5,7 +5,6 @@ public without sharing class QuotePepperMVController {
     QuoteController.QuotingDataParam param
   ) {
     QuoteController.AppQuotingWraper r = QuoteController.getQuotingData(param); 
-
     // Lender settings
     // Rate Settings
     String rateObjName = param.rateSettings != null && !param.rateSettings.isEmpty() 
@@ -14,7 +13,7 @@ public without sharing class QuotePepperMVController {
     Map<String, List<PepperRate__c>> rates = new Map<String, List<PepperRate__c>>();
     rates.put(rateObjName, getRates());
     r.rateSettings = rates;
-
+    System.debug('rrr   >>>> '+ JSON.serialize(r));
     return r;
   }
 
@@ -33,9 +32,15 @@ public without sharing class QuotePepperMVController {
   @AuraEnabled
   public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType){
      try {
+          System.debug('type.....  '+approvalType);
+         if( param.additionalProcess == null) {
+          param.additionalProcess = new List<String>();
+         }
+          param.additionalProcess.add(approvalType);
+          System.debug('param.additionalProcess >> ' + param.additionalProcess);
           QuoteController.saveQuoting(param);
           Product__c p = null;
-          if (!'NONE'.equals(approvalType)) {
+          if (!'NONE'.equals(approvalType) && !'SEND'.equals(approvalType) && !'PREVIEW'.equals(approvalType)) {
               // save pdf
               PageReference pdf = Page.UniversalCalculatorPdf;
               pdf = pdfHandler(param.data);
