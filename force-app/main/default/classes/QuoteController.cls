@@ -36,7 +36,7 @@ public without sharing class QuoteController {
   @AuraEnabled
   public static AppQuotingWraper getQuotingData(QuotingDataParam param) {
     if (param == null || String.isBlank(param.oppId) || param.fields == null || param.fields.isEmpty()) {
-      throw new GenericException('Invalid parameters' + '  --- ' + param);
+      //throw new GenericException('Invalid parameters' + '  --- ' + param);
     }
 
     // Prepare parameters
@@ -67,7 +67,9 @@ public without sharing class QuoteController {
       throw new GenericException(e.getMessage());
     }
     // Settings
+    system.debug('param.calcName->'+param.calcName);
     r.settings = QuotingCalculation.getLenderSettings(param.calcName);
+      system.debug('r.settings->'+r.settings);
     return r;
 
   }
@@ -77,6 +79,7 @@ public without sharing class QuoteController {
     Decimal br = 0.00;
     Decimal max = 0.00;
     // try {
+    System.debug('param.lender' + param.lender);
       br = QuotingCalculation.getBaseRate(param);
       if (param.hasMaxRate != null && param.hasMaxRate) {
         max = QuotingCalculation.getMaximunBaseRate(param);

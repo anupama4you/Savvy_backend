@@ -1,44 +1,52 @@
-public without sharing class QuoteFirstmacController {
+public with sharing class QuoteBrandedCommercialCalcController {
+    private static final String COMMERCIAL = 'COMMERCIAL';
+    private static final String PRIMARY = 'OTHER - Primary';
+    private static final String OTHER = 'OTHER - 2nd & 3rd';
     @AuraEnabled
     public static QuoteController.AppQuotingWraper getQuotingData(QuoteController.QuotingDataParam param) {
-
         QuoteController.AppQuotingWraper r = QuoteController.getQuotingData(param);
-
         // Lender settings
         // Rate Settings
-        String rateObjName = param.rateSettings != null && !param.rateSettings.isEmpty() ? param.rateSettings.get(0) : 'FirstmacRate__c';
-
-        Map<String, List<FirstmacRate__c>> rates = new Map<String, List<FirstmacRate__c>>();
-        rates.put(rateObjName, getRates());
-        r.rateSettings = rates;
+        // Map<String, String> rateObjNames = getRateObjName(param.rateSettings);
+        // Map<String, List<Branded_Commercial_Rates__c>> rates = new Map<String, List<Branded_Commercial_Rates__c>>();
+        // Map<String, List<Branded_Commercial_Rates__c>> myRatesMap = getPepperRates();
+        // for ( String name : rateObjNames.keySet() ) {
+        //     rates.put(rateObjNames.get(name), myRatesMap.get(name));
+        // }
+        // r.rateSettings = rates;
         return r;
     }
 
-    private static List<FirstmacRate__c> getRates() {
-        List<FirstmacRate__c> res = new List<FirstmacRate__c>();
-        List<FirstmacRate__c> rates = FirstmacRate__c.getAll().values();
-        if ( rates != NULL && !rates.isEmpty() ) {
-            rates.sort (  );
-            for ( FirstmacRate__c fm : rates ) {
-                res.add(fm);
-            }
+    private static Map<String, String> getRateObjName(List<String> settings) {
+        Map<String, String> rateObjNames = new Map<String, String>();
+        List<String> names = new List<String>{ 'PepperRate__c', 'PepperRate__c_2', 'PepperRate__c_3' };
+        List<String> comNames = new List<String>{ COMMERCIAL, PRIMARY, OTHER };
+        for ( Integer i = 0; i < settings.size(); ++i ) {
+            String name = settings != null && !settings.isEmpty() ? settings.get(i) : names[i];
+            rateObjNames.put(comNames[i], name);
         }
-        return res;
+        return rateObjNames;
     }
 
-    @AuraEnabled
-    public static Map<String, Decimal> getBaseRates(QuotingCalculation.CalcParam param) {
-        Decimal br = 0.00;
-        Decimal max = 0.00;
-
-        //get base rate
-        br = QuotingCalculation.getBaseRate(param);
-        if ( param.hasMaxRate != null && param.hasMaxRate ) {
-            //get max rate
-            max = QuotingCalculation.getMaximunBaseRate(param);
+    // COMMERCIAL
+    // OTHER - 2nd & 3rd
+    // OTHER - Primary
+    private static Map<String, List<PepperRate__c>> getPepperRates() {
+        Map<String, List<PepperRate__c>> resultMap = new Map<String, List<PepperRate__c>>();
+        Set<String> prods = new Set<String>{ COMMERCIAL, PRIMARY, OTHER };
+        List<PepperRate__c> d = [SELECT Product__c, Tier__c, Rate0__c, Rate1__c, 
+                                        Rate2__c, Rate3__c
+                                 FROM PepperRate__c
+                                 WHERE Product__c IN:prods
+                                 ORDER BY Name];
+        List<PepperRate__c> rateList = new List<PepperRate__c>();
+        for ( String prod : prods ) {
+            resultMap.put(prod, new List<PepperRate__c>());
         }
-
-        return new Map<String, Decimal>{ 'baseRate' => br, 'maxRate' => max };
+        for ( PepperRate__c rate : d ) {
+            resultMap.get(rate.Product__c).add(rate);
+        }
+        return resultMap;
     }
 
     @AuraEnabled
@@ -66,7 +74,7 @@ public without sharing class QuoteFirstmacController {
         PageReference pdf = Page.UniversalCalculatorPdf;
         // pass universal variables
         pdf.getParameters().put('id', quote.Opportunity__c);
-        pdf.getParameters().put('lender', 'FIRSTMAC CALCULATION');
+        pdf.getParameters().put('lender', 'BRANDED COMMERCIAL CALCULATION');
         //Financial Details
         pdf.getParameters().put('loanType', quote.Loan_Type__c + '');
         pdf.getParameters().put('productLoanType', quote.Loan_Product__c + '');
@@ -87,6 +95,7 @@ public without sharing class QuoteFirstmacController {
         pdf.getParameters().put('clientTier', quote.Client_Tier__c + '');
         pdf.getParameters().put('vehicleAge', quote.Vehicle_Age__c + '');
         pdf.getParameters().put('privateSales', quote.Private_Sales__c + '');
+        pdf.getParameters().put('productGoodsType', quote.Goods_type__c + '');
         pdf.getParameters().put('monthlyFee', NumberUtils.format(quote.Monthly_Fee__c));
         // ---- commissions -----
         pdf.getParameters().put('estimatedCommission', NumberUtils.format(quote.Commission_Estimation__c));
@@ -100,40 +109,28 @@ public without sharing class QuoteFirstmacController {
         pdf.getParameters().put('fortnightlyPayment', NumberUtils.format(quote.Repayment_Fortnightly__c));
         pdf.getParameters().put('weeklyPayment', NumberUtils.format(quote.Repayment_Weekly__c));
         // ---- end commissions -----
-        pdf.getParameters().put('purposeType', quote.Purpose_Type__c);
-        pdf.getParameters().put('loanTypeDetail', quote.Loan_Facility_Type__c);
-        pdf.getParameters().put('brokeragePercentage', NumberUtils.format(quote.Brokerage__c));
-        pdf.getParameters().put('customerProfile', quote.Category_Type__c);
-        pdf.getParameters().put('residency', quote.Residency__c);
-        pdf.getParameters().put('vehicleYear', quote.Vehicle_Age__c);
-        pdf.getParameters().put('interestType', quote.Customer_Profile__c);
-        pdf.getParameters().put('ppsr', '0.00');
-
         return pdf;
     }
 
     private static Product__c productHandler(Application_Quoting__c quote) {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
-        p.Loan_Purpose__c = 'Personal Use';
-        p.Lender__c = 'Firstmac';
+        p.Loan_Purpose__c = quote.Loan_Type__c == 'Comsumer Loan' ? 'Personal Use' : 'Business Use';
+        p.Lender__c = 'Pepper';
         p.Quoting_Source__c = quote.Name;
         p.Repayment_Regularity__c = 'Monthly';
         p.Loan_Type__c = quote.Loan_Type__c;
         p.Loan_Product__c = quote.Loan_Product__c;
-        p.Loan_Type_Detail__c = quote.Client_Tier__c + ' | ' + quote.Vehicle_Age__c;
-        // this.clientTier + ' | ' + this.vehicleYear;
+        p.Loan_Type_Detail__c = 'Client Tier ' + quote.Client_Tier__c;
         p.Loan_Term__c = quote.Term__c;
         p.Balloon_Residual_Requested__c = quote.Residual_Value__c == null || quote.Residual_Value__c == 0 ? 0:quote.Residual_Value__c;
         p.Client_Rate__c = quote.Client_Rate__c;
         p.Payments__c = quote.Repayment_Monthly__c > 0 ? quote.Repayment_Monthly__c : 0.00;
         p.Cost_of_Goods__c = quote.Vehicle_Price__c;
-        p.Deposit__c = quote.Net_Deposit__c;
-
+        p.Deposit__c = quote.Net_Deposit__c == null ? 0 : quote.Net_Deposit__c;
         p.DOF__c = quote.DOF__c;
         p.Brokerage__c = quote.Commission_Estimation__c == null ? 0 : quote.Commission_Estimation__c;
         p.Lender_App_Fee__c = quote.Application_Fee__c;
         p.Equalisation_Fee_PPSR__c = quote.PPSR__c;
         return p;
     }
-
 }
