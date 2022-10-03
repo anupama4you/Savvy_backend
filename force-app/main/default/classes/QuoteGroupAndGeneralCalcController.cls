@@ -1,11 +1,33 @@
-public with sharing class QuoteBrandedCommercialCalcController {
+public with sharing class QuoteGroupAndGeneralCalcController {
     @AuraEnabled
     public static QuoteController.AppQuotingWraper getQuotingData(QuoteController.QuotingDataParam param) {
         QuoteController.AppQuotingWraper r = QuoteController.getQuotingData(param);
+   
+        // Rate Settings
+        String rateObjName1 = param.rateSettings.get(0);
+        String rateObjName2 = param.rateSettings.get(1);
+        String rateObjName3 = param.rateSettings.get(2);
+        String rateObjName4 = param.rateSettings.get(3);
+        String rateObjName5 = param.rateSettings.get(4);
+        String rateObjName6 = param.rateSettings.get(5);
+        Map<String, List<sObject>> rates = new Map<String, List<sObject>>();
+        rates.put(rateObjName1, [select id, name, Product__c, Requirement__c, Description__c from Group_and_General_Rates__c where Product__c = 'NEW START' order by name asc]);
+        rates.put(rateObjName2, [select id, name, Product__c, Requirement__c, Description__c from Group_and_General_Rates__c where Product__c = 'COMMERCIAL WAIVER ( ASSET BACKED )' order by name asc]);
+        rates.put(rateObjName3, [select id, name, Product__c, Requirement__c, Description__c from Group_and_General_Rates__c where Product__c = 'COMMERCIAL WAIVER (NON ASSET BACKED)' order by name asc]);
+        rates.put(rateObjName4, [select id, name, Product__c, Requirement__c, Description__c from Group_and_General_Rates__c where Product__c = 'REPLACEMENT' order by name asc]);
+        rates.put(rateObjName5, [select id, name, Product__c, Requirement__c, Description__c from Group_and_General_Rates__c where Product__c = 'HIGH USE VEHICLE (COURIER, UBER, DELIVERY, LIMO)' AND Requirement__c  != null order by name asc]);
+        rates.put(rateObjName6, [select id, name, Product__c, Requirement__c, Description__c from Group_and_General_Rates__c where Product__c = 'HIGH USE VEHICLE (COURIER, UBER, DELIVERY, LIMO)' AND Description__c  != null order by name asc]);
 
+        r.rateSettings = rates;
         return r;
     }
 
+    @AuraEnabled
+    public static Decimal getClientRates(QuotingCalculation.CalcParam param) {
+        Decimal clientRate = QuotingCalculation.getClientRateCalculation(param);
+        return clientRate;
+    }
+    
     @AuraEnabled
     public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType) {
         try {
@@ -31,7 +53,7 @@ public with sharing class QuoteBrandedCommercialCalcController {
         PageReference pdf = Page.UniversalCalculatorPdf;
         // pass universal variables
         pdf.getParameters().put('id', quote.Opportunity__c);
-        pdf.getParameters().put('lender', 'BRANDED COMMERCIAL CALCULATION');
+        pdf.getParameters().put('lender', 'GROUP AND GENERAL CALCULATION');
         //Financial Details
         pdf.getParameters().put('loanType', quote.Loan_Type__c + '');
         pdf.getParameters().put('productLoanType', quote.Loan_Product__c + '');
@@ -52,8 +74,12 @@ public with sharing class QuoteBrandedCommercialCalcController {
         pdf.getParameters().put('clientTier', quote.Client_Tier__c + '');
         pdf.getParameters().put('vehicleAge', quote.Vehicle_Age__c + '');
         pdf.getParameters().put('privateSales', quote.Private_Sales__c + '');
-        pdf.getParameters().put('productGoodsType', quote.Goods_type__c + '');
+        pdf.getParameters().put('productGoodsType', String.valueOf(quote.Goods_type__c));
         pdf.getParameters().put('monthlyFee', NumberUtils.format(quote.Monthly_Fee__c));
+        pdf.getParameters().put('loanTypeDetail', String.valueOf(quote.Loan_Facility_Type__c));
+        pdf.getParameters().put('loanPurpose', String.valueOf(quote.Loan_Purpose__c));
+        pdf.getParameters().put('brokeragePercentage', NumberUtils.format(quote.Brokerage__c));
+        pdf.getParameters().put('productGoodsType', quote.Goods_type__c);
         // ---- commissions -----
         pdf.getParameters().put('estimatedCommission', NumberUtils.format(quote.Commission_Estimation__c));
         pdf.getParameters().put('insuranceIncome', NumberUtils.format(quote.Commission_Insurance_Income__c));

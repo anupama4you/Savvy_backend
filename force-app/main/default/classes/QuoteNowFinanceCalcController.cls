@@ -1,11 +1,40 @@
-public with sharing class QuoteBrandedCommercialCalcController {
+public with sharing class QuoteNowFinanceCalcController {
     @AuraEnabled
     public static QuoteController.AppQuotingWraper getQuotingData(QuoteController.QuotingDataParam param) {
         QuoteController.AppQuotingWraper r = QuoteController.getQuotingData(param);
+   
+        // Rate Settings
+        String rateObjName1 = param.rateSettings.get(0);
+        String rateObjName2 = param.rateSettings.get(1);
+        Map<String, List<sObject>> rates = new Map<String, List<sObject>>();
+        rates.put(rateObjName1, getMaxDOFRates());
+        rates.put(rateObjName2, getSecuredRates());
 
+        r.rateSettings = rates;
         return r;
     }
 
+    private static List <NowFinanceDOF__mdt> getMaxDOFRates() {
+        List <NowFinanceDOF__mdt> rates = 
+        [SELECT MasterLabel, DOF__c FROM NowFinanceDOF__mdt ORDER BY DOF__c];
+        return rates;
+    }
+
+    private static List <NowFinanceSecuredRate__mdt> getSecuredRates() {
+        List <NowFinanceSecuredRate__mdt> rates = 
+        [SELECT MasterLabel, APR__c FROM NowFinanceSecuredRate__mdt ORDER BY APR__c];
+        return rates;
+    }
+
+    @AuraEnabled
+    public static Decimal getNowFinanceMaxDOF(Decimal naf){
+        try {
+            return QuotingToolHelper.getNowFinanceMaxDOF(naf);
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
+    
     @AuraEnabled
     public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType) {
         try {
@@ -31,7 +60,7 @@ public with sharing class QuoteBrandedCommercialCalcController {
         PageReference pdf = Page.UniversalCalculatorPdf;
         // pass universal variables
         pdf.getParameters().put('id', quote.Opportunity__c);
-        pdf.getParameters().put('lender', 'BRANDED COMMERCIAL CALCULATION');
+        pdf.getParameters().put('lender', 'NOW FINANCE CALCULATION');
         //Financial Details
         pdf.getParameters().put('loanType', quote.Loan_Type__c + '');
         pdf.getParameters().put('productLoanType', quote.Loan_Product__c + '');
@@ -52,8 +81,10 @@ public with sharing class QuoteBrandedCommercialCalcController {
         pdf.getParameters().put('clientTier', quote.Client_Tier__c + '');
         pdf.getParameters().put('vehicleAge', quote.Vehicle_Age__c + '');
         pdf.getParameters().put('privateSales', quote.Private_Sales__c + '');
-        pdf.getParameters().put('productGoodsType', quote.Goods_type__c + '');
+        pdf.getParameters().put('productGoodsType', String.valueOf(quote.Goods_type__c));
         pdf.getParameters().put('monthlyFee', NumberUtils.format(quote.Monthly_Fee__c));
+        pdf.getParameters().put('loanTypeDetail', String.valueOf(quote.Loan_Facility_Type__c));
+        pdf.getParameters().put('loanPurpose', String.valueOf(quote.Loan_Purpose__c));
         // ---- commissions -----
         pdf.getParameters().put('estimatedCommission', NumberUtils.format(quote.Commission_Estimation__c));
         pdf.getParameters().put('insuranceIncome', NumberUtils.format(quote.Commission_Insurance_Income__c));
