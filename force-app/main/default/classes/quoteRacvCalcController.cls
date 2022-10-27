@@ -1,25 +1,23 @@
 public class quoteRacvCalcController {
 	
     @AuraEnabled
-    public static QuoteController.AppQuotingWraper getQuotingData(
-        QuoteController.QuotingDataParam param
-    ) {
+    public static QuoteController.AppQuotingWraper getQuotingData(QuoteController.QuotingDataParam param) {
         QuoteController.AppQuotingWraper r = QuoteController.getQuotingData(param); 
 
         // Lender settings
         // Rate Settings
         String rateObjName = param.rateSettings != null && !param.rateSettings.isEmpty() 
-        ? param.rateSettings.get(0) : 'LatitudeRatesv3__c';
+        ? param.rateSettings.get(0) : 'Racv_Rates__c';
           
-        Map<String, List<LatitudeRatesv3__c>> rates = new Map<String, List<LatitudeRatesv3__c>>();
+        Map<String, List<Racv_Rates__c>> rates = new Map<String, List<Racv_Rates__c>>();
         rates.put(rateObjName, getRates());
         r.rateSettings = rates;
 
         return r;
     }
-
-    private static List<LatitudeRatesv3__c> getRates() {
-        List<LatitudeRatesv3__c> d = LatitudeRatesv3__c.getAll().values();
+	@testvisible
+    private static List<Racv_Rates__c> getRates() {
+        List<Racv_Rates__c> d = Racv_Rates__c.getAll().values();
         d.sort();
         return d;
     }
@@ -27,10 +25,12 @@ public class quoteRacvCalcController {
     @AuraEnabled
     public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType){
        try {
+           System.debug('::: save RACV');
             QuoteController.saveQuoting(param);
             Product__c p = null;
             if (!'NONE'.equals(approvalType)) {
                 // save pdf
+                system.debug(':::: Application_Quoting__c save ::::');
                 PageReference pdf = Page.UniversalCalculatorPdf;
                 pdf = pdfHandler(param.data);
                 QuoteController.savePdf(approvalType, pdf, param);

@@ -26,9 +26,14 @@ public with sharing class QuoteAmmfCalcController {
     @AuraEnabled
     public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType){
        try {
+        if( param.additionalProcess == null) {
+            param.additionalProcess = new List<String>();
+           }
+            param.additionalProcess.add(approvalType);
+            System.debug('param.additionalProcess >> ' + param.additionalProcess);
             QuoteController.saveQuoting(param);
             Product__c p = null;
-            if (!'NONE'.equals(approvalType)) {
+            if (!'NONE'.equals(approvalType) && !'SEND'.equals(approvalType) && !'PREVIEW'.equals(approvalType)) {
                 // save pdf
                 PageReference pdf = Page.UniversalCalculatorPdf;
                 pdf = pdfHandler(param.data);
@@ -47,48 +52,18 @@ public with sharing class QuoteAmmfCalcController {
     public static PageReference pdfHandler(Application_Quoting__c quote){
 
         // pass parameters to the PDF page
-        PageReference pdf = Page.UniversalCalculatorPdf;
+        PageReference pdf = QuoteController.createPdf(quote);
         
         // pass universal variables
-        pdf.getParameters().put('id',quote.Opportunity__c);
         pdf.getParameters().put('lender', 'YAMAHA CALCULATION');
-        pdf.getParameters().put('carPrice', NumberUtils.format(quote.Vehicle_Price__c));
-        pdf.getParameters().put('applicationFee', NumberUtils.format(quote.Application_Fee__c));
-        pdf.getParameters().put('dof', NumberUtils.format(quote.DOF__c));
-        pdf.getParameters().put('ppsr', NumberUtils.format(quote.PPSR__c));
-        pdf.getParameters().put('netDeposit', NumberUtils.format(quote.Net_Deposit__c));
-        pdf.getParameters().put('residualValue', NumberUtils.format(quote.Residual_Value__c));
-        pdf.getParameters().put('baseRate', NumberUtils.format(quote.Base_Rate__c));
-        pdf.getParameters().put('clientRate', NumberUtils.format(quote.Client_Rate__c));
-        pdf.getParameters().put('term', NumberUtils.format(quote.Term__c));
-        pdf.getParameters().put('paymentType', quote.Payment__c+'');
-        pdf.getParameters().put('monthlyFee', NumberUtils.format(quote.Monthly_Fee__c));
-        // ---- commissions -----
-        pdf.getParameters().put('estimatedCommission', NumberUtils.format(quote.Commission_Estimation__c));
-        pdf.getParameters().put('insuranceIncome', NumberUtils.format(quote.Commission_Insurance_Income__c));
-        pdf.getParameters().put('dofResult', NumberUtils.format(quote.Commission_DOF__c));
-        pdf.getParameters().put('totalCommission', NumberUtils.format(quote.Commission_Total_GST_Exc__c));
-        pdf.getParameters().put('totalCommissionGst', NumberUtils.format(quote.Commission_Total_GST_Inc__c));
-        pdf.getParameters().put('naf', NumberUtils.format(quote.NAF__c));
-        pdf.getParameters().put('rental', NumberUtils.format(quote.Rental__c));
-        pdf.getParameters().put('monthlyPayment', NumberUtils.format(quote.Repayment_Monthly__c));
-        pdf.getParameters().put('fortnightlyPayment', NumberUtils.format(quote.Repayment_Fortnightly__c));
-        pdf.getParameters().put('weeklyPayment', NumberUtils.format(quote.Repayment_Weekly__c));
-        // ---- end commissions -----
         //pass variables about the product info
-        pdf.getParameters().put('loanType',  quote.Loan_Type__c+'');
-        pdf.getParameters().put('productLoanType', quote.Loan_Product__c+'');
         pdf.getParameters().put('customerProfile', quote.Customer_Profile__c);
-        pdf.getParameters().put('deposit', NumberUtils.format(quote.Deposit__c));
-        pdf.getParameters().put('tradeIn', NumberUtils.format(quote.Trade_In__c));
-        pdf.getParameters().put('payoutOn', NumberUtils.format(quote.Payout_On__c));
         if(String.valueOf(quote.Loan_Facility_Type__c).contains('prime') && quote.NAF__c > 35000){
             pdf.getParameters().put('loanTypeDetail', quote.Loan_Facility_Type__c + ' (over 35K)');
         } else {
             pdf.getParameters().put('loanTypeDetail', quote.Loan_Facility_Type__c);
         }
         pdf.getParameters().put('privateSales', quote.Private_Sales__c);
-        pdf.getParameters().put('productGoodsType', quote.Loan_Product__c);
         
         return pdf;
 
