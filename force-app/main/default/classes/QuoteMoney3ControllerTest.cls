@@ -1,6 +1,12 @@
 @isTest(SeeAllData=true)
 private class QuoteMoney3ControllerTest {
-    
+
+  private final static String LENDER_QUOTING = 'Money3';
+
+  private final static List<String> LENDER_SETTINGS = new List<String>{
+    'Money3'
+  };
+
     @isTest static void testProfileOnChangeAction(){
         test.startTest();
         Map<String, Application_Quoting_Result__c> res = new Map<String, Application_Quoting_Result__c>();
@@ -29,6 +35,20 @@ private class QuoteMoney3ControllerTest {
         QuoteMoney3Controller.save(param, approvalType);
         test.stopTest();
     }
+
+  @isTest
+  static void testQuotingData() {
+    Application_Quoting__c app = generateAppQuote();
+    Custom_Opportunity__c opp = Test_DataGeneratorHelper.tstOpportunity;
+    QuoteController.QuotingDataParam param = QuoteControllerTest.buildQuotingDataParam(
+      opp.Id,
+      LENDER_QUOTING,
+      LENDER_SETTINGS
+    );
+    Test.startTest();
+    QuoteMoney3Controller.getQuotingData(param);
+    test.stopTest();
+  }
     
     private static Decimal calculateRiskFeeBase(Application_Quoting__c appQuote) {
         Decimal riskFeeBase = 0;

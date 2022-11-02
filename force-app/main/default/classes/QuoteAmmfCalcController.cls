@@ -1,4 +1,4 @@
-public with sharing class QuoteAmmfCalcController {
+public without sharing class QuoteAmmfCalcController {
     @AuraEnabled
     public static QuoteController.AppQuotingWraper getQuotingData(
         QuoteController.QuotingDataParam param
@@ -25,13 +25,24 @@ public with sharing class QuoteAmmfCalcController {
 
     @AuraEnabled
     public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType){
-       try {
+      try {
         if( param.additionalProcess == null) {
             param.additionalProcess = new List<String>();
            }
             param.additionalProcess.add(approvalType);
             System.debug('param.additionalProcess >> ' + param.additionalProcess);
-            QuoteController.saveQuoting(param);
+            
+            // ------------------------------------------------------------
+            // Skip save option for Previewing if a quotation is presenting
+            Boolean notSave = false;
+            if ('PREVIEW'.equals(approvalType) && param.data != null) {        
+              notSave = QuoteController.isQuotePresenting(param.data.Id);
+            }
+            if (!notSave) {
+              QuoteController.saveQuoting(param);
+            }
+            // ------------------------------------------------------------
+
             Product__c p = null;
             if (!'NONE'.equals(approvalType) && !'SEND'.equals(approvalType) && !'PREVIEW'.equals(approvalType)) {
                 // save pdf
@@ -42,11 +53,10 @@ public with sharing class QuoteAmmfCalcController {
                 p = productHandler(param.data);
                 QuoteController.saveProduct(param, p);
             }
-       }
-       catch (Exception ex) {
+      } catch (Exception ex) {
         throw new GenericException(ex.getMessage());
-       }
-        return param.data;
+      }
+      return param.data;
     }
 
     public static PageReference pdfHandler(Application_Quoting__c quote){
@@ -58,7 +68,11 @@ public with sharing class QuoteAmmfCalcController {
         pdf.getParameters().put('lender', 'YAMAHA CALCULATION');
         //pass variables about the product info
         pdf.getParameters().put('customerProfile', quote.Customer_Profile__c);
-        if(String.valueOf(quote.Loan_Facility_Type__c).contains('prime') && quote.NAF__c > 35000){
+        if(
+          String.isNotBlank(quote.Loan_Facility_Type__c) &&
+          quote.Loan_Facility_Type__c.containsIgnoreCase('prime') && 
+          quote.NAF__c > 35000
+        ) {
             pdf.getParameters().put('loanTypeDetail', quote.Loan_Facility_Type__c + ' (over 35K)');
         } else {
             pdf.getParameters().put('loanTypeDetail', quote.Loan_Facility_Type__c);

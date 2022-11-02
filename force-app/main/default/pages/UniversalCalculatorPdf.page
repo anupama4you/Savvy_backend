@@ -723,6 +723,37 @@
             </tr>
         </table>
         </apex:outputPanel>
+        <!-- RACV -->
+        <apex:outputPanel layout="block" style="width:100%" rendered="{!isRacv}" >
+        <table width="100%">
+            <tr>
+                <td>Category</td>
+                  <td colspan="3">{!vehiclesProfile}</td>
+              </tr>
+                <tr>
+                <td>Vehicle Type</td>
+                  <td colspan="3">{!goodsType}</td>
+              </tr>
+                <tr width="100%">
+                    <td width="20%">Class</td>
+                    <td width="30%">{!loanTypeDetail}</td>
+                    <td width="30%">Registration/Research Fee</td>
+                    <td width="20%">{!registrationFee}</td>
+                </tr>
+                <tr>
+                    <td>Car Age</td>
+                    <td>{!carAge}</td>
+                    <td>Private Sales</td>
+                    <td>{!privateSales}</td>
+                </tr>
+                <tr>
+                  <td>Vehicle Condition</td>
+                  <td>{!vehCon}</td>
+                  <td>Credit Score</td>
+                  <td>{!creditScore}</td>
+                </tr>
+        </table>
+        </apex:outputPanel>
         <!-- Yamaha -->
         <apex:outputPanel layout="block" style="width:100%" rendered="{!isYamahaMoto}" >
         <table width="100%">

@@ -59,7 +59,17 @@ public without sharing class QuotePepperCommController {
             param.additionalProcess.add(approvalType);
             System.debug('param.additionalProcess >> ' + param.additionalProcess);
 
-            QuoteController.saveQuoting(param);
+            // ------------------------------------------------------------
+            // Skip save option for Previewing if a quotation is presenting
+            Boolean notSave = false;
+            if ('PREVIEW'.equals(approvalType) && param.data != null) {        
+              notSave = QuoteController.isQuotePresenting(param.data.Id);
+            }
+            if (!notSave) {
+              QuoteController.saveQuoting(param);
+            }
+            // ------------------------------------------------------------
+
             Product__c p = null;
             if ( !'NONE'.equals(approvalType) ) {
                 // save pdf

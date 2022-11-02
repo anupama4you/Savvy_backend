@@ -661,6 +661,14 @@ public class CalculatorPdfExtension {
         return r;
     }
 
+    public Boolean getIsRacv() {
+        Boolean r = false;
+        if (!String.isBlank(lender) && lender.containsIgnoreCase('Racv')) {
+            r = true;
+        }
+        return r;
+    }
+
     public Boolean getIsAPF() {
         Boolean r = false;
         if (!String.isBlank(lender) && lender.containsIgnoreCase('APF')) {

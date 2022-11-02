@@ -43,7 +43,18 @@ public without sharing class QuoteMoney3Controller {
       }
       param.additionalProcess.add(approvalType);
       System.debug('param.additionalProcess >> ' + param.additionalProcess);
-      QuoteController.saveQuoting(param);
+
+      // ------------------------------------------------------------
+      // Skip save option for Previewing if a quotation is presenting
+      Boolean notSave = false;
+      if ('PREVIEW'.equals(approvalType) && param.data != null) {        
+        notSave = QuoteController.isQuotePresenting(param.data.Id);
+      }
+      if (!notSave) {
+        QuoteController.saveQuoting(param);
+      }
+      // ------------------------------------------------------------
+
       Product__c p = null;
       if ( !'NONE'.equals(approvalType) && !'SEND'.equals(approvalType) && !'PREVIEW'.equals(approvalType) ) {
         // save pdf
@@ -80,8 +91,6 @@ public without sharing class QuoteMoney3Controller {
     pdf.getParameters().put('lender', 'MONEY3 CALCULATION');
 
     //Financial Details
-
-    pdf.getParameters().put('clientTier', quote.Client_Tier__c + '');
     pdf.getParameters().put('vehicleAge', quote.Vehicle_Age__c + '');
     pdf.getParameters().put('privateSales', quote.Private_Sales__c + '');
     pdf.getParameters().put('productGoodsType', quote.Goods_type__c + '');
@@ -153,7 +162,7 @@ public without sharing class QuoteMoney3Controller {
     p.Repayment_Regularity__c = 'Monthly';
     p.Loan_Type__c = quote.Loan_Type__c;
     p.Loan_Product__c = quote.Loan_Product__c;
-    p.Loan_Type_Detail__c = 'Client Tier ' + quote.Client_Tier__c;
+    p.Loan_Type_Detail__c = quote.Category_Type__c;
     p.Loan_Term__c = quote.Term__c;
     p.Balloon_Residual_Requested__c = quote.Residual_Value__c == null || quote.Residual_Value__c == 0 ? 0:quote.Residual_Value__c;
     p.Client_Rate__c = quote.Client_Rate__c > 0 ? quote.Client_Rate__c : 0.00;

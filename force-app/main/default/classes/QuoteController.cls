@@ -58,6 +58,7 @@ public without sharing class QuoteController {
 
     // Prepare parameters
     List<String> allFields = new List<String>(QUOTING_FIELDS);
+
     // allFields.addAll(INSURANCE_FIELDS);
     allFields.addAll(param.fields);
     Set<String> uniqFields = new Set<String>(allFields);
@@ -1036,6 +1037,11 @@ public without sharing class QuoteController {
       r = !d.isEmpty()? d.get(0) : null;
     }
     return r;
+  }
+
+  public static Boolean isQuotePresenting(Id quotingId) {
+    Application_InsuranceQuote__c q = getInsuranceQuote(quotingId);
+    return InsuranceQuoteUtils.isQuotePresenting(q, false);
   }
 
 }

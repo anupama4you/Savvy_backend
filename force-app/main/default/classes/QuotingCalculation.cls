@@ -1589,7 +1589,9 @@ public without sharing class QuotingCalculation {
         r = getBrandedConsumerBaseRate(param, false);
       } else if ('Branded Commercial'.equals(param.lender)) {
       r = getBrandedCommercialBaseRate(param, false);
-      } 
+      } else if ('Money3 PL'.equals(param.lender)) {
+        r = getMoney3PLBaseRate(param);
+      }     
     }
     return r;
   }
@@ -5287,6 +5289,57 @@ public without sharing class QuotingCalculation {
     return r;
   }
 
+  public static Decimal getMoney3PLmaxDof(CalcParam param) {
+    Decimal r = 0.0;
+    if (
+      param == null ||
+      param.totalAmount == null ||
+      String.isBlank(param.customerProfile) ||
+      String.isBlank(param.riskGrade)
+    ) {
+      return r;
+    }
+
+    Decimal vp = param.getNaf();
+    if ('Secured'.equals(param.customerProfile)) {
+      if ('Mini PL'.equals(param.riskGrade)) {
+        if (param.totalAmount >= 2000.0 && param.totalAmount < 3000.0) {
+          r = 220.0;
+        } else if (param.totalAmount >= 3000.0 && param.totalAmount < 5000.0) {
+          r = 330.0;
+        } else if (param.totalAmount == 5000.0) {
+          r = 440.0;
+        }
+      } else {
+        if (param.totalAmount >= 5000.0 && param.totalAmount < 6000.0) {
+          r = 440.0;
+        } else if (param.totalAmount >= 6000.0 && param.totalAmount < 7000.0) {
+          r = 550.0;
+        } else if (param.totalAmount >= 7000.0 && param.totalAmount < 8001.0) {
+          r = 660.0;
+        } else if (param.totalAmount >= 8001.0 && param.totalAmount < 9000.0) {
+          r = 770.0;
+        } else if (param.totalAmount >= 9000.0 && param.totalAmount < 10000.0) {
+          r = 880.0;
+        } else if (
+          param.totalAmount >= 10000.0 &&
+          param.totalAmount < 11000.0
+        ) {
+          r = 990.0;
+        } else if (
+          param.totalAmount >= 11000.0 &&
+          param.totalAmount < 12000.0
+        ) {
+          r = 1100.0;
+        } else if (param.totalAmount >= 12000.0) {
+          r = 1210.0;
+        }
+      }
+    }
+    System.debug(r);
+    return r;
+  }
+
   //Lelo              2017-07-24
   private static Application_Quoting_Result__c calculateGreenLight(
     CalcParam param
@@ -5424,6 +5477,31 @@ public without sharing class QuotingCalculation {
       } else if ('Mini PL'.equals(param.riskGrade)) {
         return 28.0;
       }
+    }
+    return 0.0;
+  }
+
+  // 2022/11/02 - Anupama
+  public static Decimal getMoney3PLBaseRate(CalcParam param) {
+    Decimal baseRate = 0.0;
+    if (param != null && String.isNotBlank(param.riskGrade)) {
+      if ('Platinum'.equals(param.riskGrade)) {
+        baseRate = 12.95;
+      } else if ('Gold'.equals(param.riskGrade)) {
+        baseRate = 15.95;
+      } else if ('Silver'.equals(param.riskGrade)) {
+        baseRate = 19.95;
+      } else if ('Bronze'.equals(param.riskGrade)) {
+        baseRate = 24.95;
+      } else if ('Mini PL'.equals(param.riskGrade)) {
+        baseRate = 24.95;
+      }
+      if(String.isNotBlank(param.customerProfile) && 'Unsecured'.equals(param.customerProfile)) {
+        if ((baseRate + 3) <= 24.95) {
+          return baseRate + 3;
+        } 
+      }
+      return baseRate;
     }
     return 0.0;
   }
@@ -6802,16 +6880,16 @@ public without sharing class QuotingCalculation {
     
     if( !String.isBlank(VechicleType) && (VechicleType == 'CAR' || VechicleType == 'CARAVAN')){
           SYSTEM.debug('@@@@@ VechicleType - if @@@@@'+VechicleType);
-        if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'YES') && ( !String.isblank(VechicleCondition) && VechicleCondition == 'NEW') && VechicleAge <= 3 ){
+        if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'YES') && VechicleAge <= 3 ){
           SYSTEM.debug('@@@@@ VechicleType - if - Rate1 @@@@@'+Rate1);
                 return Rate1;
-        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'YES') && ( !String.isblank(VechicleCondition) && VechicleCondition == 'USED') && VechicleAge > 3 ){
+        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'YES') && VechicleAge > 3 ){
           SYSTEM.debug('@@@@@ VechicleType - if - Rate2 @@@@@'+Rate2);
                 return Rate2;
-        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'NO') && ( !String.isblank(VechicleCondition) && VechicleCondition == 'NEW') && VechicleAge <= 3 ){
+        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'NO') && VechicleAge <= 3 ){
           SYSTEM.debug('@@@@@ VechicleType - if - Rate3 @@@@@'+Rate3);
                 return Rate3;
-        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'NO') && ( !String.isblank(VechicleCondition) && VechicleCondition == 'USED') && VechicleAge > 3 ){
+        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'NO') && VechicleAge > 3 ){
           SYSTEM.debug('@@@@@ VechicleType - if - Rate4 @@@@@'+Rate4);
                 return Rate4;
       }
@@ -6944,5 +7022,110 @@ private static Application_Quoting_Result__c calculateKrisp(
     }
     return r;
   }
+
+  public static Decimal getKrispMaxDof(CalcParam param) {
+    Decimal r = 0.0;
+    if (
+      param == null ||
+      param.totalAmount == null ||
+      String.isBlank(param.customerProfile) ||
+      String.isBlank(param.riskGrade)
+    ) {
+      return r;
+    }
+
+    Decimal vp = param.getNaf();
+    if ('Asset Finance'.equals(param.customerProfile)) {
+      if ('Micro Motor'.equals(param.riskGrade)) {
+        if (param.totalAmount >= 2000.0 && param.totalAmount < 3000.0) {
+          r = 220.0;
+        } else if (param.totalAmount >= 3000.0 && param.totalAmount < 5000.0) {
+          r = 330.0;
+        } else if (param.totalAmount >= 5000.0 && param.totalAmount < 6000.0) {
+          r = 440.0;
+        } else if (param.totalAmount >= 6000.0 && param.totalAmount < 7000.0) {
+          r = 550.0;
+        } else if (param.totalAmount >= 7000.0) {
+          r = 880.0;
+        }
+      } else {
+        if (param.totalAmount < 9000.0) {
+          r = 770.0;
+        } else if (param.totalAmount >= 9000.0 && param.totalAmount < 10000.0) {
+          r = 880.0;
+        } else if (
+          param.totalAmount >= 10000.0 &&
+          param.totalAmount < 11000.0
+        ) {
+          r = 990.0;
+        } else if (
+          param.totalAmount >= 11000.0 &&
+          param.totalAmount < 12000.0
+        ) {
+          r = 1100.0;
+        } else if (
+          param.totalAmount >= 12000.0 &&
+          param.totalAmount < 16000.0
+        ) {
+          r = 1210.0;
+        } else if (param.totalAmount >= 16000.0) {
+          r = 1320.0;
+        }
+      }
+    } else if ('Personal Finance'.equals(param.customerProfile)) {
+      if ('Mini PL'.equals(param.riskGrade)) {
+        if (param.totalAmount >= 2000.0 && param.totalAmount < 3000.0) {
+          r = 220.0;
+        } else if (param.totalAmount >= 3000.0 && param.totalAmount < 5000.0) {
+          r = 330.0;
+        } else if (param.totalAmount == 5000.0) {
+          r = 440.0;
+        }
+      } else {
+        if (param.totalAmount >= 5000.0 && param.totalAmount < 6000.0) {
+          r = 440.0;
+        } else if (param.totalAmount >= 6000.0 && param.totalAmount < 7000.0) {
+          r = 550.0;
+        } else if (param.totalAmount >= 7000.0 && param.totalAmount < 8001.0) {
+          r = 660.0;
+        } else if (param.totalAmount >= 8001.0 && param.totalAmount < 9000.0) {
+          r = 770.0;
+        } else if (param.totalAmount >= 9000.0 && param.totalAmount < 10000.0) {
+          r = 880.0;
+        } else if (
+          param.totalAmount >= 10000.0 &&
+          param.totalAmount < 11000.0
+        ) {
+          r = 990.0;
+        } else if (
+          param.totalAmount >= 11000.0 &&
+          param.totalAmount < 12000.0
+        ) {
+          r = 1100.0;
+        } else if (param.totalAmount >= 12000.0) {
+          r = 1210.0;
+        }
+      }
+    }
+    System.debug(r);
+    return r;
+  }
+
+  public static Decimal getKrispRiskFee(CalcParam param) {
+    Decimal r = 0.0;
+    if (
+      param != null &&
+      param.riskFeeBase != null &&
+      param.riskFeeBase > 12000
+    ) {
+      r = param.riskFeeBase * 5 / 100.0;
+      if (r > 995.0) {
+        r = 995.0;
+      }
+    }
+    return r.setScale(2);
+  }
+
+
 
 }

@@ -44,23 +44,34 @@ public without sharing class QuoteFirstmacController {
     @AuraEnabled
     public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType) {
         try {
-            System.debug('type.....  ' + approvalType);
-            if ( param.additionalProcess == null ) {
-                param.additionalProcess = new List<String>();
-            }
-            param.additionalProcess.add(approvalType);
-            System.debug('param.additionalProcess >> ' + param.additionalProcess);
+          System.debug('type.....  ' + approvalType);
+          if ( param.additionalProcess == null ) {
+              param.additionalProcess = new List<String>();
+          }
+          param.additionalProcess.add(approvalType);
+          System.debug('param.additionalProcess >> ' + param.additionalProcess);
+
+          // ------------------------------------------------------------
+          // Skip save option for Previewing if a quotation is presenting
+          Boolean notSave = false;
+          if ('PREVIEW'.equals(approvalType) && param.data != null) {        
+            notSave = QuoteController.isQuotePresenting(param.data.Id);
+          }
+          if (!notSave) {
             QuoteController.saveQuoting(param);
-            Product__c p = null;
-            if ( !'NONE'.equals(approvalType) && !'SEND'.equals(approvalType) && !'PREVIEW'.equals(approvalType) ) {
-                // save pdf
-                PageReference pdf = Page.UniversalCalculatorPdf;
-                pdf = pdfHandler(param.data);
-                QuoteController.savePdf(approvalType, pdf, param);
-                // save product
-                p = productHandler(param.data);
-                QuoteController.saveProduct(param, p);
-            }
+          }
+          // ------------------------------------------------------------
+          
+          Product__c p = null;
+          if ( !'NONE'.equals(approvalType) && !'SEND'.equals(approvalType) && !'PREVIEW'.equals(approvalType) ) {
+              // save pdf
+              PageReference pdf = Page.UniversalCalculatorPdf;
+              pdf = pdfHandler(param.data);
+              QuoteController.savePdf(approvalType, pdf, param);
+              // save product
+              p = productHandler(param.data);
+              QuoteController.saveProduct(param, p);
+          }
         } catch ( Exception ex ) {
             throw new GenericException(ex.getMessage());
         }
