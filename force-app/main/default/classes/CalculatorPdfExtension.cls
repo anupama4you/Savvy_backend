@@ -992,4 +992,20 @@ public class CalculatorPdfExtension {
     return r;
   }
 
+  public Boolean getIsMoney3PL() {
+    Boolean r = false;
+    if (!String.isBlank(lender) && lender.containsIgnoreCase('MONEY3 PL')) {
+        r = true;
+    }
+    return r;
+ }
+
+  public Boolean getIsGedda() {
+    Boolean r = false;
+    if (!String.isBlank(lender) && lender.containsIgnoreCase('GEDDA CALCULATION')) {
+        r = true;
+    }
+    return r;
+ }
+
 }

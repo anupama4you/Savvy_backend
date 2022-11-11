@@ -43,6 +43,7 @@ public without sharing class QuotingCalculation {
         || 'Fleet Partners'.equals(param.lender)
         || 'Commercial Equity Group'.equals(param.lender)
         || 'Group and General'.equals(param.lender)
+        || 'Resimac'.equals(param.lender)
       ) {
         r = calculateGCA(param);
       } else if (
@@ -116,7 +117,7 @@ public without sharing class QuotingCalculation {
         'AFS Consumer'.equals(param.lender) ||
         'AFS Commercial'.equals(param.lender) ||
         'Latitude'.equals(param.lender) ||
-         'Racv'.equals(param.lender) ||
+        'Racv'.equals(param.lender) ||
         LatitudePersonalCalculatorExtension.LENDER_QUOTING.equals(
           param.lender
         ) ||
@@ -157,6 +158,14 @@ public without sharing class QuotingCalculation {
         r = calculateBrandedCommercial(param);
       } else if ('Krisp'.equals(param.lender)) {
         r = calculateKrisp(param);
+      } else if ('Money3 PL'.equals(param.lender)) {
+        r = calculateMoney3PL(param); 
+      } 
+      // else if ('Resimac'.equals(param.lender)) {
+      //   r = calculateMoney3PL(param);
+      // } 
+      else if ('Gedda'.equals(param.lender)) {
+        r = calculateGedda(param); 
       } 
     }
     return r;
@@ -1588,10 +1597,14 @@ public without sharing class QuotingCalculation {
       } else if ('Branded Consumer'.equals(param.lender)) {
         r = getBrandedConsumerBaseRate(param, false);
       } else if ('Branded Commercial'.equals(param.lender)) {
-      r = getBrandedCommercialBaseRate(param, false);
+        r = getBrandedCommercialBaseRate(param, false);
       } else if ('Money3 PL'.equals(param.lender)) {
         r = getMoney3PLBaseRate(param);
-      }     
+      }  else if ('Resimac'.equals(param.lender)) {
+        r = getResimacBaseRate(param);
+      }  else if ('Gedda'.equals(param.lender)) {
+        r = getGeddaBaseRate(param);
+      } 
     }
     return r;
   }
@@ -4572,6 +4585,8 @@ public without sharing class QuotingCalculation {
     public Decimal netDeposit { get; set; }
     @AuraEnabled
     public String gst { get; set; }
+    @AuraEnabled
+    public Decimal addOnRate { get; set; }
 
     public CalcParam() {
       this.totalAmount = 0.0;
@@ -5204,140 +5219,14 @@ public without sharing class QuotingCalculation {
   public static Decimal getMoney3maxDof(CalcParam param) {
     Decimal r = 0.0;
     if (
-      param == null ||
-      param.totalAmount == null ||
-      String.isBlank(param.customerProfile) ||
-      String.isBlank(param.riskGrade)
+      param != null &&
+      param.totalAmount > 0
     ) {
-      return r;
+      Decimal maxDox = 'Micro Motor'.equals(param.customerProfile) ? 990.0 : 1320.0;
+      r = param.totalAmount * 0.1;
+      r = r > maxDox? maxDox : r;
     }
-
-    Decimal vp = param.getNaf();
-    if ('Asset Finance'.equals(param.customerProfile)) {
-      if ('Micro Motor'.equals(param.riskGrade)) {
-        if (param.totalAmount >= 2000.0 && param.totalAmount < 3000.0) {
-          r = 220.0;
-        } else if (param.totalAmount >= 3000.0 && param.totalAmount < 5000.0) {
-          r = 330.0;
-        } else if (param.totalAmount >= 5000.0 && param.totalAmount < 6000.0) {
-          r = 440.0;
-        } else if (param.totalAmount >= 6000.0 && param.totalAmount < 7000.0) {
-          r = 550.0;
-        } else if (param.totalAmount >= 7000.0) {
-          r = 880.0;
-        }
-      } else {
-        if (param.totalAmount < 9000.0) {
-          r = 770.0;
-        } else if (param.totalAmount >= 9000.0 && param.totalAmount < 10000.0) {
-          r = 880.0;
-        } else if (
-          param.totalAmount >= 10000.0 &&
-          param.totalAmount < 11000.0
-        ) {
-          r = 990.0;
-        } else if (
-          param.totalAmount >= 11000.0 &&
-          param.totalAmount < 12000.0
-        ) {
-          r = 1100.0;
-        } else if (
-          param.totalAmount >= 12000.0 &&
-          param.totalAmount < 16000.0
-        ) {
-          r = 1210.0;
-        } else if (param.totalAmount >= 16000.0) {
-          r = 1320.0;
-        }
-      }
-    } else if ('Personal Finance'.equals(param.customerProfile)) {
-      if ('Mini PL'.equals(param.riskGrade)) {
-        if (param.totalAmount >= 2000.0 && param.totalAmount < 3000.0) {
-          r = 220.0;
-        } else if (param.totalAmount >= 3000.0 && param.totalAmount < 5000.0) {
-          r = 330.0;
-        } else if (param.totalAmount == 5000.0) {
-          r = 440.0;
-        }
-      } else {
-        if (param.totalAmount >= 5000.0 && param.totalAmount < 6000.0) {
-          r = 440.0;
-        } else if (param.totalAmount >= 6000.0 && param.totalAmount < 7000.0) {
-          r = 550.0;
-        } else if (param.totalAmount >= 7000.0 && param.totalAmount < 8001.0) {
-          r = 660.0;
-        } else if (param.totalAmount >= 8001.0 && param.totalAmount < 9000.0) {
-          r = 770.0;
-        } else if (param.totalAmount >= 9000.0 && param.totalAmount < 10000.0) {
-          r = 880.0;
-        } else if (
-          param.totalAmount >= 10000.0 &&
-          param.totalAmount < 11000.0
-        ) {
-          r = 990.0;
-        } else if (
-          param.totalAmount >= 11000.0 &&
-          param.totalAmount < 12000.0
-        ) {
-          r = 1100.0;
-        } else if (param.totalAmount >= 12000.0) {
-          r = 1210.0;
-        }
-      }
-    }
-    System.debug(r);
-    return r;
-  }
-
-  public static Decimal getMoney3PLmaxDof(CalcParam param) {
-    Decimal r = 0.0;
-    if (
-      param == null ||
-      param.totalAmount == null ||
-      String.isBlank(param.customerProfile) ||
-      String.isBlank(param.riskGrade)
-    ) {
-      return r;
-    }
-
-    Decimal vp = param.getNaf();
-    if ('Secured'.equals(param.customerProfile)) {
-      if ('Mini PL'.equals(param.riskGrade)) {
-        if (param.totalAmount >= 2000.0 && param.totalAmount < 3000.0) {
-          r = 220.0;
-        } else if (param.totalAmount >= 3000.0 && param.totalAmount < 5000.0) {
-          r = 330.0;
-        } else if (param.totalAmount == 5000.0) {
-          r = 440.0;
-        }
-      } else {
-        if (param.totalAmount >= 5000.0 && param.totalAmount < 6000.0) {
-          r = 440.0;
-        } else if (param.totalAmount >= 6000.0 && param.totalAmount < 7000.0) {
-          r = 550.0;
-        } else if (param.totalAmount >= 7000.0 && param.totalAmount < 8001.0) {
-          r = 660.0;
-        } else if (param.totalAmount >= 8001.0 && param.totalAmount < 9000.0) {
-          r = 770.0;
-        } else if (param.totalAmount >= 9000.0 && param.totalAmount < 10000.0) {
-          r = 880.0;
-        } else if (
-          param.totalAmount >= 10000.0 &&
-          param.totalAmount < 11000.0
-        ) {
-          r = 990.0;
-        } else if (
-          param.totalAmount >= 11000.0 &&
-          param.totalAmount < 12000.0
-        ) {
-          r = 1100.0;
-        } else if (param.totalAmount >= 12000.0) {
-          r = 1210.0;
-        }
-      }
-    }
-    System.debug(r);
-    return r;
+    return r.setScale(2);
   }
 
   //Lelo              2017-07-24
@@ -5463,47 +5352,28 @@ public without sharing class QuotingCalculation {
   }
 
   public static Decimal getMoney3BaseRate(CalcParam param) {
+    Decimal r = 0.00;
     if (param != null && String.isNotBlank(param.riskGrade)) {
+      Decimal microRate = 24.95;
       if ('Platinum'.equals(param.riskGrade)) {
-        return 19.95;
+        r = 12.95;
       } else if ('Gold'.equals(param.riskGrade)) {
-        return 22.0;
+        r = 15.95;
       } else if ('Silver'.equals(param.riskGrade)) {
-        return 25.0;
+        r = 19.95;
       } else if ('Bronze'.equals(param.riskGrade)) {
-        return 28.0;
+        r = 24.95;
       } else if ('Micro Motor'.equals(param.riskGrade)) {
-        return 24.95;
+        r = microRate;
       } else if ('Mini PL'.equals(param.riskGrade)) {
-        return 28.0;
+        r = 28.0;
+      }
+      if ('Micro Motor'.equals(param.customerProfile)) {
+        r += 3;
+        r = r > microRate? microRate : r;
       }
     }
-    return 0.0;
-  }
-
-  // 2022/11/02 - Anupama
-  public static Decimal getMoney3PLBaseRate(CalcParam param) {
-    Decimal baseRate = 0.0;
-    if (param != null && String.isNotBlank(param.riskGrade)) {
-      if ('Platinum'.equals(param.riskGrade)) {
-        baseRate = 12.95;
-      } else if ('Gold'.equals(param.riskGrade)) {
-        baseRate = 15.95;
-      } else if ('Silver'.equals(param.riskGrade)) {
-        baseRate = 19.95;
-      } else if ('Bronze'.equals(param.riskGrade)) {
-        baseRate = 24.95;
-      } else if ('Mini PL'.equals(param.riskGrade)) {
-        baseRate = 24.95;
-      }
-      if(String.isNotBlank(param.customerProfile) && 'Unsecured'.equals(param.customerProfile)) {
-        if ((baseRate + 3) <= 24.95) {
-          return baseRate + 3;
-        } 
-      }
-      return baseRate;
-    }
-    return 0.0;
+    return r;
   }
 
   public static Decimal getMoney3RiskFee(CalcParam param) {
@@ -5524,17 +5394,17 @@ public without sharing class QuotingCalculation {
   public static Decimal getMoney3CommPercentage(CalcParam param) {
     Decimal r = 0.0;
     if (
-      param != null && String.isNotBlank(param.customerProfile) &&
+      param != null && 
+      String.isNotBlank(param.customerProfile) &&
       String.isNotBlank(param.riskGrade) &&
-      'Asset Finance'.equals(param.customerProfile) &&
-      param.amountBaseComm > 10000
+      'Asset Finance'.equals(param.customerProfile)
     ) {
       if ('Platinum'.equals(param.riskGrade)) {
         r = 4.0;
       } else if ('Gold'.equals(param.riskGrade)) {
-        r = 3.0;
+        r = 4.0;
       } else if ('Silver'.equals(param.riskGrade)) {
-        r = 2.0;
+        r = 3.0;
       }
     }
     return r;
@@ -7126,6 +6996,246 @@ private static Application_Quoting_Result__c calculateKrisp(
     return r.setScale(2);
   }
 
+  // 2022/11/02 PUMA 
+  public static Decimal getMoney3PLmaxDof(CalcParam param) {
+    Decimal r = 0.0;
+    if (
+      param != null &&
+      param.totalAmount > 0
+    ) {
+      Decimal maxDox = 'Secured'.equals(param.customerProfile) ? 990.0 : 1320.0;
+      r = param.totalAmount * 0.1;
+      r = r > maxDox? maxDox : r;
+    }
+    return r.setScale(2);
+  }
 
+  // 2022/11/02 PUMA 
+  public static Decimal getMoney3PLBaseRate(CalcParam param) {
+    Decimal baseRate = 0.0;
+    if (param != null && String.isNotBlank(param.riskGrade)) {
+      if ('Platinum'.equals(param.riskGrade)) {
+        baseRate = 12.95;
+      } else if ('Gold'.equals(param.riskGrade)) {
+        baseRate = 15.95;
+      } else if ('Silver'.equals(param.riskGrade)) {
+        baseRate = 19.95;
+      } else if ('Bronze'.equals(param.riskGrade)) {
+        baseRate = 24.95;
+      } else if ('Mini PL'.equals(param.riskGrade)) {
+        baseRate = 24.95;
+      }
+      if(String.isNotBlank(param.customerProfile) && 'Unsecured'.equals(param.customerProfile)) {
+        return (baseRate + 3) <= 24.95 ? baseRate + 3 : baseRate;
+      }
+      return baseRate;
+    }
+    return 0.0;
+  }
+
+  private static Application_Quoting_Result__c calculateMoney3PL(
+    CalcParam param
+  ) {
+    Application_Quoting_Result__c r = new Application_Quoting_Result__c();
+    r.Payment_Calc_Type__c = 'DF';
+    r.NAF__c = param.getNaf();
+
+    //param.baseRate = param.clientRate;
+
+    // calculate the payment rate based on client rate, which is determined by consultants
+    Decimal realRate = param.clientRate / 100;
+    Decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
+
+    Decimal rate = FinancialUtilities.rate(
+      1000,
+      12,
+      0,
+      futureValue,
+      realRate / 12,
+      false
+    );
+
+    // calculate the monthly payment based on client rate
+    r.Rental__c = FinancialUtilities.pmt(
+      param.getNaf(),
+      rate,
+      param.term,
+      param.residualValue,
+      param.getPaymentTypeBoolean()
+    );
+    // r.Rental__c = FinancialUtilities.pmt(param.getNaf(), rate, param.term, param.residualValue, param.getPaymentTypeBoolean());
+
+    r.Rental__c = r.Rental__c.setScale(2);
+
+    // calculate the estimated commission
+    r.Estimated_Commission__c = 0.0;
+    if (param.amountBaseComm != null) {
+      r.Estimated_Commission__c =
+        param.amountBaseComm *
+        getMoney3PLCommPercentage(param) /
+        100;
+    }
+    
+    //calculate the insurance income
+    r.Insurance_Income__c = param.totalInsuranceIncome;
+    r.Insurance_Income__c = r.Insurance_Income__c / 1.1;
+    r.Insurance_Income__c = r.Insurance_Income__c.setScale(2);
+
+    // calculate the dof without GST
+    r.DOF__c = param.dof / 1.1;
+    r.DOF__c = r.DOF__c.setScale(2);
+
+    // calculate the monthly payment
+    r.Monthly_Payment__c = r.Rental__c + param.monthlyFee;
+    r.Monthly_Payment__c = r.Monthly_Payment__c.setScale(2);
+    r.recalculateFormulas();
+    return r;
+  }
+
+  public static Decimal getMoney3PLCommPercentage(CalcParam param) {
+    Decimal r = 0.0;
+    if (
+      param != null && 
+      String.isNotBlank(param.customerProfile) &&
+      String.isNotBlank(param.riskGrade) &&
+      'Secured'.equals(param.customerProfile)
+    ) {
+      if (!('Bronze'.equals(param.riskGrade))) {
+        r = 2.0;
+      } 
+    }
+    return r;
+  }
+
+  private static Decimal getResimacBaseRate(CalcParam param) {
+    Decimal r = 0.0;
+    String assetType = param.assetType;
+    List<Resimac_Rates__c> rates;
+    rates = [SELECT Asset_Type__c, Rate__c
+            FROM Resimac_Rates__c];
+
+    for ( Resimac_Rates__c rate : rates ) {
+        if ( rate.Asset_Type__c.equals(assetType) ) {
+            r += rate.Rate__c;
+        }
+    }
+
+    // addOnRate: a new parameter in CalcParam
+    if ( param.addOnRate != null ) {
+        r += param.addOnRate;
+    }
+    Decimal loadingRates = 0;
+
+    if ( param.term <= 24 ) {
+        loadingRates += 0.5;
+    }
+    if ( param.privateSales.equals('Y') || param.getNaf() <= 20000 ) {
+        loadingRates += 1;
+    }
+    if ( param.propertyOwner.equals('N') || Integer.valueOf(param.assetAge) >= 16)  {
+        loadingRates += 1.5;
+    }
+    // TODO 2.0% part
+
+    if ( loadingRates >= 4 ) {
+        loadingRates = 4;
+    }
+    r += loadingRates;
+
+    if ( param.brokeragePer > 5 ) {
+        r += ( param.brokeragePer - 5 );
+    }
+    return r;
+}
+
+  public static Decimal getGeddaBaseRate(CalcParam param) {
+    Decimal baseRate = 0.0;
+    if (param != null && String.isNotBlank(param.customerProfile)) {
+      if ('Asset Finance'.equals(param.customerProfile)) {
+        if (param.riskGrade != null && String.isNotBlank(param.riskGrade) && 'Mid Prime'.equals(param.riskGrade)) {
+          baseRate = 22.9;
+        } else if (param.riskGrade != null && String.isNotBlank(param.riskGrade) && 'Flex'.equals(param.riskGrade)) {
+          baseRate = 25.99;
+        } else if (param.riskGrade != null && String.isNotBlank(param.riskGrade) && 'Specialist'.equals(param.riskGrade)) {
+          baseRate = 28.99;
+        }
+      } else if ('Mini Moto'.equals(param.customerProfile)) {
+        baseRate = 23.50;
+      } else if ('Mini Moto Plus'.equals(param.customerProfile)) {
+        baseRate = 24.50;
+      } 
+    }
+    return baseRate;
+  }
+
+  private static Application_Quoting_Result__c calculateGedda(
+    CalcParam param
+  ) {
+    Application_Quoting_Result__c r = new Application_Quoting_Result__c();
+    r.Payment_Calc_Type__c = 'DF';
+    r.NAF__c = param.getNaf();
+
+    //param.baseRate = param.clientRate;
+
+    // calculate the payment rate based on client rate, which is determined by consultants
+    Decimal realRate = param.clientRate / 100;
+    Decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
+
+    Decimal rate = FinancialUtilities.rate(
+      1000,
+      12,
+      0,
+      futureValue,
+      realRate / 12,
+      false
+    );
+
+    // calculate the monthly payment based on client rate
+    r.Rental__c = FinancialUtilities.pmt(
+      param.getNaf(),
+      rate,
+      param.term,
+      param.residualValue,
+      param.getPaymentTypeBoolean()
+    );
+    // r.Rental__c = FinancialUtilities.pmt(param.getNaf(), rate, param.term, param.residualValue, param.getPaymentTypeBoolean());
+
+    r.Rental__c = r.Rental__c.setScale(2);
+
+    // calculate the estimated commission
+    r.Estimated_Commission__c = 0.0;
+    if (param.amountBaseComm != null) {
+      r.Estimated_Commission__c = getGeddaPercentage(param);
+    }
+   
+    //calculate the insurance income
+    r.Insurance_Income__c = param.totalInsuranceIncome;
+    r.Insurance_Income__c = r.Insurance_Income__c / 1.1;
+    r.Insurance_Income__c = r.Insurance_Income__c.setScale(2);
+
+    // calculate the dof without GST
+    r.DOF__c = param.dof / 1.1;
+    r.DOF__c = r.DOF__c.setScale(2);
+
+    // calculate the monthly payment
+    r.Monthly_Payment__c = r.Rental__c + param.monthlyFee;
+    r.Monthly_Payment__c = r.Monthly_Payment__c.setScale(2);
+    r.recalculateFormulas();
+    return r;
+  }
+
+  public static Decimal getGeddaPercentage(CalcParam param) {
+    Decimal r = 0.0;
+    if ( param != null && String.isNotBlank(param.customerProfile)) {
+      if ( 'Asset Finance'.equals(param.customerProfile)) {
+        r = ((param.getNaf() * 3)/100);
+      } else if('Mini Moto'.equals(param.customerProfile)) {
+        r = 110 / 1.1;
+      } else if('Mini Moto Plus'.equals(param.customerProfile)) {
+        r = 165 / 1.1;
+      }
+    }
+    return r;
+  }
 
 }

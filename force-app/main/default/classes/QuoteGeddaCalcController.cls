@@ -1,4 +1,4 @@
-public without sharing class QuoteMoney3PLController {
+public with sharing class QuoteGeddaCalcController {
     @AuraEnabled
     public static QuoteController.AppQuotingWraper getQuotingData(QuoteController.QuotingDataParam param) {
       QuoteController.AppQuotingWraper r = QuoteController.getQuotingData(param);
@@ -7,33 +7,6 @@ public without sharing class QuoteMoney3PLController {
       return r;
     }
   
-    @AuraEnabled
-    public static Map<String, Object> profileOnChangeAction(QuoteController.AppQuotingWraper quote, Decimal riskFeeBase) {
-      try {
-        // Retrieve TERM, APPLICATION FEE, DOF, STANDARD RATE, CLIENT RATE
-        Map<String, Object> result = new Map<String, Object>();
-        QuotingCalculation.CalcParam param = new QuotingCalculation.CalcParam('Money3 PL');
-        param.customerProfile = quote.data.Customer_Profile__c;
-        param.riskGrade = quote.data.Category_Type__c;
-        param.totalAmount = riskFeeBase;
-        Decimal maxDof = QuotingCalculation.getMoney3PLmaxDof(param);
-        param.totalAmount = quote.data.NAF__c;
-        // param.totalInsurance = this.getTotalInsuranceType(QuotingCalculation.CALC_QUOTING);
-        param.riskFeeBase = riskFeeBase;
-        //
-        Decimal baseRate = QuotingCalculation.getBaseRate(param);
-        System.debug('baseRate >> ' + baseRate + '  param >> ' + JSON.serialize(param));
-        if ( baseRate != null ) {
-          result.put('baseRate', baseRate);
-          result.put('maxDof', maxDof);
-        }
-        return result;
-      } catch ( Exception e ) {
-        throw new GenericException(e.getMessage());
-      }
-    }
-  
-    //
     // Lee - 26/08/2022
     @AuraEnabled
     public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType) {
@@ -88,7 +61,7 @@ public without sharing class QuoteMoney3PLController {
         pdf.getParameters().put('loanPurpose', quote.Loan_Purpose__c != null ? quote.Loan_Purpose__c : '');
       }
       // pass universal variables
-      pdf.getParameters().put('lender', 'MONEY3 PL CALCULATION');
+      pdf.getParameters().put('lender', 'GEDDA CALCULATION');
   
       //Financial Details
       pdf.getParameters().put('vehicleAge', quote.Vehicle_Age__c + '');
@@ -102,7 +75,7 @@ public without sharing class QuoteMoney3PLController {
       Product__c p = QuoteController.getProduct(quote.Opportunity__c);
   
       p.Loan_Purpose__c = 'Personal Use';
-      p.Lender__c = 'Money3 PL';
+      p.Lender__c = 'Gedda';
       p.Quoting_Source__c = quote.Name;
       p.Repayment_Regularity__c = 'Monthly';
       p.Loan_Type__c = quote.Loan_Type__c;
@@ -122,5 +95,4 @@ public without sharing class QuoteMoney3PLController {
   
       return p;
     }
-  
-  }
+}
