@@ -1462,14 +1462,10 @@
                 <td>{!gstLength}</td>
             </tr>
             <tr width="100%">
-                <td>Condition</td>
-                <td>{!condition}</td>
                 <td>ABN length</td>
                 <td>{!abnLength}</td>
-            </tr>
-            <tr width="100%">
                 <td>Rate Add ON's</td>
-                <td colspan="3">{!rateOption}</td>
+                <td>{!rateOption}</td>
             </tr>
         </table>
         </apex:outputPanel>
