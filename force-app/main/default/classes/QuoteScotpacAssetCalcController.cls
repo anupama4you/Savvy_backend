@@ -76,7 +76,7 @@ public with sharing class QuoteScotpacAssetCalcController {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
 
         p.Loan_Purpose__c = 'Business Use';
-        p.Lender__c = 'Scotpac Asset';
+        p.Lender__c = 'ScotPac';
         p.Quoting_Source__c = quote.Name;
         p.Repayment_Regularity__c = 'Monthly';
         p.Loan_Type__c = quote.Loan_Type__c;

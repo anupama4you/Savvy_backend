@@ -17,7 +17,7 @@ public without sharing class QuoteAzoraCommController {
     private static List<Azora_Commercial_Rates__c> getRates() {
         return [SELECT Id, Loan_Type__c, Rate__c
                 FROM Azora_Commercial_Rates__c
-                ORDER BY Rate__c ASC, Name];
+                ORDER BY Name];
     }
 
     @AuraEnabled
@@ -157,7 +157,7 @@ public without sharing class QuoteAzoraCommController {
         pdf.getParameters().put('dof', '0');
         pdf.getParameters().put('productGoodsType', String.valueOf(quote.Goods_type__c));
         pdf.getParameters().put('loanTypeDetail', String.valueOf(quote.Loan_Facility_Type__c));
-        pdf.getParameters().put('rateOption', String.valueOf(quote.Rate_Options__c));
+        pdf.getParameters().put('rateOption', String.valueOf(quote.Rate_Options__c + '%'));
         pdf.getParameters().put('isFinanceOne', 'true');
         return pdf;
     }
@@ -165,7 +165,7 @@ public without sharing class QuoteAzoraCommController {
     public static Product__c productHandler(Application_Quoting__c quote) {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
         p.Loan_Purpose__c = 'Business Use';
-        p.Lender__c = 'Azora Commercial';
+        p.Lender__c = 'Azora';
         p.Quoting_Source__c = quote.Name;
         p.Repayment_Regularity__c = 'Monthly';
         p.Loan_Type__c = quote.Loan_Type__c;

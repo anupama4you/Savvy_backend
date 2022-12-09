@@ -69,6 +69,7 @@ public without sharing class QuoteResimacController {
 
         //Financial Details
         pdf.getParameters().put('loanType', quote.Loan_Type__c + '');
+        pdf.getParameters().put('productLoanType', '');
 
         pdf.getParameters().put('price', NumberUtils.format(quote.Vehicle_Price__c));
         pdf.getParameters().put('deposit', NumberUtils.format(quote.Deposit__c));
@@ -95,10 +96,11 @@ public without sharing class QuoteResimacController {
         pdf.getParameters().put('assetType', quote.Goods_type__c + '');
         pdf.getParameters().put('brokeragePercentage', NumberUtils.format(quote.Brokerage__c));
         pdf.getParameters().put('abn', quote.Extra_Label_1__c);
-        pdf.getParameters().put('GST', quote.Extra_Label_2__c);
+        // pdf.getParameters().put('GST', quote.Extra_Label_2__c);
 
         pdf.getParameters().put('customerProfile', quote.Customer_Profile__c);
         pdf.getParameters().put('rateOption', quote.Rate_Options__c);
+        pdf.getParameters().put('assetCategory', quote.Extra_Label_2__c);
 
         // ---- commissions -----
         pdf.getParameters().put('estimatedCommission', NumberUtils.format(quote.Commission_Estimation__c));
@@ -124,6 +126,7 @@ public without sharing class QuoteResimacController {
         p.Quoting_Source__c = quote.Name;
         p.Repayment_Regularity__c = 'Monthly';
         p.Loan_Type__c = quote.Loan_Type__c;
+        p.Loan_Type_Detail__c = quote.Goods_type__c;
         p.Loan_Product__c = quote.Loan_Product__c;
         p.Loan_Term__c = quote.Term__c;
         p.Client_Rate__c = quote.Client_Rate__c;

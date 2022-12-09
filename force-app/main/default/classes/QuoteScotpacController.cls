@@ -1,5 +1,5 @@
 public without sharing class QuoteScotpacController {
-    public class ScotpacWrapper {
+    public class Wrapper {
         @AuraEnabled
         public Application_Quoting__c data { set; get; }
 
@@ -12,8 +12,8 @@ public without sharing class QuoteScotpacController {
     }
 
     @AuraEnabled
-    public static ScotpacWrapper getQuotingData(QuoteController.QuotingDataParam param) {
-        ScotpacWrapper r = new ScotpacWrapper();
+    public static Wrapper getQuotingData(QuoteController.QuotingDataParam param) {
+        Wrapper r = new Wrapper();
         QuoteController.AppQuotingWraper aw = QuoteController.getQuotingData(param);
         r.data = aw.data;
         List<Custom_Opportunity__c> c = [SELECT Id, Loan_Product__r.Brokerage_GST_Inc__c
@@ -26,7 +26,7 @@ public without sharing class QuoteScotpacController {
     }
     
     @AuraEnabled
-    public static Application_Quoting__c save(ScotpacWrapper param, String approvalType) {
+    public static Application_Quoting__c save(Wrapper param, String approvalType) {
         Application_Quoting__c aq = null;
         try {
             aq = saveQuoting(param);
@@ -39,7 +39,7 @@ public without sharing class QuoteScotpacController {
         return aq;
     }
 
-    private static Application_Quoting__c saveQuoting(ScotpacWrapper param) {
+    private static Application_Quoting__c saveQuoting(Wrapper param) {
         if ( param.data.Id != null ) {
             update param.data;
         } else {
@@ -52,7 +52,7 @@ public without sharing class QuoteScotpacController {
         return apps.get(0);
     }
 
-    private static void saveProduct(ScotpacWrapper param, Product__c p) {
+    private static void saveProduct(Wrapper param, Product__c p) {
         try {
             Custom_Opportunity__c opp = QuoteController.getOpportunityById(param.data.Opportunity__c);
             if ( p.Id == null ) {

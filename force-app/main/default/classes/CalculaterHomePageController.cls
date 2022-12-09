@@ -237,8 +237,12 @@ public class CalculaterHomePageController {
           : '/partner/s/sales-tools/quoting-tools/westpac?recordId='+opportunityId+'&oppName='+opp.Name;
         // Scotpac Asset
         wrap.ScotpacAsset = !wrap.IsBrokerPartnerUser
-          ? Page.Westpac.getUrl() + '?id=' + opportunityId
+          ? Page.GeneralCalculator.getUrl() + '?id=' + opportunityId
           : '/partner/s/sales-tools/quoting-tools/scotpac-asset?recordId='+opportunityId+'&oppName='+opp.Name;
+        // Thorn
+        wrap.Thorn = !wrap.IsBrokerPartnerUser
+          ? Page.GeneralCalculator.getUrl() + '?id=' + opportunityId
+          : '/partner/s/sales-tools/quoting-tools/thorn?recordId='+opportunityId+'&oppName='+opp.Name;
 
         // ------ Personal Loans ------
         // Latitude PL
@@ -373,6 +377,7 @@ public class CalculaterHomePageController {
         @AuraEnabled public String SilverChef;
         @AuraEnabled public String westpac;
         @AuraEnabled public String ScotpacAsset;
+        @AuraEnabled public String Thorn;
 
         // ------ Personal Loans ------
         @AuraEnabled public String Latitude_Personal_Loan; //Page.LatitudePersonalCalculator;

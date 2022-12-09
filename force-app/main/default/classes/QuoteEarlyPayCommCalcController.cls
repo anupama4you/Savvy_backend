@@ -42,7 +42,7 @@ public without sharing class QuoteEarlyPayCommCalcController {
 
         // pass universal variables
         pdf.getParameters().put('id', quote.Opportunity__c);
-        pdf.getParameters().put('lender', 'MULTIPLI CALCULATION');
+        pdf.getParameters().put('lender', 'EARLY PAY CALCULATION');
 
         //Financial Details
         pdf.getParameters().put('loanType', quote.Loan_Type__c + '');
@@ -53,14 +53,17 @@ public without sharing class QuoteEarlyPayCommCalcController {
         pdf.getParameters().put('tradeIn', NumberUtils.format(quote.Trade_In__c));
         pdf.getParameters().put('payoutOn', NumberUtils.format(quote.Payout_On__c));
         pdf.getParameters().put('applicationFee', NumberUtils.format(quote.Application_Fee__c - quote.DOF__c));
-        pdf.getParameters().put('dof', NumberUtils.format(quote.DOF__c));
-        pdf.getParameters().put('ppsr', '0');
+        pdf.getParameters().put('dof', '0');
+        pdf.getParameters().put('ppsr', NumberUtils.format(quote.PPSR__c));
+        // pdf.getParameters().put('ppsr', '0');
         // specific data
         pdf.getParameters().put('assetAge', quote.Vehicle_Age__c + '');
-        pdf.getParameters().put('privateSales', quote.Private_Sales__c + '');
+        // pdf.getParameters().put('privateSales', quote.Private_Sales__c + '');
         pdf.getParameters().put('assetType', quote.Goods_type__c + '');
+        pdf.getParameters().put('abn', quote.Extra_Label_1__c);
         pdf.getParameters().put('brokeragePercentage', NumberUtils.format(quote.Brokerage__c));
-        pdf.getParameters().put('companyScore', quote.Credit_Score__c);
+        pdf.getParameters().put('directorSoleTraderScore', quote.Extra_Label_3__c);
+        pdf.getParameters().put('extraLabel2', quote.Extra_Label_2__c);
         pdf.getParameters().put('customerProfile', quote.Customer_Profile__c);
         pdf.getParameters().put('condition', quote.Condition__c);
 
@@ -94,7 +97,7 @@ public without sharing class QuoteEarlyPayCommCalcController {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
 
         p.Loan_Purpose__c = 'Business Use';
-        p.Lender__c = 'Multipli';
+        p.Lender__c = 'Early Pay';
         p.Quoting_Source__c = quote.Name;
         p.Repayment_Regularity__c = 'Monthly';
         p.Loan_Type__c = quote.Loan_Type__c;
@@ -104,11 +107,14 @@ public without sharing class QuoteEarlyPayCommCalcController {
         p.Payments__c = quote.Repayment_Monthly__c > 0 ? quote.Repayment_Monthly__c : 0.00;
         p.Cost_of_Goods__c = quote.Vehicle_Price__c;
         p.Deposit__c = quote.Net_Deposit__c == null ? 0 : quote.Net_Deposit__c;
-        p.DOF__c = quote.DOF__c > 0 ? quote.DOF__c : 0.0;
+        p.DOF__c = 0.0;
+        // p.DOF__c = quote.DOF__c > 0 ? quote.DOF__c : 0.0;
         p.Brokerage__c = quote.Commission_Estimation__c == null ? 0 : quote.Commission_Estimation__c;
         p.Lender_App_Fee__c = quote.Application_Fee__c > 0 ? quote.Application_Fee__c - quote.DOF__c : 0.0;
         p.Equalisation_Fee_PPSR__c = quote.PPSR__c > 0 ? quote.PPSR__c : 0.0;
-
+        p.Residual_Percentage__c = quote.Residual_Value_Percentage__c;
+        p.Balloon_Residual_Requested__c = quote.Residual_Value__c;
         return p;
     }
+
 }

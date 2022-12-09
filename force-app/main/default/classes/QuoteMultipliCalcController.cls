@@ -6,24 +6,24 @@ public without sharing class QuoteMultipliCalcController {
     }
 
     @AuraEnabled
-    public static Map<String, Decimal> getBaseRates(QuotingCalculation.CalcParam param) {
+    public static Map<String, Decimal> getBaseRates(QuotingCalculation.CalcParam param, Decimal manualRate) {
         Decimal baseRate = 0.00;
         Decimal clientRate = 0.00;
         baseRate = QuotingCalculation.getBaseRate(param);
-        param.baseRate = baseRate;
+        param.baseRate = manualRate > 0 ? manualRate : baseRate;
         clientRate = QuotingCalculation.getClientRateCalculation(param);
         return new Map<String, Decimal>{ 'baseRate' => baseRate, 'clientRate' => clientRate };
     }
 
     @AuraEnabled
-    public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType) {
+    public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType, Decimal manualRate) {
         try {
             QuoteController.saveQuoting(param);
             Product__c p = null;
             if ( !'NONE'.equals(approvalType) ) {
                 // save pdf
                 PageReference pdf = Page.UniversalCalculatorPdf;
-                pdf = pdfHandler(param.data);
+                pdf = pdfHandler(param.data, manualRate);
                 QuoteController.savePdf(approvalType, pdf, param);
                 // save product
                 p = productHandler(param.data);
@@ -35,7 +35,7 @@ public without sharing class QuoteMultipliCalcController {
         return param.data;
     }
 
-    public static PageReference pdfHandler(Application_Quoting__c quote) {
+    public static PageReference pdfHandler(Application_Quoting__c quote, Decimal manualRate) {
 
         // pass parameters to the PDF page
         PageReference pdf = QuoteController.createPdf(quote);
@@ -69,8 +69,11 @@ public without sharing class QuoteMultipliCalcController {
         pdf.getParameters().put('paymentType', quote.Payment__c + '');
         pdf.getParameters().put('monthlyFee', NumberUtils.format(quote.Monthly_Fee__c));
         pdf.getParameters().put('creditScore', String.valueOf(quote.Credit_Score__c) + '');
-
-        pdf.getParameters().put('baseRate', NumberUtils.format(quote.Base_Rate__c));
+        if ( manualRate > 0 ) {
+            pdf.getParameters().put('baseRate', NumberUtils.format(manualRate));
+        } else {
+            pdf.getParameters().put('baseRate', NumberUtils.format(quote.Base_Rate__c));
+        }
         pdf.getParameters().put('clientRate', NumberUtils.format(quote.Client_Rate__c));
 
         // ---- commissions -----
