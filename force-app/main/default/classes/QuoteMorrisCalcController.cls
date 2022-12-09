@@ -88,6 +88,7 @@ public with sharing class QuoteMorrisCalcController {
     public static Product__c productHandler(Application_Quoting__c quote) {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
 
+        p.Loan_Purpose__c = 'Business Use';
         p.Lender__c = 'Morris';
         p.Quoting_Source__c = quote.Name;
         p.Repayment_Regularity__c = 'Monthly';
@@ -98,8 +99,9 @@ public with sharing class QuoteMorrisCalcController {
         p.Cost_of_Goods__c = quote.Vehicle_Price__c;
         p.Deposit__c = quote.Net_Deposit__c == null? 0 : quote.Net_Deposit__c;
         p.Brokerage__c = quote.Commission_Estimation__c == null? 0 : quote.Commission_Estimation__c;
-        p.Lender_App_Fee__c = quote.Application_Fee__c;
-        p.Equalisation_Fee_PPSR__c = quote.PPSR__c;
+        p.Lender_App_Fee__c = quote.Application_Fee__c > 0? quote.Application_Fee__c : 0.00;
+        p.DOF__c = 0;
+        p.Equalisation_Fee_PPSR__c = quote.PPSR__c > 0? quote.PPSR__c : 0.0;
 
         return p;
     }

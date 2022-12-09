@@ -23,7 +23,18 @@ public with sharing class QuoteGrowBusiController {
     @AuraEnabled
     public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType) {
         try {
-            QuoteController.saveQuoting(param);
+            
+            // ------------------------------------------------------------
+            // Skip save option for Previewing if a quotation is presenting
+            Boolean notSave = false;
+            if ('PREVIEW'.equals(approvalType) && param.data != null) {        
+              notSave = QuoteController.isQuotePresenting(param.data.Id);
+            }
+            if (!notSave) {
+              QuoteController.saveQuoting(param);
+            }
+            // ------------------------------------------------------------
+
             Product__c p = null;
             if ( !'NONE'.equals(approvalType) ) {
                 // save pdf
@@ -119,18 +130,18 @@ public with sharing class QuoteGrowBusiController {
         return pdf;
     }
 
-    @AuraEnabled
-    public static Application_Quoting_Result__c calculateRepayments(QuotingCalculation.CalcParam param) {
-        param.amountBaseComm = getBaseAmountPmtCalc(param.totalAmount, getProtectedPercentaje(param.totalAmount));
-        return QuotingCalculation.calculate(param);
-    }
+    // @AuraEnabled
+    // public static Application_Quoting_Result__c calculateRepayments(QuotingCalculation.CalcParam param) {
+    //     param.amountBaseComm = getBaseAmountPmtCalc(param.totalAmount, getProtectedPercentaje(param.totalAmount));
+    //     return QuotingCalculation.calculate(param);
+    // }
 
-    private static Decimal getBaseAmountPmtCalc(Decimal carPrice, Decimal protectedPercentaje) {
-        Decimal r = 0.0;
-        if ( carPrice != null )
-            r += carPrice + ( carPrice * protectedPercentaje );
-        return r;
-    }
+    // private static Decimal getBaseAmountPmtCalc(Decimal carPrice, Decimal protectedPercentaje) {
+    //     Decimal r = 0.0;
+    //     if ( carPrice != null )
+    //         r += carPrice + ( carPrice * protectedPercentaje );
+    //     return r;
+    // }
 
     @AuraEnabled
     public static Decimal getProtectedPercentaje(Decimal carPrice) {

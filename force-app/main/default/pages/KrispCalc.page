@@ -401,6 +401,9 @@
     .api-details .resultNormalValue {
       font-weight: normal;
     }
+    form {
+      display: grid;
+    }
   </style>
   <c:sidebarV2 oppId="{!o.Id}" appId="{!o.Application__c}" showLenders="true" rendered="{!NOT(isBrokerPartnerUser)}" />
   <div id="mainContent" class="{!IF(NOT(isBrokerPartnerUser),'main-content','')}">
@@ -424,10 +427,6 @@
       <apex:actionFunction action="{!applicationFeeCalc}" name="applicationFeeCalc" reRender="applicationFee,dof" oncomplete="nafRefresh()"
       />
 
-      <!-- <apex:actionFunction action="{!profileOnChangeAction}" name="profileOnChangeJS" oncomplete="buttonsEnabled(true);"
-                                 reRender="applicationFee,dof,monthlyFee,term,baseRate,clientRate,loanTypeDe,realtimeNaf" /> -->
-      <apex:actionFunction action="{!save}" name="save" oncomplete="sendApplication();" status="stsprocess" />
-      <apex:actionFunction action="{!sendApplication}" name="sendApplication" reRender="calcFormData" status="stsprocess" />
       <div class="titleDiv">
         <h1>KIRSP for {!Custom_Opportunity__c.Name}</h1>
         <div class="buttonPanel">
@@ -437,9 +436,6 @@
                 <apex:actionStatus startText="(Processing...)" id="stsprocess" />
                 <apex:actionStatus startText="(Saving...)" id="stsSend1" />
                 <apex:actionStatus startText="(Sending...)" id="stsSend2" />&nbsp;&nbsp;&nbsp;
-                <!--Money3 Application-->
-                <apex:commandButton styleClass="calculateButtons" value="Money3 Application" onclick="save();return false;" rendered="{!AND(NOT(isBrokerPartnerUser),ISBLANK(money3API_BrokerReferenceId))}"
-                  status="stsprocess" reRender="calcFormData" />
                 <!--<apex:commandButton styleClass="calculateButtons" value="Send Files" action="{!sendFiles}" status="stsprocess" reRender="calcFormData"/>-->
                 <!--Jesus Mora 2020-08-21 start-->
                 <apex:commandButton styleClass="calculateButtons" value="Calculate" action="{!calculate}" status="stsprocess" reRender="calcFormData"

@@ -55,11 +55,6 @@ public with sharing class QuoteGeddaCalcController {
       if ( quote.Risk_Fee__c != null ) {
         pdf.getParameters().put('riskFee', NumberUtils.format(quote.Risk_Fee__c));
       }
-      if ( !'Personal Finance'.equals(quote.Customer_Profile__c) ) {
-        pdf.getParameters().put('loanPurpose', '');
-      } else {
-        pdf.getParameters().put('loanPurpose', quote.Loan_Purpose__c != null ? quote.Loan_Purpose__c : '');
-      }
       // pass universal variables
       pdf.getParameters().put('lender', 'GEDDA CALCULATION');
   

@@ -10,17 +10,6 @@ public class KrispCalcExtension extends QuotingExtension {
     public static final String LENDER_QUOTING = 'Krisp';
     //-
     
-    //Money3 API
-    public Money3APIManager money3APIMgr {get; set;}
-    public String money3API_BrokerReferenceId {get; set;}
-    public String money3API_LoanId {get; set;}
-    public String money3API_lastResponseApp {get; set;}
-    public List <SelectOption> usersAPIOptions {get;set;}
-    public String apiUser {get;set;}
-    public Boolean paramActive {set; get;}
-    public Money3APIManager.LoanResponseDTO lenderApp {get;set;}
-    //Money3 API
-
     public Boolean submitRequest {set; get;}
 
     // Lender variables
@@ -40,9 +29,6 @@ public class KrispCalcExtension extends QuotingExtension {
 
       preLoadQuotingValues();
 
-      //Money3 API
-      usersAPIOptions = Money3APIManager.getUserOptionsConnect();
-      apiUser = Money3APIManager.getApiUser(Opp);
       //NWC Calculator - HJ - 12-07-2018 - I
       loadNWCParameters();
       //NWC Calculator - HJ - 12-07-2018 - F
@@ -127,7 +113,7 @@ public class KrispCalcExtension extends QuotingExtension {
         } else {
             if (this.clientRate != this.baseRate) {
                 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,
-                    'Money 3 standard rate for ' + this.profile + '/' + this.grading + ' is ' + this.baseRate + '%.'));
+                    'Standard rate for ' + this.profile + '/' + this.grading + ' is ' + this.baseRate + '%.'));
             }
         }
 
@@ -283,14 +269,13 @@ public class KrispCalcExtension extends QuotingExtension {
 
         this.resetCalculationResult(); //Lelo       2017-07-25
 
-        lenderApp = null;
     }
     
     private PageReference savePdf (String prefixName) {
         // pass parameters to the PDF page
         PageReference calcPdf = this.createPdf();
         // pass universal variables
-        calcPdf.getParameters().put('lender', 'MONEY3 CALCULATION');
+        calcPdf.getParameters().put('lender', 'KRISP CALCULATION');
         
         // Lender parameters// Lender parameters
         calcPdf.getParameters().put('customerProfile', this.profile);
@@ -353,7 +338,7 @@ public class KrispCalcExtension extends QuotingExtension {
         //-
         
         updateProduct.Loan_Purpose__c = 'Personal Use';
-        updateProduct.Lender__c = 'Money3';
+        updateProduct.Lender__c = LENDER_QUOTING;
         updateProduct.Quoting_Source__c = LENDER_QUOTING;
         updateProduct.Repayment_Regularity__c = 'Monthly';
         
@@ -477,15 +462,6 @@ public class KrispCalcExtension extends QuotingExtension {
                 if('Personal Finance'.equals(this.profile)){
                     this.loanPurpose = d.Loan_Purpose__c;
                 }
-                
-                // API values
-                money3API_BrokerReferenceId = d.Money3_Broker_Reference_Id__c;
-                if (d.Money3_Loan_Id__c != null) {
-                  money3API_LoanId = String.valueOf(d.Money3_Loan_Id__c);
-                  loadLenderAppResponse(null);
-                }
-                money3API_lastResponseApp = d.Money3_Last_Response_App__c;
-                
             }
             
         }
@@ -689,11 +665,11 @@ public class KrispCalcExtension extends QuotingExtension {
         param.riskGrade = this.grading;
         param.totalAmount = this.getLoanAmount();
         //param.totalInsurance = this.getTotalInsuranceType(QuotingCalculation.CALC_QUOTING);
-        this.maxDof = QuotingCalculation.getMoney3maxDof(param);
+        this.maxDof = QuotingCalculation.getKrispMaxDof(param);
         param.totalAmount = this.getTotalAmount(QuotingCalculation.CALC_QUOTING);
         param.totalInsurance = this.getTotalInsuranceType(QuotingCalculation.CALC_QUOTING);
         param.riskFeeBase = this.getLoanAmount();
-        this.riskFeeTotal = QuotingCalculation.getMoney3RiskFee(param);
+        this.riskFeeTotal = QuotingCalculation.getKrispRiskFee(param);
 
         if (!maxOnly) {
             // this.applicationFee = this.getAppFeeCalculated(va);
@@ -729,178 +705,8 @@ public class KrispCalcExtension extends QuotingExtension {
         }
     }
 
-    // Money3 API call out
-    public void money3Application (){
-        // System.debug('>>>>> Response APPLICATION Money3  -I  <<<<<< - ');
-        try{
-          Money3APIService money3APIService = new Money3APIService();
-          this.money3APIMgr = new Money3APIManager();
-          money3APIService.requestApplication(this.money3APIMgr, Opp.Id , apiUser, false);
-        } catch(GenericException ex) {
-            this.money3APIMgr.isError = true;
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,ex.getMessage()));
-        }
-        
-        if (this.money3APIMgr.isError && 200 != this.money3APIMgr.responseStatus){
-            showErrorsMoney3API();
-        } else {
-          if (this.money3APIMgr.responseDto != null) {
-            money3API_BrokerReferenceId = this.money3APIMgr.responseDto.brokerReferenceLoanId;
-            money3API_LoanId = String.valueOf(this.money3APIMgr.responseDto.loanId);
-            money3API_lastResponseApp = this.money3APIMgr.responseDto.lastResponseApplication;
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM,'Application received ' + money3API_LoanId));
-            saveAPIInformation();
-          }
-        }
-        LenderAPIResponse__c lar = Money3APIManager.saveLenderAPIResponse(Opp.Id, this.money3APIMgr, LENDER_QUOTING, apiUser);
-        if (lar != null) {
-          this.loadLenderAppResponse(lar.Response__c);
-        }
-        // saveLenderAPIResponse();
-        // System.debug('>>>>> Response APPLICATION Money3  -F  <<<<<< - ');
-    }
-
-    // public void saveLenderAPIResponse() {
-    //   if (this.money3APIMgr != null && String.isNotBlank(this.money3APIMgr.responseMessage)) {
-    //     LenderAPIResponse__c lar = new LenderAPIResponse__c();
-    //     lar.Name = LENDER_QUOTING;
-    //     lar.Opportunity__c = this.Opp.Id;
-    //     lar.Request__c = this.money3APIMgr.reqBody;
-    //     lar.Response__c = this.money3APIMgr.responseMessage;
-    //     lar.Status__c = this.money3APIMgr.responseStatus;
-    //     lar.Provider__c = 'Money3';
-    //     lar.Service__c = 'loans';   
-    //     if (this.money3APIMgr.responseDto != null && this.money3APIMgr.responseDto.loanId > 0) {
-    //       lar.Application_ID__c = String.valueOf(this.money3APIMgr.responseDto.loanId);
-    //       lar.Name += ' [' + lar.Application_ID__c + ']';
-    //       this.loadLenderAppResponse(lar.Response__c);
-    //     } else {
-    //       lar.Name += ' [FAIL-' + DateUtils.getTimeForFileName() + ']';
-    //     }
-          
-    //     insert lar;
-          
-    //       if (this.money3APIMgr.responseDto != null && this.money3APIMgr.responseDto.loanId > 0) {
-    //           saveLenderAPIResponseFile();   
-    //       }  
-    //   }
-    // }
-
-    public void loadLenderAppResponse(String res) {
-      String rsp = res;
-      if (String.isBlank(res) && String.isNotBlank(this.money3API_LoanId)) {
-        List<LenderAPIResponse__c> d = [
-          Select Response__c From LenderAPIResponse__c 
-          Where Opportunity__c = :Opp.Id
-          And Application_ID__c = :this.money3API_LoanId
-        ];
-        rsp = d.isEmpty()? null : d.get(0).Response__c;
-      }
-      // System.debug(rsp);
-      if (String.isNotBlank(rsp)) {
-        try {
-          this.lenderApp = (Money3APIManager.LoanResponseDTO)JSON.deserialize(rsp, Money3APIManager.LoanResponseDTO.class);
-        } catch (Exception e) {
-          ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Response could not be mapped propperly. Message: ' + e.getMessage() + '.'));
-        }
-      }
-    }
-
-    public Boolean getHasLenderApp() {
-      return this.lenderApp != null;
-    }
-
-    private void saveAPIInformation(){
-        this.quoting.Money3_Broker_Reference_Id__c = money3API_BrokerReferenceId;
-        this.quoting.Money3_Loan_Id__c = Integer.valueOf(money3API_LoanId);
-        this.quoting.Money3_Last_Response_App__c = money3API_lastResponseApp;
-        update this.quoting;
-    }
-
-    private void showErrorsMoney3API(){
-      if (String.isNotBlank(money3APIMgr.message)) {
-        ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING,'Savvy message: ' + money3APIMgr.message + '. Please check all the data.'));
-        String sError = '';
-        // System.debug(sError);
-        String responseMessage = StringUtils.validateNull(money3APIMgr.responseMessage);
-        String[] errors = responseMessage.split('-');
-        if (money3APIMgr.isError == null){
-            sError = 'Status: [' + money3APIMgr.responseStatus + ']- Message: [' + StringUtils.validateNull(money3APIMgr.message) + ']- Response Message: [' + responseMessage + ']';
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING, sError));
-        }else{
-            sError = 'Status: [' + money3APIMgr.responseStatus + ']- Message: [' + StringUtils.validateNull(money3APIMgr.message) + ']- Response Message: [' + responseMessage + ']';
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING, sError));
-        }
-        ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING, '**Errors list**'));
-        for (String e : errors){
-            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.WARNING, e));
-        }
-      }
-    }
-
     public Boolean getIsBrokerPartnerUser() {
       return SOQLSingletonQueries.recs().isBrokerPartnerUser;
-    }
-    
-    public void sendFiles() {
-        if(String.isNotBlank(money3API_BrokerReferenceId)){
-            Money3APIService money3APIService = new Money3APIService();
-            this.money3APIMgr = new Money3APIManager();
-            this.money3APIMgr.responseDto = new Money3APIResponseDTO();
-            money3APIService.uploadDocumentsToMoney3(this.money3APIMgr, Opp.Id , Integer.valueOf(this.quoting.Money3_Loan_Id__c), true);
-            
-            saveLenderAPIResponseFile();
-        }
-    }
-    
-    public void saveLenderAPIResponseFile(){
-        
-        String loanId;
-        
-        if(String.isNotBlank(money3API_BrokerReferenceId)){
-            loanId = String.valueOf(this.quoting.Money3_Loan_Id__c);
-        }else{
-            loanId = String.valueOf(money3APIMgr.responseDto.loanId);
-        }
-        // System.debug(loanId);
-        List<LenderAPIResponse__c> lenderList = [
-            SELECT Id, Application_ID__c from LenderAPIResponse__c where 
-            Application_ID__c=:loanId];
-        
-        LenderAPIResponse__c lender;
-        
-        if(!lenderList.isEmpty()){
-            lender =  lenderList.get(0);
-            Money3APIManager.saveLenderAPIResponseFiles(lender.Id, money3APIMgr);
-        }
-        
-        // if(money3APIMgr.responseDto.docs != null && lender != null){
-        //     for (LenderAPIResponse__c l : money3APIMgr.responseDto.docs) {
-        //         l.LenderAPIResponse__c = lender.Id;
-        //         l.Provider__c = 'Money3';
-        //         l.Service__c = 'documents'; 
-        //     }
-            
-        //     if(!money3APIMgr.responseDto.docs.isEmpty()){
-        //         insert money3APIMgr.responseDto.docs;
-        //     }
-        // }
-    }
-    
-    public void sendApplication(){
-        
-        if(submitRequest){
-            try {
-                money3Application();
-            } catch (GenericException e) {
-                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,e.getMessage()));
-            }
-        }else{
-            isValidationOk();
-            if (this.rental == null || this.rental == 0) {
-                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Please calculate before sending to approval.'));
-            }
-        }		
     }
     
     public void save(){

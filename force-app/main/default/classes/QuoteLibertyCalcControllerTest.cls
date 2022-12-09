@@ -3,7 +3,7 @@ public class QuoteLibertyCalcControllerTest {
   
   private final static String LENDER_QUOTING = 'Liberty Drive';
   private final static List<String> LENDER_SETTINGS = new List<String>{
-    'LatitudeRatesv3__c'
+    'LibertyDrive__c'
   };
 
   @isTest

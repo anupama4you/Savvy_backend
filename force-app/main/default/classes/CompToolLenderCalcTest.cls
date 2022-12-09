@@ -264,7 +264,7 @@ public class CompToolLenderCalcTest {
     }
     // Asset Age
     List<Integer> ageValues = new List<Integer>{
-      0, 7, 10
+      0, 2, 5, 7, 10
     };
     p.residentialStatus = residencyValues.get(1);
     for (Integer age : ageValues) {

@@ -93,13 +93,63 @@ private class QuoteFinanceOneControllerTest {
         test.stopTest();  
     }
 
-    @isTest static void calcRepaymentsTestMethod() {
-        QuotingCalculation.CalcParam param = getParams();
-        param.nafCommission = QuoteFinanceOneCommController.getNafCommission(param, QuotingCalculation.CALC_QUOTING);
-        test.startTest();
-        Application_Quoting_Result__c res = QuoteFinanceOneController.calculateRepayments(param);
-        system.assertEquals(TRUE, res != null);
-        test.stopTest();  
+    // @isTest static void calcRepaymentsTestMethod() {
+    //     QuotingCalculation.CalcParam param = getParams();
+    //     param.nafCommission = QuoteFinanceOneCommController.getNafCommission(param, QuotingCalculation.CALC_QUOTING);
+    //     test.startTest();
+    //     Application_Quoting_Result__c res = QuoteFinanceOneController.calculateRepayments(param);
+    //     system.assertEquals(TRUE, res != null);
+    //     test.stopTest();  
+    // }
+    
+    private final static String LENDER_QUOTING = 'Finance One';
+  private final static List<String> LENDER_SETTINGS = new List<String>{
+    'FinanceOneRates__c'
+  };
+
+  @isTest
+  static void testSave() {
+    Test.startTest();
+    String approvalType = 'NONE';
+    Map<String, Application_Quoting_Result__c> res = new Map<String, Application_Quoting_Result__c>();
+    Application_Quoting__c appQuote = buildAppQuote();
+    Application_Quoting_Result__c appQuoteResult = QuoteControllerTest.buildAppQuoteResult(
+      appQuote.Id
+    );
+    res.put('commissions', appQuoteResult);
+    QuoteController.AppQuotingWraper param = new QuoteController.AppQuotingWraper();
+    param.data = appQuote;
+    param.results = res;
+    QuoteFinanceOneController.save(param, approvalType);
+    approvalType = 'PRE-APPROVAL';
+    QuoteFinanceOneController.save(param, approvalType);
+
+    try {
+      QuoteFinanceOneController.save(null, approvalType);
+    } catch (GenericException ex) {
     }
+
+    test.stopTest();
+  }
+
+  // --------------------
+  // Supporting functions
+  // --------------------
+  
+  private static Application_Quoting__c buildAppQuote() {
+    Application_Quoting__c q = QuoteControllerTest.buildAppQuoting();
+    Custom_Opportunity__c opp = Test_DataGeneratorHelper.buildOpp(false);
+    Application__c app = Test_DataGeneratorHelper.buildCarApp(false);
+
+    q.Opportunity__c = opp.id;
+    q.Application__c = app.id;
+    q.Name = LENDER_QUOTING;
+
+    q.Loan_Facility_Type__c = 'Prime Plus';
+
+    insert q;
+    return q;
+  }
+
 
 }

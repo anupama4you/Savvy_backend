@@ -318,7 +318,7 @@ public class RateSetterCalculatorExtension extends QuotingExtension {
         //-
         
         updateProduct.Loan_Purpose__c = 'Personal Use';
-        updateProduct.Lender__c = LENDER_QUOTING;
+        updateProduct.Lender__c = 'Plenti';
         updateProduct.Quoting_Source__c = LENDER_QUOTING;
         updateProduct.Repayment_Regularity__c = 'Monthly';
         
@@ -574,8 +574,7 @@ public class RateSetterCalculatorExtension extends QuotingExtension {
         if (rate != null) {
             param.commRate = rate.Overs__c;
         }
-        System.debug('AUGDEBUG: '+quotingType + '|' + param.totalAmount + '|' + param.totalInsurance + '|' + param.totalInsuranceIncome + '|' + param.commRate);
-        // System.debug(quotingType + '|' + param.totalAmount + '|' + param.totalInsurance + '|' + param.totalInsuranceIncome);
+        System.debug(quotingType + '|' + param.totalAmount + '|' + param.totalInsurance + '|' + param.totalInsuranceIncome);
 
         Application_Quoting_Result__c r = QuotingCalculation.calculate(param);
         if (r != null) {

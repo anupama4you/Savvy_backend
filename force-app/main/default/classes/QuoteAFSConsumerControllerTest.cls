@@ -1,5 +1,11 @@
 @isTest
 private class QuoteAFSConsumerControllerTest {
+
+  private final static String LENDER_QUOTING = 'AFS Consumer';
+  private final static List<String> LENDER_SETTINGS = new List<String>{
+    'AFSRateV2__c'
+  };
+
    @testSetup static void setup() {
         Test_DataGeneratorHelper.applicationQuoting(true);
         Test_DataGeneratorHelper.createQuote();
@@ -63,7 +69,7 @@ private class QuoteAFSConsumerControllerTest {
         QuotingCalculation.CalcParam param = getParams();
         param.commRate = QuotingCalculation.getAFSRateCommission(param);
         test.startTest();
-        Application_Quoting_Result__c res = QuoteAFSConsumerController.calculateRepayments(param);
+        QuoteController.QuotingResultWraper res = QuoteAFSConsumerController.calculateRepayments(param, null);
         system.assertEquals(TRUE, res != null);
         test.stopTest();  
     }
@@ -75,5 +81,47 @@ private class QuoteAFSConsumerControllerTest {
         system.assertEquals(TRUE, res != null);
         test.stopTest();  
     }
+
+  @isTest
+  static void testSave() {
+    Test.startTest();
+    String approvalType = 'NONE';
+    Map<String, Application_Quoting_Result__c> res = new Map<String, Application_Quoting_Result__c>();
+    Application_Quoting__c appQuote = buildAppQuote();
+    Application_Quoting_Result__c appQuoteResult = QuoteControllerTest.buildAppQuoteResult(
+      appQuote.Id
+    );
+    res.put('commissions', appQuoteResult);
+    QuoteController.AppQuotingWraper param = new QuoteController.AppQuotingWraper();
+    param.data = appQuote;
+    param.results = res;
+    QuoteAFSConsumerController.save(param, approvalType, 'casual');
+    approvalType = 'PRE-APPROVAL';
+    QuoteAFSConsumerController.save(param, approvalType, '');
+
+    try {
+      QuoteAFSConsumerController.save(null, approvalType, null);
+    } catch (GenericException ex) {
+    }
+
+    test.stopTest();
+  }
+
+  // --------------------
+  // Supporting functions
+  // --------------------
+  
+  private static Application_Quoting__c buildAppQuote() {
+    Application_Quoting__c q = QuoteControllerTest.buildAppQuoting();
+    Custom_Opportunity__c opp = Test_DataGeneratorHelper.buildOpp(false);
+    Application__c app = Test_DataGeneratorHelper.buildCarApp(false);
+
+    q.Opportunity__c = opp.id;
+    q.Application__c = app.id;
+    q.Name = LENDER_QUOTING;
+
+    insert q;
+    return q;
+  }
 
 }

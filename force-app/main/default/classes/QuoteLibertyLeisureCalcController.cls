@@ -92,7 +92,7 @@ public with sharing class QuoteLibertyLeisureCalcController {
     public static Product__c productHandler(Application_Quoting__c quote) {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
         p.Loan_Purpose__c = 'Personal Use';
-        p.Lender__c = quote.Name;
+        p.Lender__c = 'Liberty';
         p.Quoting_Source__c = quote.Name;
         p.Repayment_Regularity__c = 'Monthly';
         p.Loan_Type__c = quote.Loan_Type__c;
@@ -104,9 +104,9 @@ public with sharing class QuoteLibertyLeisureCalcController {
         p.Payments__c = quote.Repayment_Weekly__c;
         p.Cost_of_Goods__c = quote.Vehicle_Price__c;
         p.Deposit__c = quote.Net_Deposit__c == null? 0 : quote.Net_Deposit__c;
-        p.DOF__c = quote.DOF__c;
+        p.DOF__c = quote.DOF__c > 0? quote.DOF__c : 0.00;
         p.Brokerage__c = quote.Commission_Estimation__c == null? 0 : quote.Commission_Estimation__c;
-        p.Lender_App_Fee__c = quote.Application_Fee__c;
+        p.Lender_App_Fee__c = quote.Application_Fee__c - p.DOF__c;
         p.Equalisation_Fee_PPSR__c = quote.PPSR__c > 0.0? quote.PPSR__c : 0.0;
         p.Equalisation_Fee_PPSR__c += quote.Risk_Fee__c > 0.0? quote.Risk_Fee__c : 0.0;
 

@@ -23,22 +23,22 @@ public without sharing class QuoteAffordableCLCalcController {
         return d;
     }
 
-    @AuraEnabled
-    public static Map<String, Decimal> getBaseRates(QuotingCalculation.CalcParam param) {
-        Decimal br = 0.00;
-        Decimal max = 0.00;
-        // try {
-        br = QuotingCalculation.getBaseRate(param);
-        if (param.hasMaxRate != null && param.hasMaxRate) {
-            max = QuotingCalculation.getMaximunBaseRate(param);
-        }
-        // } catch (Exception e) {
-        //   throw new GenericException(e.getMessage());
-        // }
+    // @AuraEnabled
+    // public static Map<String, Decimal> getBaseRates(QuotingCalculation.CalcParam param) {
+    //     Decimal br = 0.00;
+    //     Decimal max = 0.00;
+    //     // try {
+    //     br = QuotingCalculation.getBaseRate(param);
+    //     if (param.hasMaxRate != null && param.hasMaxRate) {
+    //         max = QuotingCalculation.getMaximunBaseRate(param);
+    //     }
+    //     // } catch (Exception e) {
+    //     //   throw new GenericException(e.getMessage());
+    //     // }
 
-        return new Map<String, Decimal>{'baseRate' => br, 'maxRate' => max};
+    //     return new Map<String, Decimal>{'baseRate' => br, 'maxRate' => max};
 
-    }
+    // }
     
     @AuraEnabled
     public static Application_Quoting__c save(QuoteController.AppQuotingWraper param, String approvalType){

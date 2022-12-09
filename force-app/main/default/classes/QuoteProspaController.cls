@@ -76,6 +76,19 @@ public without sharing class QuoteProspaController {
         p.Loan_Type__c = 'Business Loan';
         p.Loan_Product__c = 'Business Loan';
         p.Brokerage__c = quote.Commission_Total_GST_Exc__c;
+        p.Loan_Type_Detail__c = null;
+        p.Loan_Term__c = 36;
+        p.Balloon_Residual_Requested__c = 0.00;
+        p.Client_Rate__c = 0.00;
+        p.Repayment_Regularity__c = null;
+        p.Loan_Number__c = null;
+        p.Cost_of_Goods__c = 0.00;
+        p.DOF__c	 = 0.00;
+        p.Lender_App_Fee__c = 0.00;
+        p.Deposit__c = 0.00;
+        p.Equalisation_Fee_PPSR__c = 0.00;
+        p.Payments__c = 0.00;
+
         return p;
     }
 

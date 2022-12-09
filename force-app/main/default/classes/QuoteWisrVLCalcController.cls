@@ -92,7 +92,7 @@ public with sharing class QuoteWisrVLCalcController {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
 
         p.Loan_Purpose__c = quote.Loan_Type__c == 'Comsumer Loan' ? 'Personal Use': 'Business Use';
-        p.Lender__c = 'Wisr VL';
+        p.Lender__c = 'Wisr';
         p.Quoting_Source__c = quote.Name;
         p.Repayment_Regularity__c = 'Monthly';
         p.Loan_Type__c = quote.Loan_Type__c;

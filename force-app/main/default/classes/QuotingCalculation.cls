@@ -44,6 +44,7 @@ public without sharing class QuotingCalculation {
         || 'Commercial Equity Group'.equals(param.lender)
         || 'Group and General'.equals(param.lender)
         || 'Resimac'.equals(param.lender)
+        || 'Multipli'.equals(param.lender)
       ) {
         r = calculateGCA(param);
       } else if (
@@ -89,7 +90,7 @@ public without sharing class QuotingCalculation {
         'Finance One'.equals(param.lender) ||
         'Finance One PL'.equals(param.lender) ||
         'Finance One Business'.equals(param.lender) ||
-        'Finance One Commercial'.equals(param.lender)
+        'Finance One Commercial'.equals(param.lender) 
       ) {
         r = calculateFinanceOne(param);
       } else if (
@@ -160,13 +161,19 @@ public without sharing class QuotingCalculation {
         r = calculateKrisp(param);
       } else if ('Money3 PL'.equals(param.lender)) {
         r = calculateMoney3PL(param); 
-      } 
-      // else if ('Resimac'.equals(param.lender)) {
-      //   r = calculateMoney3PL(param);
-      // } 
-      else if ('Gedda'.equals(param.lender)) {
+      } else if ('Azora Commercial'.equals(param.lender)) {
+        r = calculateAzoraCommercial(param);
+      } else if ('Gedda'.equals(param.lender)) {
         r = calculateGedda(param); 
-      } 
+      } else if ('Scotpac Asset'.equals(param.lender)) {
+        r = calculateScotpacAsset(param); 
+      } else if ('Early Pay Commercial'.equals(param.lender)) {
+        r = calculateEarlyPayCommercial(param);
+      } else if ('Thorn'.equals(param.lender)) {
+        r = calculateThorn(param);
+      } else if ('C1 Finance'.equals(param.lender)) {
+        r = calculateC1Finance(param);
+      }
     }
     return r;
   }
@@ -1604,6 +1611,8 @@ public without sharing class QuotingCalculation {
         r = getResimacBaseRate(param);
       }  else if ('Gedda'.equals(param.lender)) {
         r = getGeddaBaseRate(param);
+      } else if ('Multipli'.equals(param.lender)) {
+        r = getMultipliBaseRate(param);
       } 
     }
     return r;
@@ -3406,21 +3415,21 @@ public without sharing class QuotingCalculation {
         d.sort();
         for (Racv_Rates__c x :  d) {
             if (
-                category!= NULL && category!='' && creditScore!=NULL && creditScore!='' && propertyOwner!='' && carAge!=NULL && x.Asset_Type__c.equals(category) && x.Min_Loan_Amount__c >= totalAmount &&
+                category!= NULL && category!='' && creditScore!=NULL && creditScore!='' && propertyOwner!='' && carAge!=NULL && x.Min_Loan_Amount__c >= totalAmount &&
                 x.Max_Loan_Amount__c <= totalAmount && x.Min_Credit_Score__c >= Integer.valueof(creditScore) && x.Max_Credit_Score__c <= Integer.valueof(creditScore)
             ) {
                 if(propertyOwner=='Yes'){
-                    if(carAge<=3)
-                        rate = x.Rate_1__c;
-                    else
-                       rate = x.Rate_2__c; 
-                }
-                else{
-                    if(carAge<=3)
-                        rate = x.Rate_3__c;
-                    else
-                       rate = x.Rate_4__c; 
-                }
+                  if(category=='CAR/CARAVAN<3YRS')
+                      rate = x.Rate_1__c;
+                  else
+                    rate = x.Rate_2__c; 
+              }
+              else{
+                  if(category=='CAR/CARAVAN>3YRS')
+                      rate = x.Rate_3__c;
+                  else
+                    rate = x.Rate_4__c; 
+              }
             }
         }
         
@@ -4382,6 +4391,14 @@ public without sharing class QuotingCalculation {
           r += 1;
         }
         
+        if (
+          'Motorbikes'.equals(param.assetType) &&
+          !'Property Owner'.equals(param.customerProfile) &&
+          'N'.equals(param.hasImports)
+        ) {
+          r += 2;
+        }
+        
         if (!isMaxRate && 'RateSetter'.equals(param.lender)) {
           r = r - 2.0;
         }
@@ -4396,6 +4413,10 @@ public without sharing class QuotingCalculation {
         Decimal t = param.term > 0? param.term / 12.0 : 0.0;
         if (t > 5) {
           r += 0.3;
+        }
+
+        if ('Motorbikes'.equals(param.assetType)) {
+          r += 1;
         }
       }
     }
@@ -4587,6 +4608,10 @@ public without sharing class QuotingCalculation {
     public String gst { get; set; }
     @AuraEnabled
     public Decimal addOnRate { get; set; }
+    @AuraEnabled
+    public Decimal defaultBaseRate { get; set; }
+    @AuraEnabled
+    public String assetCategory { get; set; }
 
     public CalcParam() {
       this.totalAmount = 0.0;
@@ -4828,13 +4853,6 @@ public without sharing class QuotingCalculation {
          */ 
         Decimal r = 0.00;
         r = getRacvBaseRate(param);
-        /*r = getRacvRatesByClass(
-            param.goodsType,
-            param.carAge,
-            param.creditScore,
-            param.propertyOwner,
-            param.totalAmount
-        );*/
         if(r>0){
             return r+1.5;
         }else{
@@ -6678,108 +6696,71 @@ public without sharing class QuotingCalculation {
     }
     //Racv Base Rate Calculate
     private static decimal getRacvBaseRate(	QuotingCalculation.CalcParam param ){
-	
-    system.debug(':::: Param getRacvBaseRate ::::'+param);
     
     String VechicleType =  param.assetType; 		//VechicleType,  //vehicleType
-    Integer VechicleAge = param.carAge;				//integer VechicleAge, //carAge
     String VechicleCondition = param.condition;		//String VechicleCondition, //condition - vehCon
     String PropertyOwner = param.propertyOwner;		//String PropertyOwner, //propertyOwner
     String creditScore = param.creditScore;			//String creditScore, //creditScore
     Decimal loanAmt = param.totalAmount;				//Decimal loanAmt){ //totalAmount
 
-        
-	system.debug(':::: VechicleType :::::'+VechicleType);
-	system.debug(':::: VechicleAge :::::'+VechicleAge);
-	system.debug(':::: VechicleCondition :::::'+VechicleCondition);
-	system.debug(':::: PropertyOwner :::::'+PropertyOwner);
-	system.debug(':::: creditScore :::::'+creditScore);
-	system.debug(':::: loanAmt :::::'+loanAmt);
+      Integer creditScoreMin, creditScoreMax;									
+      if( !String.isblank(creditScore) && creditScore.endsWith('+')){
+        creditScoreMin = integer.valueof(creditScore.removeEnd('+'));
+        creditScoreMax = 9999;
+      }else if(!String.isblank(creditScore) && creditScore.contains('-')){
+        List<String> creditScorePoint =  creditScore.split('-');
+        creditScoreMin = integer.valueof(creditScorePoint[0]);
+        creditScoreMax = integer.valueof(creditScorePoint[1]);
+      }
+      Decimal Rate1 = 0.00, Rate2 = 0.00, Rate3 = 0.00, Rate4 = 0.00;
+      //Set the rate here 
+      //credit score and loan amount
 
-	Integer creditScoreMin, creditScoreMax;									
-	if( VechicleAge == null){
-		VechicleAge = 0;
-	}
-	if( !String.isblank(creditScore) && creditScore.endsWith('+')){
-		creditScoreMin = integer.valueof(creditScore.removeEnd('+'));
-		creditScoreMax = 9999;
-	}else if(!String.isblank(creditScore) && creditScore.contains('-')){
-		List<String> creditScorePoint =  creditScore.split('-');
-		creditScoreMin = integer.valueof(creditScorePoint[0]);
-		creditScoreMax = integer.valueof(creditScorePoint[1]);
-	}
-        system.debug('@@@ creditScoreMin '+creditScoreMin);
-        system.debug('@@@ creditScoreMax '+creditScoreMax);
-	Decimal Rate1 = 0.00, Rate2 = 0.00, Rate3 = 0.00, Rate4 = 0.00;
-	//Set the rate here 
-	//credit score and loan amount
+      String standardAssetType = '';
 
-	List<Racv_Rates__c> racvRates = Racv_Rates__c.getAll().values();
-	/*
-		
-		Asset_Type__c
-		Min_Credit_Score__c
-		Max_Credit_Score__c
-		Min_Loan_Amount__c
-		Max_Loan_Amount__c
-		Rate_1__c
-		Rate_2__c
-		Rate_3__c
-		Rate_4__c
+      if(VechicleType == 'CAR/CARAVAN<3YRS' || VechicleType == 'CAR/CARAVAN>3YRS') {
+        standardAssetType = 'Car/Caravans';
+      } else if(VechicleType == 'MOTORBIKE' || VechicleType == 'BOAT') {
+        standardAssetType = 'Personal/Bike/Boats';
+      }
 
-	*/
+      List<Racv_Rates__c> racvRates = Racv_Rates__c.getAll().values();
 
-
-	for(Racv_Rates__c racv : racvRates){
-		if( racv.Min_Credit_Score__c != null && racv.Min_Credit_Score__c >= creditScoreMin && 
-			racv.Max_Credit_Score__c != null && racv.Max_Credit_Score__c <= creditScoreMax && 
-			racv.Min_Loan_Amount__c != null && loanAmt >= racv.Min_Loan_Amount__c && 
-			racv.Max_Loan_Amount__c != null && loanAmt <= racv.Max_Loan_Amount__c
-		){
-			Rate1 = racv.Rate_1__c != null ? racv.Rate_1__c : 0;
-			Rate2 = racv.Rate_2__c != null ? racv.Rate_2__c : 0;
-			Rate3 = racv.Rate_3__c != null ? racv.Rate_3__c : 0;
-			Rate4 = racv.Rate_4__c != null ? racv.Rate_4__c : 0;
-		}
-	}
-
-    system.debug('@@@ Rate1 --'+Rate1);
-    system.debug('@@@ Rate2 --'+Rate2);
-    system.debug('@@@ Rate3 --'+Rate3);
-    system.debug('@@@ Rate4 --'+Rate4);
+      for(Racv_Rates__c racv : racvRates){
+        if( racv.Min_Credit_Score__c != null && racv.Min_Credit_Score__c >= creditScoreMin && 
+          racv.Max_Credit_Score__c != null && racv.Max_Credit_Score__c <= creditScoreMax && 
+          racv.Min_Loan_Amount__c != null && loanAmt >= racv.Min_Loan_Amount__c && 
+          racv.Max_Loan_Amount__c != null && loanAmt <= racv.Max_Loan_Amount__c && 
+          racv.Asset_Type__c == standardAssetType
+        ){
+          Rate1 = racv.Rate_1__c != null ? racv.Rate_1__c : 0;
+          Rate2 = racv.Rate_2__c != null ? racv.Rate_2__c : 0;
+          Rate3 = racv.Rate_3__c != null ? racv.Rate_3__c : 0;
+          Rate4 = racv.Rate_4__c != null ? racv.Rate_4__c : 0;
+        }
+      }
     
-    if( !String.isBlank(VechicleType) && (VechicleType == 'CAR' || VechicleType == 'CARAVAN')){
-          SYSTEM.debug('@@@@@ VechicleType - if @@@@@'+VechicleType);
-        if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'YES') && VechicleAge <= 3 ){
-          SYSTEM.debug('@@@@@ VechicleType - if - Rate1 @@@@@'+Rate1);
+    if( !String.isBlank(VechicleType) && (VechicleType == 'CAR/CARAVAN<3YRS' || VechicleType == 'CAR/CARAVAN>3YRS')){
+        if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'YES') && VechicleType == 'CAR/CARAVAN<3YRS'){
                 return Rate1;
-        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'YES') && VechicleAge > 3 ){
-          SYSTEM.debug('@@@@@ VechicleType - if - Rate2 @@@@@'+Rate2);
+        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'YES') && VechicleType == 'CAR/CARAVAN>3YRS'){
                 return Rate2;
-        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'NO') && VechicleAge <= 3 ){
-          SYSTEM.debug('@@@@@ VechicleType - if - Rate3 @@@@@'+Rate3);
+        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'NO') && VechicleType == 'CAR/CARAVAN<3YRS' ){
                 return Rate3;
-        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'NO') && VechicleAge > 3 ){
-          SYSTEM.debug('@@@@@ VechicleType - if - Rate4 @@@@@'+Rate4);
+        }else if(( !String.isblank(PropertyOwner) &&  PropertyOwner == 'NO') && VechicleType == 'CAR/CARAVAN>3YRS'){
                 return Rate4;
       }
     }else if( !String.isBlank(VechicleType) && (VechicleType == 'BOAT' || VechicleType == 'BOAT (or Personal Watercraft)' || VechicleType == 'MOTORBIKE') ){
-      SYSTEM.debug('@@@@@ VechicleType - else if @@@@@'+VechicleType);
         if( !String.isblank(PropertyOwner) &&  PropertyOwner == 'YES'){
-                SYSTEM.debug('@@@@@ VechicleType - else if - Rate1 @@@@@'+Rate1);
           return Rate1;
         }else if(!String.isblank(PropertyOwner) &&  PropertyOwner == 'NO'){
-                SYSTEM.debug('@@@@@ VechicleType - else if - Rate2 @@@@@'+Rate2);
           return Rate2;
         }else if( !String.isblank(VechicleCondition) && (VechicleCondition == 'NEW' || VechicleCondition == 'USED') ){
-                SYSTEM.debug('@@@@@ VechicleType - else if - Rate3 @@@@@'+Rate3);
           return Rate3;
         }else if( !String.isblank(VechicleCondition) && (VechicleCondition == 'NEW' || VechicleCondition == 'USED') ){
-                SYSTEM.debug('@@@@@ VechicleType - else if - Rate4 @@@@@'+Rate4);
           return Rate4;
         }
     }else{
-          SYSTEM.debug('@@@@@ VechicleType - else 0.00 @@@@@');
         return 0.00;
     }
     return 0.00;
@@ -7121,27 +7102,36 @@ private static Application_Quoting_Result__c calculateKrisp(
     }
 
     // addOnRate: a new parameter in CalcParam
-    if ( param.addOnRate != null ) {
-        r += param.addOnRate;
-    }
+    // if ( param.addOnRate != null ) {
+    //     r += param.addOnRate;
+    // }
     Decimal loadingRates = 0;
-
-    if ( param.term <= 24 ) {
+    if ( param.term <= 24 && param.term != 0  ) {
         loadingRates += 0.5;
     }
-    if ( param.privateSales.equals('Y') || param.getNaf() <= 20000 ) {
+    if ('Motor Vehicles'.equals(param.assetType) && Integer.valueOf(param.assetAge) >= 3 ) {
+        loadingRates += 0.5;
+    }
+    if ('Y'.equals(param.privateSales)) {
         loadingRates += 1;
     }
-    if ( param.propertyOwner.equals('N') || Integer.valueOf(param.assetAge) >= 16)  {
+    if (param.getNaf() <= 20000) {
+        loadingRates += 1;
+    }
+    if ('N'.equals(param.propertyOwner))  {
         loadingRates += 1.5;
     }
-    // TODO 2.0% part
+    if (Integer.valueOf(param.assetAge) >= 16) {
+      loadingRates += 1.5;
+    }
+    if (!'Standard Vehicles'.equals(param.assetCategory)) {
+        loadingRates += 2;
+    }
 
     if ( loadingRates >= 4 ) {
         loadingRates = 4;
     }
     r += loadingRates;
-
     if ( param.brokeragePer > 5 ) {
         r += ( param.brokeragePer - 5 );
     }
@@ -7237,5 +7227,290 @@ private static Application_Quoting_Result__c calculateKrisp(
     }
     return r;
   }
+
+  private static Application_Quoting_Result__c calculateAzoraCommercial(
+    CalcParam param
+  ) {
+    // System.debug('Finance One calculation...');
+    Application_Quoting_Result__c r = new Application_Quoting_Result__c();
+    r.Payment_Calc_Type__c = 'DF';
+    r.NAF__c = param.getNaf();
+    // System.debug('NAF: ' + r.NAF__c);
+    // calculate the payment rate based on client rate, which is determined by consultants
+    Decimal realRate = param.clientRate / 100;
+    Decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
+    Decimal rate = FinancialUtilities.rate(
+      1000,
+      12,
+      0,
+      futureValue,
+      realRate / 12,
+      false
+    );
+    // System.debug('realRate: ' + realRate);
+    // System.debug('rate: ' + rate);
+
+    // calculate the monthly payment based on client rate
+    r.Rental__c = FinancialUtilities.pmt(
+      param.getNaf(),
+      rate,
+      param.term,
+      param.residualValue,
+      param.getPaymentTypeBoolean()
+    );
+    r.Rental__c = r.Rental__c.setScale(2);
+    // System.debug('rental: ' + r.Rental__c);
+
+    // calculate the estimated commission
+    Decimal commBase = 0.0;
+    Decimal commBaseAmount = param.nafCommission;
+    // Decimal diff = param.clientRate - param.baseRate;
+    
+    commBaseAmount = param.nafCommission;
+    commBase = param.brokeragePer;
+
+    System.debug('commBase: ' + commBase);
+    r.Estimated_Commission__c = commBase / 100 * commBaseAmount; //Lelo, 2016-10-12
+    r.Estimated_Commission__c = r.Estimated_Commission__c.setScale(2);
+    // System.debug('param.nafCommission: ' + param.nafCommission);
+    // System.debug('Estimated Commission: ' + r.Estimated_Commission__c);
+
+    //calculate the insurance income
+    r.Insurance_Income__c = param.totalInsuranceIncome;
+    r.Insurance_Income__c = r.Insurance_Income__c / 1.1;
+    r.Insurance_Income__c = r.Insurance_Income__c.setScale(2);
+
+    // calculate the dof without GST
+    r.DOF__c = param.dof / 1.1;
+    r.DOF__c = r.DOF__c.setScale(2);
+
+    // calculate the monthly payment
+    r.Monthly_Payment__c = r.Rental__c + param.monthlyFee;
+    r.Monthly_Payment__c = r.Monthly_Payment__c.setScale(2);
+
+    r.recalculateFormulas();
+
+    return r;
+  }
+
+      // Multipli
+    private static Decimal getMultipliBaseRate(CalcParam param) {
+        Decimal r = 0.0;
+        r = param.defaultBaseRate;
+        String privateSales = param.privateSales;
+        Decimal term = param.term > 60 ? 60 : param.term;
+        if ( 'Y'.equals(privateSales))  {
+            r += 1;
+        }
+        r += ( 5 - term / 12 ) * 0.75;
+        r += param.brokeragePer > 4 ? (param.brokeragePer - 4) / 2 : 0;
+        return r;
+    }
+
+    private static Application_Quoting_Result__c calculateScotpacAsset(CalcParam param) {
+      Application_Quoting_Result__c r = new Application_Quoting_Result__c();
+      r.Payment_Calc_Type__c = 'DF';
+      r.NAF__c = param.getNaf();
+  
+      // calculate the payment rate based on client rate, which is determined by consultants
+      decimal realRate = param.baseRate / 100;
+      
+      decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
+      
+      decimal rate = FinancialUtilities.rate(
+        1000,
+        12,
+        0,
+        futureValue,
+        realRate / 12,
+        false
+      );
+  
+      r.Rental__c = FinancialUtilities.pmt(
+        param.amountBasePmt,
+        rate,
+        param.term,
+        param.residualValue,
+        param.getPaymentTypeBoolean()
+      );
+      r.Rental__c = r.Rental__c.setScale(2);
+  
+      r.Estimated_Commission__c = param.brokeragePer / 100 * param.amountBaseComm;
+      r.Estimated_Commission__c = r.Estimated_Commission__c.setScale(2);
+  
+      //calculate the insurance income
+      r.Insurance_Income__c = param.totalInsuranceIncome;
+      r.Insurance_Income__c = r.Insurance_Income__c / 1.1;
+      r.Insurance_Income__c = r.Insurance_Income__c.setScale(2);
+  
+      // calculate the dof without GST
+      r.DOF__c = param.dof / 1.1;
+      r.DOF__c = r.DOF__c.setScale(2);
+  
+      // calculate the monthly payment
+      r.Monthly_Payment__c = r.Rental__c + param.monthlyFee;
+      r.Monthly_Payment__c = r.Monthly_Payment__c.setScale(2);
+  
+      r.recalculateFormulas();
+  
+      return r;
+    }
+
+    private static Application_Quoting_Result__c calculateEarlyPayCommercial(
+      CalcParam param
+    ) {
+      Application_Quoting_Result__c r = new Application_Quoting_Result__c();
+      r.Payment_Calc_Type__c = 'DF';
+      r.NAF__c = param.getNaf();
+  
+      // calculate the payment rate based on client rate, which is determined by consultants
+      decimal realRate = param.baseRate / 100;
+      
+      decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
+      
+      decimal rate = FinancialUtilities.rate(
+        1000,
+        12,
+        0,
+        futureValue,
+        realRate / 12,
+        false
+      );
+  
+      r.Rental__c = FinancialUtilities.pmt(
+        param.amountBasePmt,
+        rate,
+        param.term,
+        param.residualValue,
+        param.getPaymentTypeBoolean()
+      );
+      r.Rental__c = r.Rental__c.setScale(2);
+  
+      r.Estimated_Commission__c = param.brokeragePer / 100 * param.amountBaseComm;
+      r.Estimated_Commission__c = r.Estimated_Commission__c.setScale(2);
+  
+      //calculate the insurance income
+      r.Insurance_Income__c = param.totalInsuranceIncome;
+      r.Insurance_Income__c = r.Insurance_Income__c / 1.1;
+      r.Insurance_Income__c = r.Insurance_Income__c.setScale(2);
+  
+      // calculate the dof without GST
+      r.DOF__c = param.dof / 1.1;
+      r.DOF__c = r.DOF__c.setScale(2);
+  
+      // calculate the monthly payment
+      r.Monthly_Payment__c = r.Rental__c + param.monthlyFee;
+      r.Monthly_Payment__c = r.Monthly_Payment__c.setScale(2);
+  
+      r.recalculateFormulas();
+  
+      return r;
+    }
+
+    // Thorn calculator
+    private static Application_Quoting_Result__c calculateThorn(CalcParam param) {
+      Application_Quoting_Result__c r = new Application_Quoting_Result__c();
+      r.Payment_Calc_Type__c = 'DF';
+      r.NAF__c = param.getNaf();
+  
+      // calculate the payment rate based on client rate, which is determined by consultants
+      decimal realRate = param.baseRate / 100;
+      
+      decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
+      
+      decimal rate = FinancialUtilities.rate(
+        1000,
+        12,
+        0,
+        futureValue,
+        realRate / 12,
+        false
+      );
+  
+      r.Rental__c = FinancialUtilities.pmt(
+        param.amountBasePmt,
+        rate,
+        param.term,
+        param.residualValue,
+        param.getPaymentTypeBoolean()
+      );
+      r.Rental__c = r.Rental__c.setScale(2);
+  
+      r.Estimated_Commission__c = param.brokeragePer / 100 * param.amountBaseComm;
+      r.Estimated_Commission__c = r.Estimated_Commission__c.setScale(2);
+  
+      //calculate the insurance income
+      r.Insurance_Income__c = param.totalInsuranceIncome;
+      r.Insurance_Income__c = r.Insurance_Income__c / 1.1;
+      r.Insurance_Income__c = r.Insurance_Income__c.setScale(2);
+  
+      // calculate the dof without GST
+      r.DOF__c = param.dof / 1.1;
+      r.DOF__c = r.DOF__c.setScale(2);
+  
+      // calculate the monthly payment
+      r.Monthly_Payment__c = r.Rental__c + param.monthlyFee;
+      r.Monthly_Payment__c = r.Monthly_Payment__c.setScale(2);
+  
+      r.recalculateFormulas();
+  
+      return r;
+    }
+
+    private static Application_Quoting_Result__c calculateC1Finance(
+      CalcParam param
+    ) {
+      Application_Quoting_Result__c r = new Application_Quoting_Result__c();
+      r.Payment_Calc_Type__c = 'DF';
+      r.NAF__c = param.getNaf();
+
+      //param.baseRate = param.clientRate;
+
+      // calculate the payment rate based on client rate, which is determined by consultants
+      Decimal realRate = param.clientRate / 100;
+      Decimal futureValue = FinancialUtilities.fv(realRate / 12, 12, 1000);
+
+      Decimal rate = FinancialUtilities.rate(
+        1000,
+        12,
+        0,
+        futureValue,
+        realRate / 12,
+        false
+      );
+
+      // calculate the monthly payment based on client rate
+      r.Rental__c = FinancialUtilities.pmt(
+        param.getNaf(),
+        rate,
+        param.term,
+        param.residualValue,
+        param.getPaymentTypeBoolean()
+      );
+      // r.Rental__c = FinancialUtilities.pmt(param.getNaf(), rate, param.term, param.residualValue, param.getPaymentTypeBoolean());
+
+      r.Rental__c = r.Rental__c.setScale(2);
+
+      // calculate the estimated commission
+      r.Estimated_Commission__c = 0.0;
+      if (param.amountBaseComm != null) {
+        r.Estimated_Commission__c = ((param.vehiclePrice - param.netDeposit) * 3.5)/100;
+      }
+    
+      //calculate the insurance income
+      r.Insurance_Income__c = param.totalInsuranceIncome;
+      r.Insurance_Income__c = r.Insurance_Income__c / 1.1;
+      r.Insurance_Income__c = r.Insurance_Income__c.setScale(2);
+
+      // calculate the dof without GST
+      r.DOF__c = param.dof / 1.1;
+      r.DOF__c = r.DOF__c.setScale(2);
+
+      // calculate the monthly payment
+      r.Monthly_Payment__c = r.Rental__c + param.monthlyFee;
+      r.Monthly_Payment__c = r.Monthly_Payment__c.setScale(2);
+      r.recalculateFormulas();
+      return r;
+    }
 
 }

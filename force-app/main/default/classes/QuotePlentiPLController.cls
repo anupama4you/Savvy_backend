@@ -101,7 +101,7 @@ public with sharing class QuotePlentiPLController {
     Product__c p = QuoteController.getProduct(quote.Opportunity__c);
 
     p.Loan_Purpose__c = 'Personal Use';
-    p.Lender__c = 'RateSetter PL';
+    p.Lender__c = 'Plenti';
     p.Quoting_Source__c = 'RateSetter PL';
     p.Repayment_Regularity__c = 'Monthly';
     p.Loan_Type__c = quote.Loan_Type__c;

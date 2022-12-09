@@ -34,7 +34,18 @@ public with sharing class QuoteLibertyCommercialController {
                 param.additionalProcess = new List<String>();
               }
               param.additionalProcess.add(approvalType);
-              QuoteController.saveQuoting(param);
+              
+              // ------------------------------------------------------------
+              // Skip save option for Previewing if a quotation is presenting
+              Boolean notSave = false;
+              if ('PREVIEW'.equals(approvalType) && param.data != null) {        
+                notSave = QuoteController.isQuotePresenting(param.data.Id);
+              }
+              if (!notSave) {
+                QuoteController.saveQuoting(param);
+              }
+              // ------------------------------------------------------------
+
               Product__c p = null;                                                           
               if (!'NONE'.equals(approvalType) && !'SEND'.equals(approvalType) && !'PREVIEW'.equals(approvalType)) {
                   // save pdf
@@ -80,8 +91,8 @@ public with sharing class QuoteLibertyCommercialController {
       public static Product__c productHandler(Application_Quoting__c quote) {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
     
-        p.Loan_Purpose__c = quote.Loan_Type__c == 'Comsumer Loan' ? 'Personal Use': 'Business Use';
-        p.Lender__c = quote.Name;
+        p.Loan_Purpose__c = 'Business Use';
+        p.Lender__c = 'Liberty';
         p.Quoting_Source__c = quote.Name;
         p.Repayment_Regularity__c = 'Monthly';
         p.Loan_Type__c = quote.Loan_Type__c;
@@ -95,7 +106,7 @@ public with sharing class QuoteLibertyCommercialController {
         p.Deposit__c = quote.Net_Deposit__c == null? 0 : quote.Net_Deposit__c;
         p.DOF__c = quote.DOF__c;
         p.Brokerage__c = quote.Commission_Estimation__c == null? 0 : quote.Commission_Estimation__c;
-        p.Lender_App_Fee__c = quote.Application_Fee__c;
+        p.Lender_App_Fee__c = quote.Application_Fee__c - p.DOF__c;
         p.Equalisation_Fee_PPSR__c = quote.PPSR__c;
     
         return p;

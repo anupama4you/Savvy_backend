@@ -150,7 +150,13 @@ public without sharing class QuoteInsuranceController {
       r += (data.Application_Fee__c != null) ? data.Application_Fee__c : 0.00;
       r += (data.DOF__c != null) ? data.DOF__c : 0.00;
       r += (data.PPSR__c != null) ? data.PPSR__c : 0.00;
+      r += (data.Risk_Fee__c != null) ? data.Risk_Fee__c : 0.00;
       r -= (data.Net_Deposit__c != null) ? data.Net_Deposit__c : 0.00;
+
+      if ('Finance One Commercial'.equals(data.Name)) {
+        r += (data.Extra_Value_1__c != null) ? data.Extra_Value_1__c : 0.00;
+      }
+
     }
     // adding warranty part
     if (iswarrantyAccept == true) {

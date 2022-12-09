@@ -1,7 +1,7 @@
 @isTest(SeeAllData=true)
-public class quoteRacvCalcControllerTest {
+public class QuoteRacvCalcControllerTest {
     private final static String LENDER_QUOTING = 'Racv';
-    private final static List<String> LENDER_SETTINGS = new List<String>{'LatitudeRatesv3__c'};
+    private final static List<String> LENDER_SETTINGS = new List<String>{'Racv_Rates__c'};
 
     @isTest
     static void testSave() {
@@ -16,12 +16,12 @@ public class quoteRacvCalcControllerTest {
       QuoteController.AppQuotingWraper param = new QuoteController.AppQuotingWraper();
       param.data = appQuote;
       param.results = res;
-      quoteRacvCalcController.save(param, approvalType);
+      QuoteRacvCalcController.save(param, approvalType);
       approvalType = 'PRE-APPROVAL';
-      quoteRacvCalcController.save(param, approvalType);
+      QuoteRacvCalcController.save(param, approvalType);
   
       try {
-        quoteRacvCalcController.save(null, approvalType);
+        QuoteRacvCalcController.save(null, approvalType);
       } catch (GenericException ex) {
       }
   
@@ -38,7 +38,7 @@ public class quoteRacvCalcControllerTest {
         LENDER_SETTINGS
       );
       Test.startTest();
-      quoteRacvCalcController.getQuotingData(param);
+      QuoteRacvCalcController.getQuotingData(param);
       test.stopTest();
     }
   

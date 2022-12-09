@@ -116,7 +116,7 @@ public without sharing class QuotePlentiController {
     private static Product__c productHandler(Application_Quoting__c quote) {
         Product__c p = QuoteController.getProduct(quote.Opportunity__c);
         p.Loan_Purpose__c = 'Personal Use';
-        p.Lender__c = 'RateSetter';
+        p.Lender__c = 'Plenti';
         p.Quoting_Source__c = quote.Name;
         p.Repayment_Regularity__c = 'Monthly';
         p.Loan_Type__c = quote.Loan_Type__c;

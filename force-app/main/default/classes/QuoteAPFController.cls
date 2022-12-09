@@ -99,10 +99,10 @@ public without sharing class QuoteAPFController {
         p.Payments__c = quote.Repayment_Monthly__c > 0 ? quote.Repayment_Monthly__c : 0.00;
         p.Cost_of_Goods__c = quote.Vehicle_Price__c;
         p.Deposit__c = quote.Net_Deposit__c == null ? 0 : quote.Net_Deposit__c;
-        p.DOF__c = quote.DOF__c;
+        p.DOF__c = quote.DOF__c > 0? quote.DOF__c : 0.0;
         p.Brokerage__c = quote.Commission_Estimation__c != null ? quote.Commission_Estimation__c : 0.00;
-        p.Lender_App_Fee__c = quote.Application_Fee__c;
-        p.Equalisation_Fee_PPSR__c = quote.PPSR__c;
+        p.Lender_App_Fee__c = quote.Application_Fee__c > 0? quote.Application_Fee__c : 0.0;
+        p.Equalisation_Fee_PPSR__c = quote.PPSR__c > 0? quote.PPSR__c : 0.0;
 
         return p;
     }

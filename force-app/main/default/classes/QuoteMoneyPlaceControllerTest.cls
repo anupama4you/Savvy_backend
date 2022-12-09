@@ -15,6 +15,9 @@ private class QuoteMoneyPlaceControllerTest {
         QuoteMoneyPlaceController.save(param, approvalType);
         approvalType = 'PRE-APPROVAL';
         QuoteMoneyPlaceController.save(param, approvalType);
+        try {
+          QuoteMoneyPlaceController.save(null, approvalType);
+        } catch (Exception e) {}
         test.stopTest();
     }
 

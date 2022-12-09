@@ -45,27 +45,27 @@ public class QuoteManager {
                 }
     
     @AuraEnabled
-    public static Map<String, Decimal> getBaseRatesManual(QuotingCalculation.CalcParam param, Integer baseRateManual) {
-        Decimal orig_br = 0.00;
-        Decimal br = 0.00;
-        Decimal max = 0.00;
-        Decimal bp = param.brokeragePer;
-        Decimal cr = param.clientRate;
-        
-        if(param.lender == 'Plenti Commercial'){
-            orig_br = QuotingCalculation.getBaseRate(param);
-            br = baseRateManual > 0 ? baseRateManual : orig_br;
-            param.baseRate = br;
-            cr = QuotingCalculation.getClientRateCalculation(param);
-        }
-        
-        
-        return new Map<String, Decimal>{'baseRate' => orig_br, 
-            'maxRate' => max,
-            'brokeragePer' => bp,
-            'clientRate' => cr
-            };
-                }
+    public static Map<String, Decimal> getBaseRatesManual(QuotingCalculation.CalcParam param, Decimal baseRateManual) {
+      Decimal orig_br = 0.00;
+      Decimal br = 0.00;
+      Decimal max = 0.00;
+      Decimal bp = param.brokeragePer;
+      Decimal cr = param.clientRate;
+      
+      if (param.lender == 'Plenti Commercial') {
+        orig_br = QuotingCalculation.getBaseRate(param);
+        br = baseRateManual > 0 ? baseRateManual : orig_br;
+        param.baseRate = br;
+        cr = QuotingCalculation.getClientRateCalculation(param);
+      }
+      
+      return new Map<String, Decimal>{
+        'baseRate' => orig_br, 
+        'maxRate' => max,
+        'brokeragePer' => bp,
+        'clientRate' => cr
+      };
+    }
 
     @AuraEnabled
     public static Map<String, Decimal> getFees(QuotingCalculation.CalcParam param, lenderSettingsWrapper lenderSettings, Boolean onlyMax) {
@@ -154,6 +154,21 @@ public class QuoteManager {
             ratesMap.put(param.rateSettings.get(0), r);
         }
         result.rateSettings = ratesMap;
+
+        if (
+          'RateSetter'.equals(param.calcName) ||
+          'Plenti Commercial'.equals(param.calcName)          
+        ) {
+          // Opportunity
+          result.opp = QuoteController.getOpportunity(
+            param.oppId,
+            new List<String>{
+              'Application__c',
+              'Application__r.No_of_People__c'
+            }
+          );
+        }
+
         return result;
     }
     

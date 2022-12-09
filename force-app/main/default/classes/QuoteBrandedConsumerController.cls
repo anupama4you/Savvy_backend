@@ -1,6 +1,6 @@
-public with sharing class QuoteBrandedConsumerController {
+public without sharing class QuoteBrandedConsumerController {
 
-    @AuraEnabled
+  @AuraEnabled
   public static QuoteController.AppQuotingWraper getQuotingData(
     QuoteController.QuotingDataParam param
   ) {
@@ -14,8 +14,19 @@ public with sharing class QuoteBrandedConsumerController {
     rates.put(rateObjName, getRates());
     r.rateSettings = rates;
     System.debug('rrr   >>>> '+ JSON.serialize(r));
+
+
+    // opps
+    r.opp = QuoteController.getOpportunity(
+      param.oppId,
+      new List<String>{
+        'Credit_Score__c'
+      }
+    );
+
     return r;
-    }
+
+  }
 
     public static List<Branded_Consumer_Rates__c> getRates() {
         return [
@@ -23,22 +34,23 @@ public with sharing class QuoteBrandedConsumerController {
             Id, Condition__c, Credit_Score__c, Rate__c, 
             Profile__c
           FROM Branded_Consumer_Rates__c
+          ORDER BY Name
         ];
       }
 
-    @AuraEnabled
-    public static Decimal getCreditScore(Id oppId){
-        try {
-            System.debug('opp >> '+ oppId);
-            Custom_Opportunity__c opp = QuoteController.getOpportunityById(oppId);
-            if(opp != null && opp.Credit_Score__c != null){
-                return opp.Credit_Score__c;
-            }
-            return null;
-        } catch (Exception e) {
-            throw new GenericException(e);
-        }
-    }
+    // @AuraEnabled
+    // public static Decimal getCreditScore(Id oppId){
+    //     try {
+    //         System.debug('opp >> '+ oppId);
+    //         Custom_Opportunity__c opp = QuoteController.getOpportunityById(oppId);
+    //         if(opp != null && opp.Credit_Score__c != null){
+    //             return opp.Credit_Score__c;
+    //         }
+    //         return null;
+    //     } catch (Exception e) {
+    //         throw new GenericException(e);
+    //     }
+    // }
 
     // Lee - 08/09/2022
   @AuraEnabled
@@ -50,7 +62,18 @@ public with sharing class QuoteBrandedConsumerController {
          }
           param.additionalProcess.add(approvalType);
           System.debug('param.additionalProcess >> ' + param.additionalProcess);
-          QuoteController.saveQuoting(param);
+
+          // ------------------------------------------------------------
+          // Skip save option for Previewing if a quotation is presenting
+          Boolean notSave = false;
+          if ('PREVIEW'.equals(approvalType) && param.data != null) {        
+            notSave = QuoteController.isQuotePresenting(param.data.Id);
+          }
+          if (!notSave) {
+            QuoteController.saveQuoting(param);
+          }
+          // ------------------------------------------------------------
+
           Product__c p = null;
           if (!'NONE'.equals(approvalType) && !'SEND'.equals(approvalType) && !'PREVIEW'.equals(approvalType)) {
               // save pdf
@@ -76,13 +99,15 @@ public with sharing class QuoteBrandedConsumerController {
     
     // pass universal variables
     pdf.getParameters().put('id',quote.Opportunity__c);
-    pdf.getParameters().put('lender', 'BRANDED COMMERCIAL CALCULATION');
+    pdf.getParameters().put('lender', 'BRANDED CONSUMER CALCULATION');
 
      //Financial Details
-     pdf.getParameters().put('clientTier', quote.Client_Tier__c + '');
-     pdf.getParameters().put('vehicleAge', quote.Vehicle_Age__c + '');
+     pdf.getParameters().put('carAge', quote.Vehicle_Age__c + '');
      pdf.getParameters().put('privateSales', quote.Private_Sales__c + '');
+     pdf.getParameters().put('creditScore', quote.Credit_Score__c + '');
      pdf.getParameters().put('productGoodsType', quote.Goods_type__c + '');
+     pdf.getParameters().put('propertyOwner', quote.Client_Tier__c + '');
+     pdf.getParameters().put('vehicleCondition', quote.Vehicle_Condition__c + '');
 
     return pdf;
 
@@ -92,23 +117,23 @@ public with sharing class QuoteBrandedConsumerController {
   public static Product__c productHandler(Application_Quoting__c quote) {
     Product__c p = QuoteController.getProduct(quote.Opportunity__c);
 
-    p.Loan_Purpose__c = quote.Loan_Type__c == 'Comsumer Loan' ? 'Personal Use': 'Business Use';
-    p.Lender__c = 'Pepper';
+    p.Loan_Purpose__c = 'Personal Use';
+    p.Lender__c = 'Branded';
     p.Quoting_Source__c = quote.Name;
     p.Repayment_Regularity__c = 'Monthly';
     p.Loan_Type__c = quote.Loan_Type__c;
     p.Loan_Product__c = quote.Loan_Product__c;
-    p.Loan_Type_Detail__c = 'Client Tier ' + quote.Client_Tier__c;
+    p.Loan_Type_Detail__c = null;
     p.Loan_Term__c = quote.Term__c;
-    p.Balloon_Residual_Requested__c = quote.Residual_Value__c == null || quote.Residual_Value__c == 0 ? 0:quote.Residual_Value__c;
+    p.Balloon_Residual_Requested__c = 0.00;
     p.Client_Rate__c = quote.Client_Rate__c;
     p.Payments__c = quote.Repayment_Monthly__c > 0 ? quote.Repayment_Monthly__c : 0.00; 
     p.Cost_of_Goods__c = quote.Vehicle_Price__c;
     p.Deposit__c = quote.Net_Deposit__c == null? 0 : quote.Net_Deposit__c;
-    p.DOF__c = quote.DOF__c;
+    p.DOF__c = quote.DOF__c > 0? quote.DOF__c : 0;
     p.Brokerage__c = quote.Commission_Estimation__c == null? 0 : quote.Commission_Estimation__c;
-    p.Lender_App_Fee__c = quote.Application_Fee__c;
-    p.Equalisation_Fee_PPSR__c = quote.PPSR__c;
+    p.Lender_App_Fee__c = quote.Application_Fee__c > 0? quote.Application_Fee__c : 0;
+    p.Equalisation_Fee_PPSR__c = quote.PPSR__c > 0? quote.PPSR__c : 0;
 
     return p;
   }
