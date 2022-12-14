@@ -165,8 +165,8 @@ public without sharing class QuotingCalculation {
         r = calculateAzoraCommercial(param);
       } else if ('Gedda'.equals(param.lender)) {
         r = calculateGedda(param); 
-      } else if ('Scotpac Asset'.equals(param.lender)) {
-        r = calculateScotpacAsset(param); 
+      } else if ('ScotPac Asset'.equals(param.lender)) {
+        r = calculateScotPacAsset(param); 
       } else if ('Early Pay Commercial'.equals(param.lender)) {
         r = calculateEarlyPayCommercial(param);
       } else if ('Thorn'.equals(param.lender)) {
@@ -1289,6 +1289,10 @@ public without sharing class QuotingCalculation {
         r.Estimated_Commission__c = param.commPayable + bonus;
       }
       r.Estimated_Commission__c = r.Estimated_Commission__c / 1.1; 
+    }
+
+    if ('Racv'.equals(param.lender)) {
+      r.Estimated_Commission__c = param.commPayable;
     }
 
     r.Estimated_Commission__c = r.Estimated_Commission__c.setScale(2);
@@ -7307,7 +7311,7 @@ private static Application_Quoting_Result__c calculateKrisp(
         return r;
     }
 
-    private static Application_Quoting_Result__c calculateScotpacAsset(CalcParam param) {
+    private static Application_Quoting_Result__c calculateScotPacAsset(CalcParam param) {
       Application_Quoting_Result__c r = new Application_Quoting_Result__c();
       r.Payment_Calc_Type__c = 'DF';
       r.NAF__c = param.getNaf();

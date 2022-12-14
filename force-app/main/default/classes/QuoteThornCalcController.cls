@@ -61,7 +61,7 @@ public with sharing class QuoteThornCalcController {
         pdf.getParameters().put('productGoodsType', String.valueOf(quote.Goods_type__c));
         pdf.getParameters().put('loanTypeDetail', String.valueOf(quote.Loan_Facility_Type__c));
         pdf.getParameters().put('directorSoleTraderScore', String.valueOf(quote.Extra_Label_3__c));
-        pdf.getParameters().put('rateOption', String.valueOf(quote.Rate_Options__c));
+        pdf.getParameters().put('rateOption', String.valueOf(quote.Rate_Options__c + '%'));
         pdf.getParameters().put('abnLength', String.valueOf(quote.Extra_Label_1__c));
         pdf.getParameters().put('recommendedRate', NumberUtils.format(quote.Manual_Max_Rate__c));
         pdf.getParameters().put('isFinanceOne', 'true');
@@ -89,6 +89,7 @@ public with sharing class QuoteThornCalcController {
         p.Lender_App_Fee__c = quote.Application_Fee__c > 0? quote.Application_Fee__c : 0.0;
         p.Equalisation_Fee_PPSR__c = quote.PPSR__c > 0? quote.PPSR__c : 0.0;
         p.Residual_Percentage__c = quote.Residual_Value_Percentage__c > 0? quote.Residual_Value_Percentage__c : 0.0;
+        p.Balloon_Residual_Requested__c = quote.Residual_Value__c == null || quote.Residual_Value__c == 0 ? 0:quote.Residual_Value__c;
 
         return p;
     }
